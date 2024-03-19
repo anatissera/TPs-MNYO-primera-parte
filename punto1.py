@@ -75,12 +75,19 @@ fa_nonequispaced = lagrange(x_nonequispaced_fa, y_nonequispaced_fa)
 
 # también se puede hacer una tabla de error absoluto para splines y lagrange ponele
 
-# Graficar la interpolación de fa(x) y las bases de Lagrange
+# Graficar la interpolación de fa(x) con ambos puntos y fa(x)
 plt.figure(figsize=(12, 8))
 plt.plot(x_equispaced_fa, y_equispaced_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)')
 plt.plot(x_nonequispaced_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)')
+plt.plot(x_equispaced_fa, fa(x_equispaced_fa), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
 plt.plot(x_equispaced_fa, fa_equispaced(x_equispaced_fa), label='$Interpolación$ (Equispaciado)')
 plt.plot(x_nonequispaced_fa, fa_nonequispaced(x_nonequispaced_fa), label='$Interpolación$ (No equiespaciado)')
+plt.xlabel('$x$')
+plt.ylabel('$f_a(x)$')
+plt.title('Interpolación de $f_a(x)$ con Ambos Puntos de Colocación')
+plt.legend()
+plt.grid(True)
+plt.show()
 
 # Graficar las bases de Lagrange
 for i in range(len(x_equispaced_fa)):
