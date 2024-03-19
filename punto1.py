@@ -1,5 +1,6 @@
 # latex formula generator -> te facilita el código
 
+
 import numpy as np
 import matplotlib.pyplot as plt # para el a
 from mpl_toolkits.mplot3d import Axes3D # para el b
@@ -7,6 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D # para el b
 from scipy.interpolate import interp1d
 from scipy.interpolate import interp2d
 from scipy.interpolate import lagrange
+
 
 # Consigna 1
 # Estudiar el desempeño de distintos esquemas de interpolación en las funciones
@@ -41,11 +43,12 @@ def chebyshev_points(a, b, num_points):
 
 
 # definir los puntos
-x_equispaced_fa = equispaced_points(xa_min, xa_max, 100)
-x_nonequispaced_fa = chebyshev_points(-4, 4, 100)
+x_equispaced_fa = equispaced_points(xa_min, xa_max, 100) # operación vectorizada en NumPy
+x_nonequispaced_fa = chebyshev_points(xa_min, xa_max, 100)
 
 y_equispaced_fa = fa(x_equispaced_fa)
 y_nonequispaced_fa = fa(x_nonequispaced_fa)
+
 
 # Interpolar fa(x) con lagrange, haciendo un for iterando por puntos:
 # (es lo mismo que usar interpld())
@@ -75,13 +78,39 @@ fa_nonequispaced = lagrange(x_nonequispaced_fa, y_nonequispaced_fa)
 
 # también se puede hacer una tabla de error absoluto para splines y lagrange ponele
 
+# buscar puntos para comparar -> para el error
+def generate_midpoints(lst):
+    midpoints = []
+    for i in range(len(lst) - 1):
+        midpoint = (lst[i] + lst[i+1]) / 2.0
+        midpoints.append(midpoint)
+    return midpoints
+
+x_compare_equipoints_fa = generate_midpoints(x_equispaced_fa)
+x_compare_nonequipoints_fa = generate_midpoints(x_nonequispaced_fa)
+
+y_compare_equipoints_fa = fa(x_compare_equipoints_fa) #ver que onda, f recibe una lista y funciona igual
+y_compare_nonequipoints_fa = fa(x_compare_nonequipoints_fa)
+
+
 # Graficar la interpolación de fa(x) con ambos puntos y fa(x)
 plt.figure(figsize=(12, 8))
 plt.plot(x_equispaced_fa, y_equispaced_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)')
 plt.plot(x_nonequispaced_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)')
+
+plt.plot(x_compare_equipoints_fa, y_compare_equipoints_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)')
+plt.plot(x_compare_nonequipoints_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)')
+
 plt.plot(x_equispaced_fa, fa(x_equispaced_fa), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
 plt.plot(x_equispaced_fa, fa_equispaced(x_equispaced_fa), label='$Interpolación$ (Equispaciado)')
 plt.plot(x_nonequispaced_fa, fa_nonequispaced(x_nonequispaced_fa), label='$Interpolación$ (No equiespaciado)')
+
+# graficar fa en los midpoints
+plt.plot(x_compare_equipoints_fa, fa(x_compare_equipoints_fa), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
+plt.plot(x_compare_equipoints_fa, fa_equispaced(x_compare_equipoints_fa), label='$Interpolación$ (Equispaciado)')
+plt.plot(x_compare_nonequipoints_fa, fa_nonequispaced(x_compare_nonequipoints_fa), label='$Interpolación$ (No equiespaciado)')
+
+
 plt.xlabel('$x$')
 plt.ylabel('$f_a(x)$')
 plt.title('Interpolación de $f_a(x)$ con Ambos Puntos de Colocación')
@@ -104,6 +133,7 @@ plt.show()
 # Calcular el error en función del dominio
 error_equispaced = np.abs(y_equispaced_fa - fa_equispaced(x_equispaced_fa))
 error_nonequispaced = np.abs(y_nonequispaced_fa - fa_nonequispaced(x_nonequispaced_fa))
+
 
 # Graficar el error en función del dominio
 plt.figure(figsize=(10, 6))
