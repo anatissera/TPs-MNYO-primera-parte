@@ -1,3 +1,5 @@
+# latex formula generator -> te facilita el código
+
 import numpy as np
 import matplotlib.pyplot as plt # para el a
 from mpl_toolkits.mplot3d import Axes3D # para el b
@@ -32,12 +34,15 @@ xa_max = 4
 def equispaced_points(a, b, num_points):
     return np.linspace(a, b, num_points)
 
+def chebyshev_points(a, b, num_points):
+    return (a + b) / 2 + (b - a) / 2 * np.cos((2 * np.arange(1, num_points + 1) - 1) * np.pi / (2 * num_points))
+
 # pensar cómo puedo calcular puntos no equiespaciados, puede ser con la fórmula de Chebyshev (está en internet)??
 
 
 # definir los puntos
 x_equispaced_fa = equispaced_points(xa_min, xa_max, 100)
-x_nonequispaced_fa = 
+x_nonequispaced_fa = chebyshev_points(-4, 4, 100)
 
 y_equispaced_fa = fa(x_equispaced_fa)
 y_nonequispaced_fa = fa(x_nonequispaced_fa)
@@ -49,17 +54,91 @@ y_nonequispaced_fa = fa(x_nonequispaced_fa)
 # pero hay que justificar por qué y cómo
 # scypy.interpolate.lagrange también me deja obtener los intervalos de error, las bases, revisar documentación, se puede usar para el informe
 
-fa_equispaced = 
-fa_nonequispaced = 
+fa_equispaced = lagrange(x_equispaced_fa, y_equispaced_fa)
+fa_nonequispaced = lagrange(x_nonequispaced_fa, y_nonequispaced_fa)
 
-# Graficar la interpolación de fa(x) con matplotlib
+# Graficar la interpolación de fa(x) con matplotlib contra fa(x)
 # se pueden también graficar las bases de lagrange
-# además graficar el error contra mi ground truth
+# además graficar el error en función del dominio (función del error sería, en los puntos evaluados debe ser 0)
+# graficar el error en función de n también es idea
+# histograma para el error -> plt.hist(array)
+
+# Mediana -> np.median(array)
+# boxplot -> plt.boxplot(array), te da una idea de la distribución. te da el que tiene un cuarto arriba y un cuarto abajo
+
 # el error se puede calcular restando mi ground truth a la interpolación o también acotándola empíricamente en a y b porque conozco la función
 # si no tenés el ground truth, al error lo podés calcular tomando un subconjunto de los puntos que tenés, interpolo, y mido el error contra los restantes
 # puedo agarrar 2 puntos al azar con numpy.uniform y repito muchas veces el proceso y calculo el error contra lo otro.
 # puedo agarrar primero 2, después 3, después 4, y calculo el error todas las veces.
-# puedo agarrar 1 punto sí y uno no. puedo explicitar los errorees en cadaa punto y luego hacer el promedio
+# puedo agarrar 1 punto sí y uno no. puedo explicitar los errorees en cadaa punto
+# se puede sacar el mínimo y el máximo, y la mediana (los ordenas de mayor a menor y elegis el del medio) MEDIANA MEJOR QUE PROMEDIO, NO SE USA PROMEDIO -> para tener idea de la densidad
+
+# también se puede hacer una tabla de error absoluto para splines y lagrange ponele
+
+# Graficar la interpolación de fa(x) y las bases de Lagrange
+plt.figure(figsize=(12, 8))
+plt.plot(x_equispaced_fa, y_equispaced_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)')
+plt.plot(x_nonequispaced_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)')
+plt.plot(x_equispaced_fa, fa_equispaced(x_equispaced_fa), label='$Interpolación$ (Equispaciado)')
+plt.plot(x_nonequispaced_fa, fa_nonequispaced(x_nonequispaced_fa), label='$Interpolación$ (No equiespaciado)')
+
+# Graficar las bases de Lagrange
+for i in range(len(x_equispaced_fa)):
+    plt.plot(x_equispaced_fa, fa_equispaced(x_equispaced_fa[i]) * lagrange(x_equispaced_fa, np.eye(len(x_equispaced_fa))[i])(x_equispaced_fa), linestyle='--', color='gray', alpha=0.5)
+    plt.plot(x_nonequispaced_fa, fa_nonequispaced(x_nonequispaced_fa[i]) * lagrange(x_nonequispaced_fa, np.eye(len(x_nonequispaced_fa))[i])(x_nonequispaced_fa), linestyle='--', color='gray', alpha=0.5)
+
+plt.xlabel('$x$')
+plt.ylabel('$f_a(x)$')
+plt.title('Interpolación de $f_a(x)$ y Bases de Lagrange')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Calcular el error en función del dominio
+error_equispaced = np.abs(y_equispaced_fa - fa_equispaced(x_equispaced_fa))
+error_nonequispaced = np.abs(y_nonequispaced_fa - fa_nonequispaced(x_nonequispaced_fa))
+
+# Graficar el error en función del dominio
+plt.figure(figsize=(10, 6))
+plt.plot(x_equispaced_fa, error_equispaced, label='$Error$ (Equispaciado)')
+plt.plot(x_nonequispaced_fa, error_nonequispaced, label='$Error$ (No equiespaciado)')
+plt.xlabel('$x$')
+plt.ylabel('$Error$')
+plt.title('Error de Interpolación de $f_a(x)$')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Calcular estadísticas del error
+median_error_equispaced = np.median(error_equispaced)
+max_error_equispaced = np.max(error_equispaced)
+min_error_equispaced = np.min(error_equispaced)
+
+median_error_nonequispaced = np.median(error_nonequispaced)
+max_error_nonequispaced = np.max(error_nonequispaced)
+min_error_nonequispaced = np.min(error_nonequispaced)
+
+print("Estadísticas del error para puntos equiespaciados:")
+print("Mediana:", median_error_equispaced)
+print("Máximo:", max_error_equispaced)
+print("Mínimo:", min_error_equispaced)
+
+print("Estadísticas del error para puntos no equiespaciados:")
+print("Mediana:", median_error_nonequispaced)
+print("Máximo:", max_error_nonequispaced)
+print("Mínimo:", min_error_nonequispaced)
+
+# Graficar el histograma del error
+plt.figure(figsize=(10, 6))
+plt.hist(error_equispaced, bins=20, alpha=0.5, label='$Equispaciado$')
+plt.hist(error_nonequispaced, bins=20, alpha=0.5, label='$No equiespaciado$')
+plt.xlabel('$Error$')
+plt.ylabel('$Frecuencia$')
+plt.title('Histograma del Error de Interpolación de $f_a(x)$')
+plt.legend()
+plt.grid(True)
+plt.show()
+
 
 # Definir la función fb(x1, x2) (de consigna)
 def fb(x1, x2):
@@ -78,12 +157,12 @@ x2_equispaced_fb = equispaced_points(xb_min, xb_max, 100)
 
 # la derivada se debe explicitar, pero también hay librerías, las podés calcular con librerías pero hay que ponerlas. la derivada la calculé (la puedo dejar en el apéndice si es muy larga)
 
-x1_nonequispaced_fb =
-x2_nonequispaced_fb = 
+x1_nonequispaced_fb = chebyshev_points(-1, 1, 100)
+x2_nonequispaced_fb = chebyshev_points(-1, 1, 100)
 
 # Evalúa fb(x1, x2) en lo de R2 
-z_equispaced_fb = fb(...)
-z_nonequispaced_fb = fb(...)
+# z_equispaced_fb = fb(...)
+# z_nonequispaced_fb = fb(...)
 
 # Interpolar fb(x1, x2) 
 
