@@ -27,7 +27,7 @@ from scipy.interpolate import lagrange
 
 # escribir en código la consigna
 def fa(x):
-    return 0.3 ** np.linalg.norm(x) * np.sin(4 * x) - np.tanh(2 * x) + 2
+    return 0.3 ** abs(abs((x) ))* np.sin(4 * x) - np.tanh(2 * x) + 2
 
 xa_min = -4
 xa_max = 4
@@ -43,8 +43,8 @@ def chebyshev_points(a, b, num_points):
 
 
 # definir los puntos
-x_equispaced_fa = equispaced_points(xa_min, xa_max, 100) # operación vectorizada en NumPy
-x_nonequispaced_fa = chebyshev_points(xa_min, xa_max, 100)
+x_equispaced_fa = equispaced_points(xa_min, xa_max, 50) # operación vectorizada en NumPy
+x_nonequispaced_fa = chebyshev_points(xa_min, xa_max, 50)
 
 y_equispaced_fa = fa(x_equispaced_fa)
 y_nonequispaced_fa = fa(x_nonequispaced_fa)
@@ -57,8 +57,10 @@ y_nonequispaced_fa = fa(x_nonequispaced_fa)
 # pero hay que justificar por qué y cómo
 # scypy.interpolate.lagrange también me deja obtener los intervalos de error, las bases, revisar documentación, se puede usar para el informe
 
-fa_equispaced = lagrange(x_equispaced_fa, y_equispaced_fa)
-fa_nonequispaced = lagrange(x_nonequispaced_fa, y_nonequispaced_fa)
+fa_interpolation_equispaced = interp1d(x_equispaced_fa, y_equispaced_fa, kind='cubic')
+fa_interpolation_nonequispaced = interp1d(x_nonequispaced_fa, y_nonequispaced_fa, kind='cubic')
+
+
 
 # Graficar la interpolación de fa(x) con matplotlib contra fa(x)
 # se pueden también graficar las bases de lagrange
@@ -78,6 +80,17 @@ fa_nonequispaced = lagrange(x_nonequispaced_fa, y_nonequispaced_fa)
 
 # también se puede hacer una tabla de error absoluto para splines y lagrange ponele
 
+# Graficar la interpolación de fa(x) con ambos puntos y fa(x)
+plt.figure(figsize=(12, 8))
+plt.plot(x_equispaced_fa, y_equispaced_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)')
+plt.plot(x_nonequispaced_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)')
+
+plt.plot(x_equispaced_fa, fa(x_equispaced_fa), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
+plt.plot(x_equispaced_fa, fa_interpolation_equispaced(x_equispaced_fa), label='$Interpolación$ (Equispaciado)')
+plt.plot(x_equispaced_fa, fa(x_equispaced_fa), label='$f_a(x)$', linestyle='--', color='black')
+plt.plot(x_nonequispaced_fa, fa_interpolation_nonequispaced(x_nonequispaced_fa), label='$Interpolación$ (No equiespaciado)')
+
+
 # buscar puntos para comparar -> para el error
 def generate_midpoints(lst):
     midpoints = []
@@ -89,26 +102,17 @@ def generate_midpoints(lst):
 x_compare_equipoints_fa = generate_midpoints(x_equispaced_fa)
 x_compare_nonequipoints_fa = generate_midpoints(x_nonequispaced_fa)
 
-y_compare_equipoints_fa = fa(x_compare_equipoints_fa) #ver que onda, f recibe una lista y funciona igual
-y_compare_nonequipoints_fa = fa(x_compare_nonequipoints_fa)
+# y_compare_equipoints_fa = fa(x_compare_equipoints_fa) #ver que onda, f recibe una lista y funciona igual
+# y_compare_nonequipoints_fa = fa(x_compare_nonequipoints_fa)
 
+# plt.plot(x_compare_equipoints_fa, y_compare_equipoints_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)')
+# plt.plot(x_compare_nonequipoints_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)')
 
-# Graficar la interpolación de fa(x) con ambos puntos y fa(x)
-plt.figure(figsize=(12, 8))
-plt.plot(x_equispaced_fa, y_equispaced_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)')
-plt.plot(x_nonequispaced_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)')
-
-plt.plot(x_compare_equipoints_fa, y_compare_equipoints_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)')
-plt.plot(x_compare_nonequipoints_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)')
-
-plt.plot(x_equispaced_fa, fa(x_equispaced_fa), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
-plt.plot(x_equispaced_fa, fa_equispaced(x_equispaced_fa), label='$Interpolación$ (Equispaciado)')
-plt.plot(x_nonequispaced_fa, fa_nonequispaced(x_nonequispaced_fa), label='$Interpolación$ (No equiespaciado)')
 
 # graficar fa en los midpoints
-plt.plot(x_compare_equipoints_fa, fa(x_compare_equipoints_fa), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
-plt.plot(x_compare_equipoints_fa, fa_equispaced(x_compare_equipoints_fa), label='$Interpolación$ (Equispaciado)')
-plt.plot(x_compare_nonequipoints_fa, fa_nonequispaced(x_compare_nonequipoints_fa), label='$Interpolación$ (No equiespaciado)')
+# plt.plot(x_compare_equipoints_fa, fa(x_compare_equipoints_fa), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
+# plt.plot(x_compare_equipoints_fa, fa_equispaced(x_compare_equipoints_fa), label='$Interpolación$ (Equispaciado)')
+# plt.plot(x_compare_nonequipoints_fa, fa_nonequispaced(x_compare_nonequipoints_fa), label='$Interpolación$ (No equiespaciado)')
 
 
 plt.xlabel('$x$')
@@ -118,21 +122,21 @@ plt.legend()
 plt.grid(True)
 plt.show()
 
-# Graficar las bases de Lagrange
-for i in range(len(x_equispaced_fa)):
-    plt.plot(x_equispaced_fa, fa_equispaced(x_equispaced_fa[i]) * lagrange(x_equispaced_fa, np.eye(len(x_equispaced_fa))[i])(x_equispaced_fa), linestyle='--', color='gray', alpha=0.5)
-    plt.plot(x_nonequispaced_fa, fa_nonequispaced(x_nonequispaced_fa[i]) * lagrange(x_nonequispaced_fa, np.eye(len(x_nonequispaced_fa))[i])(x_nonequispaced_fa), linestyle='--', color='gray', alpha=0.5)
+# # Graficar las bases de Lagrange
+# for i in range(len(x_equispaced_fa)):
+#     plt.plot(x_equispaced_fa, fa_interpolation_equispaced(x_equispaced_fa[i]) * lagrange(x_equispaced_fa, np.eye(len(x_equispaced_fa))[i])(x_equispaced_fa), linestyle='--', color='gray', alpha=0.5)
+#     plt.plot(x_nonequispaced_fa, fa_interpolation_nonequispaced(x_nonequispaced_fa[i]) * lagrange(x_nonequispaced_fa, np.eye(len(x_nonequispaced_fa))[i])(x_nonequispaced_fa), linestyle='--', color='gray', alpha=0.5)
 
-plt.xlabel('$x$')
-plt.ylabel('$f_a(x)$')
-plt.title('Interpolación de $f_a(x)$ y Bases de Lagrange')
-plt.legend()
-plt.grid(True)
-plt.show()
+# plt.xlabel('$x$')
+# plt.ylabel('$f_a(x)$')
+# plt.title('Interpolación de $f_a(x)$ y Bases de Lagrange')
+# plt.legend()
+# plt.grid(True)
+# plt.show()
 
-# Calcular el error en función del dominio
-error_equispaced = np.abs(y_equispaced_fa - fa_equispaced(x_equispaced_fa))
-error_nonequispaced = np.abs(y_nonequispaced_fa - fa_nonequispaced(x_nonequispaced_fa))
+# # Calcular el error en función del dominio
+error_equispaced = np.abs(y_equispaced_fa - fa_interpolation_equispaced(x_equispaced_fa))
+error_nonequispaced = np.abs(y_nonequispaced_fa - fa_interpolation_nonequispaced(x_nonequispaced_fa))
 
 
 # Graficar el error en función del dominio
@@ -146,35 +150,35 @@ plt.legend()
 plt.grid(True)
 plt.show()
 
-# Calcular estadísticas del error
-median_error_equispaced = np.median(error_equispaced)
-max_error_equispaced = np.max(error_equispaced)
-min_error_equispaced = np.min(error_equispaced)
+# # Calcular estadísticas del error
+# median_error_equispaced = np.median(error_equispaced)
+# max_error_equispaced = np.max(error_equispaced)
+# min_error_equispaced = np.min(error_equispaced)
 
-median_error_nonequispaced = np.median(error_nonequispaced)
-max_error_nonequispaced = np.max(error_nonequispaced)
-min_error_nonequispaced = np.min(error_nonequispaced)
+# median_error_nonequispaced = np.median(error_nonequispaced)
+# max_error_nonequispaced = np.max(error_nonequispaced)
+# min_error_nonequispaced = np.min(error_nonequispaced)
 
-print("Estadísticas del error para puntos equiespaciados:")
-print("Mediana:", median_error_equispaced)
-print("Máximo:", max_error_equispaced)
-print("Mínimo:", min_error_equispaced)
+# print("Estadísticas del error para puntos equiespaciados:")
+# print("Mediana:", median_error_equispaced)
+# print("Máximo:", max_error_equispaced)
+# print("Mínimo:", min_error_equispaced)
 
-print("Estadísticas del error para puntos no equiespaciados:")
-print("Mediana:", median_error_nonequispaced)
-print("Máximo:", max_error_nonequispaced)
-print("Mínimo:", min_error_nonequispaced)
+# print("Estadísticas del error para puntos no equiespaciados:")
+# print("Mediana:", median_error_nonequispaced)
+# print("Máximo:", max_error_nonequispaced)
+# print("Mínimo:", min_error_nonequispaced)
 
-# Graficar el histograma del error
-plt.figure(figsize=(10, 6))
-plt.hist(error_equispaced, bins=20, alpha=0.5, label='$Equispaciado$')
-plt.hist(error_nonequispaced, bins=20, alpha=0.5, label='$No equiespaciado$')
-plt.xlabel('$Error$')
-plt.ylabel('$Frecuencia$')
-plt.title('Histograma del Error de Interpolación de $f_a(x)$')
-plt.legend()
-plt.grid(True)
-plt.show()
+# # Graficar el histograma del error
+# plt.figure(figsize=(10, 6))
+# plt.hist(error_equispaced, bins=20, alpha=0.5, label='$Equispaciado$')
+# plt.hist(error_nonequispaced, bins=20, alpha=0.5, label='$No equiespaciado$')
+# plt.xlabel('$Error$')
+# plt.ylabel('$Frecuencia$')
+# plt.title('Histograma del Error de Interpolación de $f_a(x)$')
+# plt.legend()
+# plt.grid(True)
+# plt.show()
 
 
 # Definir la función fb(x1, x2) (de consigna)
@@ -189,8 +193,8 @@ xb_max = 1
 # hacer lo mismo que en fa(x)
 # Generar los puntos según el intervalo dado
 
-x1_equispaced_fb = equispaced_points(xb_min, xb_max, 100)
-x2_equispaced_fb = equispaced_points(xb_min, xb_max, 100)
+x1_equispaced_fb = equispaced_points(xb_min, xb_max, 50)
+x2_equispaced_fb = equispaced_points(xb_min, xb_max, 50)
 
 # la derivada se debe explicitar, pero también hay librerías, las podés calcular con librerías pero hay que ponerlas. la derivada la calculé (la puedo dejar en el apéndice si es muy larga)
 
@@ -201,6 +205,6 @@ x2_nonequispaced_fb = chebyshev_points(-1, 1, 100)
 # z_equispaced_fb = fb(...)
 # z_nonequispaced_fb = fb(...)
 
-# Interpolar fb(x1, x2) 
+# # Interpolar fb(x1, x2) 
 
-# graficar
+# # graficar
