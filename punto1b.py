@@ -5,6 +5,7 @@ from scipy.interpolate import RectBivariateSpline
 import numpy as np
 from scipy.interpolate import lagrange
 
+
 # Definir la función fb(x1, x2) (de consigna)
 def fb(x1, x2):
     return 0.75 * np.exp(-((10 * x1 - 2)**2 / 4) - ((9 * x2 - 2)**2 / 4)) + \
@@ -58,6 +59,35 @@ axes[1].set_title('Interpolación de $f_b(x_1, x_2)$ con Splines Cúbicos (P. No
 
 plt.tight_layout()
 plt.show()
+
+
+# ERROR 
+# Calcular el error entre las interpolaciones en puntos equiespaciados y no equiespaciados
+error_fb = abs(Y_interp_equispaced_fb - Y_interp_nonequispaced_fb)
+
+# Transformar la matriz de error en una lista de valores
+error_fb_values = error_fb.flatten()
+
+# Crear un array con los índices de los puntos
+indices = np.arange(len(error_fb_values))
+
+# Graficar el error
+plt.figure(figsize=(10, 6))
+plt.plot(indices, error_fb_values, color='blue')
+plt.title('Error entre Interpolaciones de fb')
+plt.xlabel('Índices')
+plt.ylabel('Error')
+plt.grid(True)
+plt.show()
+
+
+
+
+
+
+
+
+
 
 # def lagrange_interp_3d(x, y, z, data, xi, yi, zi):
 #     interp_values = np.zeros_like(xi)
