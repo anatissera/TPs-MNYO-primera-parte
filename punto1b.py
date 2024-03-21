@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt # para el a
 from mpl_toolkits.mplot3d import Axes3D # para el b
 from scipy.interpolate import RectBivariateSpline
 import numpy as np
+from scipy.interpolate import lagrange
 
 # Definir la función fb(x1, x2) (de consigna)
 def fb(x1, x2):
@@ -19,8 +20,8 @@ x1_equispaced_fb = equispaced_points(xb_min, xb_max, 15)
 x2_equispaced_fb = equispaced_points(xb_min, xb_max, 15)
 
 x1_nonequispaced_fb = np.sort(chebyshev_points(xb_min, xb_max, 15))
-# x2_nonequispaced_fb = np.sort(chebyshev_points(xb_min, xb_max, 15))
-x2_nonequispaced_fb = np.sort(np.cos(np.linspace(0, np.pi, 15)))
+x2_nonequispaced_fb = np.sort(chebyshev_points(xb_min, xb_max, 15))
+# x2_nonequispaced_fb = np.sort(np.cos(np.linspace(0, np.pi, 15))) esta forma tiene más error porque no tiene en cuenta la derivada segunda
 
 # Evaluar la función fb en la malla de puntos
 X1_equigrid, X2_equigrid = np.meshgrid(x1_equispaced_fb, x2_equispaced_fb)
@@ -58,3 +59,30 @@ axes[1].set_title('Interpolación de $f_b(x_1, x_2)$ con Splines Cúbicos (P. No
 plt.tight_layout()
 plt.show()
 
+# def lagrange_interp_3d(x, y, z, data, xi, yi, zi):
+#     interp_values = np.zeros_like(xi)
+#     for i in range(len(xi)):
+#         for j in range(len(yi)):
+#             for k in range(len(zi)):
+#                 x_interp = xi[i]
+#                 y_interp = yi[j]
+#                 z_interp = zi[k]
+#                 interpolated_value = 0.0
+#                 for m in range(len(x)):
+#                     for n in range(len(y)):
+#                         for o in range(len(z)):
+#                             L_x = lagrange(x, [x_interp])
+#                             L_y = lagrange(y, [y_interp])
+#                             L_z = lagrange(z, [z_interp])
+#                             interpolated_value += data[m, n, o] * L_x * L_y * L_z
+#                 interp_values[i, j, k] = interpolated_value
+#     return interp_values
+
+# # Suponiendo que tienes los siguientes datos
+# data = z_equispaced_fb
+
+# # Definir puntos en los que se desea interpolar
+# zi = np.linspace(xb_min, xb_max, 100)
+
+# # Interpolación con Lagrange en 3D
+# interp_values = lagrange_interp_3d(x1_equispaced_fb, x2_equispaced_fb, z_equispaced_fb, data, x1_grid, x2_grid, zi)

@@ -1,7 +1,7 @@
 # latex formula generator -> te facilita el código
 
 import numpy as np
-import matplotlib.pyplot as plt # para el a
+import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.interpolate import lagrange
 from scipy.interpolate import CubicSpline
@@ -35,167 +35,119 @@ def equispaced_points(a, b, num_points):
 def chebyshev_points(a, b, num_points):
     return (a + b) / 2 + (b - a) / 2 * np.cos((2 * np.arange(1, num_points + 1) - 1) * np.pi / (2 * num_points))
 
-# pensar cómo puedo calcular puntos no equiespaciados, puede ser con la fórmula de Chebyshev (está en internet)??
+def graficar_interpol_ambos_puntos(f_interpol_equispaced, f_interpool_nonequispaced, x_equispaced_fa, y_equispaced_fa, x_nonequispaced_fa, y_nonequispaced_fa, method, q_points):
+    plt.figure(figsize=(12, 8))
+    plt.plot(points_to_study_function, fa(points_to_study_function), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
+    plt.plot(x_equispaced_fa, y_equispaced_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)', color = 'blue')
+    plt.plot(points_to_study_equifunction, f_interpol_equispaced(points_to_study_equifunction), label='$Interpolación$ (Equispaciado)', color = 'green')
+    plt.plot(x_nonequispaced_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)', color = 'orange')
+    plt.plot(points_to_study_function, f_interpool_nonequispaced(points_to_study_function), label='$Interpolación$ (No equiespaciado)', color = 'red')
 
-x_equispaced_fa = equispaced_points(xa_min, xa_max, 15) # con Lagrange es mejor menos puntos
-x_nonequispaced_fa = chebyshev_points(xa_min, xa_max, 16)
+    plt.xlabel('$x$')
+    plt.ylabel('$f_a(x)$')
+    plt.title(f"Interpolación de $f_a(x)$ con {method} con {q_points} Puntos de Colocación")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    
+def graficar_error(f_interpol_equispaced, f_interpol_nonequispaced, x_compare_equipoints_fa, x_compare_nonequipoints_fa, method, q_points):
+    error_equispaced_w_midpoints = np.abs(fa(x_compare_equipoints_fa) - f_interpol_equispaced(x_compare_equipoints_fa))
+    error_nonequispaced_w_midpoints = np.abs(fa(x_compare_nonequipoints_fa) - f_interpol_nonequispaced(x_compare_nonequipoints_fa))
 
-# con interp1d es más preciso, pero no dimos cómo funcionaba
-# hacer splines
+    plt.figure(figsize=(10, 6))
+    plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, 'o')
+    plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, 'o')
+    plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, label='$Error$ (Equispaciado)')
+    plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, label='$Error$ (No equiespaciado)')
+    plt.xlabel('$x$')
+    plt.ylabel('$Error$')
+    plt.title(f"Error de Interpolación con {method} de $f_a(x)$ con {q_points} puntos")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    
+x_few_equispaced_fa = equispaced_points(xa_min, xa_max, 13) # con Lagrange es mejor menos puntos, si pongo más se arranca a disparar
+x_few_nonequispaced_fa = chebyshev_points(xa_min, xa_max, 14)
 
-y_equispaced_fa = fa(x_equispaced_fa)
-y_nonequispaced_fa = fa(x_nonequispaced_fa)
+x_more_equispaced_fa = equispaced_points(xa_min, xa_max, 20) 
+x_more_nonequispaced_fa = chebyshev_points(xa_min, xa_max, 20)
 
-fa_interpolation_equispaced = lagrange(x_equispaced_fa, y_equispaced_fa)
-fa_interpolation_nonequispaced = lagrange(x_nonequispaced_fa, y_nonequispaced_fa)
+y_few_equispaced_fa = fa(x_few_equispaced_fa)
+y_few_nonequispaced_fa = fa(x_few_nonequispaced_fa)
+
+y_more_equispaced_fa = fa(x_more_equispaced_fa)
+y_more_nonequispaced_fa = fa(x_more_nonequispaced_fa)
+
+fa_lagrange_few_equispaced = lagrange(x_few_equispaced_fa, y_few_equispaced_fa)
+fa_lagrange_few_nonequispaced = lagrange(x_few_nonequispaced_fa, y_few_nonequispaced_fa)
+
+fa_lagrange_more_equispaced = lagrange(x_more_equispaced_fa, y_more_equispaced_fa)
+fa_lagrange_more_nonequispaced = lagrange(x_more_nonequispaced_fa, y_more_nonequispaced_fa)
 
 # Graficar la interpolación de fa(x) con ambos puntos y fa(x)
-fig, axs = plt.subplots(1, 2, figsize=(16, 6))
 points_to_study_function = equispaced_points(-3.98, 3.98, 150)
 points_to_study_equifunction = equispaced_points(-3.46, 3.46, 150)
 
-# Gráfico para puntos equiespaciados
-axs[0].plot(points_to_study_function, fa(points_to_study_function), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
-axs[0].plot(x_equispaced_fa, y_equispaced_fa, 'o', label='$Puntos\ de\ Colocación$ (Equispaciado)', color='blue')
-# axs[0].plot(x_equispaced_fa, fa_interpolation_equispaced(x_equispaced_fa), label='$Interpolación$ (Equispaciado)', color='green')
-axs[0].plot(points_to_study_equifunction, fa_interpolation_equispaced(points_to_study_equifunction), label='$Interpolación$ (Equispaciado)', color='green')
-axs[0].set_xlabel('$x$')
-axs[0].set_ylabel('$f_a(x)$')
-axs[0].set_title('Interpolación de $f_a(x)$ con Lagrange con Puntos Equiespaciados')
-axs[0].legend()
-axs[0].grid(True)
-
-# Gráfico para puntos no equiespaciados
-axs[1].plot(points_to_study_function, fa(points_to_study_function), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
-axs[1].plot(x_nonequispaced_fa, y_nonequispaced_fa, 'o', label='$Puntos\ de\ Colocación$ (No equiespaciado)', color = 'orange')
-axs[1].plot(points_to_study_function, fa_interpolation_nonequispaced(points_to_study_function), label='$Interpolación$ (No equiespaciado)', color = 'red')
-axs[1].set_xlabel('$x$')
-axs[1].set_ylabel('$f_a(x)$')
-axs[1].set_title('Interpolación de $f_a(x)$ con Lagrange con Puntos No Equiespaciados')
-axs[1].legend()
-axs[1].grid(True)
-
-plt.tight_layout()
-plt.show()
-
 # Graficar la interpolación de fa(x) con ambos puntos y fa(x)
-plt.figure(figsize=(12, 8))
-plt.plot(points_to_study_function, fa(points_to_study_function), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
-plt.plot(x_equispaced_fa, y_equispaced_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)', color = 'blue')
-plt.plot(points_to_study_equifunction, fa_interpolation_equispaced(points_to_study_equifunction), label='$Interpolación$ (Equispaciado)', color = 'green')
-plt.plot(x_nonequispaced_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)', color = 'orange')
-plt.plot(points_to_study_function, fa_interpolation_nonequispaced(points_to_study_function), label='$Interpolación$ (No equiespaciado)', color = 'red')
-
-plt.xlabel('$x$')
-plt.ylabel('$f_a(x)$')
-plt.title('Interpolación de $f_a(x)$ con Lagrange con Ambos Puntos de Colocación')
-plt.legend()
-plt.grid(True)
-plt.show()
+graficar_interpol_ambos_puntos(fa_lagrange_few_equispaced, fa_lagrange_few_nonequispaced, x_few_equispaced_fa, y_few_equispaced_fa, x_few_nonequispaced_fa, y_few_nonequispaced_fa, "Lagrange", "pocos")
 
 # buscar puntos para comparar -> para el error
 
-# def generate_midpoints(lst): # -> solo los midpoints
-#     midpoints = []
-#     for i in range(len(lst) - 1):
-#         midpoint = (lst[i] + lst[i+1]) / 2.0
-#         midpoints.append(midpoint)
-#     return np.array(midpoints)
-
-def generate_midpoints(lst): # -> los midpoints y los puntos de interpolación
+def generate_midpoints(lst): # -> solo los midpoints
     midpoints = []
     for i in range(len(lst) - 1):
         midpoint = (lst[i] + lst[i+1]) / 2.0
-        midpoints.extend([lst[i], midpoint])
-    midpoints.append(lst[-1])  # Agregar el último elemento de la lista original
+        midpoints.append(midpoint)
     return np.array(midpoints)
 
-x_compare_equipoints_fa = generate_midpoints(x_equispaced_fa)
-x_compare_nonequipoints_fa = generate_midpoints(x_nonequispaced_fa)
+# def generate_midpoints(lst): # -> los midpoints y los puntos de interpolación
+#     midpoints = []
+#     for i in range(len(lst) - 1):
+#         midpoint = (lst[i] + lst[i+1]) / 2.0
+#         midpoints.extend([lst[i], midpoint])
+#     midpoints.append(lst[-1])  # Agregar el último elemento de la lista original
+#     return np.array(midpoints)
 
-error_equispaced_w_midpoints = np.abs(fa(x_compare_equipoints_fa) - fa_interpolation_equispaced(x_compare_equipoints_fa))
-error_nonequispaced_w_midpoints = np.abs(fa(x_compare_nonequipoints_fa) - fa_interpolation_nonequispaced(x_compare_nonequipoints_fa))
+x_compare_few_equipoints_fa = generate_midpoints(x_few_equispaced_fa)
+x_compare_few_nonequipoints_fa = generate_midpoints(x_few_nonequispaced_fa)
 
-plt.figure(figsize=(10, 6))
-plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, 'o')
-plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, 'o')
-plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, label='$Error$ (Equispaciado)')
-plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, label='$Error$ (No equiespaciado)')
-plt.xlabel('$x$')
-plt.ylabel('$Error$')
-plt.title('Error de Interpolación con Lagrange de $f_a(x)$')
-plt.legend()
-plt.grid(True)
-plt.show()
+graficar_error(fa_lagrange_few_equispaced, fa_lagrange_few_nonequispaced, x_compare_few_equipoints_fa, x_compare_few_nonequipoints_fa, "Lagrange", "pocos")
+
+graficar_interpol_ambos_puntos(fa_lagrange_more_equispaced, fa_lagrange_more_nonequispaced, x_more_equispaced_fa, y_more_equispaced_fa, x_more_nonequispaced_fa, y_more_nonequispaced_fa, "Lagrange", "más")
+
+x_compare_more_equipoints_fa = generate_midpoints(x_more_equispaced_fa)
+x_compare_more_nonequipoints_fa = generate_midpoints(x_more_nonequispaced_fa)
+
+graficar_error(fa_lagrange_more_equispaced, fa_lagrange_more_nonequispaced, x_compare_more_equipoints_fa, x_compare_more_nonequipoints_fa, "Lagrange", "más")
 
 
 # hacer lo mismo con splines 
-spline_equispaced_fa = CubicSpline(x_equispaced_fa, y_equispaced_fa)
+spline_few_equispaced_fa = CubicSpline(x_few_equispaced_fa, y_few_equispaced_fa)
+spline_more_equispaced_fa = CubicSpline(x_more_equispaced_fa, y_more_equispaced_fa)
 
-sorted_indices = np.argsort(x_nonequispaced_fa)
-x_nonequispaced_fa_sorted = x_nonequispaced_fa[sorted_indices]
-y_nonequispaced_fa_sorted = y_nonequispaced_fa[sorted_indices]
+sorted_few_indices = np.argsort(x_few_nonequispaced_fa)
+sorted_more_indices = np.argsort(x_more_nonequispaced_fa)
+x_few_nonequispaced_fa_sorted = x_few_nonequispaced_fa[sorted_few_indices]
+y_few_nonequispaced_fa_sorted = y_few_nonequispaced_fa[sorted_few_indices]
+x_more_nonequispaced_fa_sorted = x_more_nonequispaced_fa[sorted_more_indices]
+y_more_nonequispaced_fa_sorted = y_more_nonequispaced_fa[sorted_more_indices]
 
 # Interpolación con splines cúbicos
-spline_nonequispaced_fa = CubicSpline(x_nonequispaced_fa_sorted, y_nonequispaced_fa_sorted)
+spline_few_nonequispaced_fa = CubicSpline(x_few_nonequispaced_fa_sorted, y_few_nonequispaced_fa_sorted)
+spline_more_nonequispaced_fa = CubicSpline(x_more_nonequispaced_fa_sorted, y_more_nonequispaced_fa_sorted)
 
-fig, axs = plt.subplots(1, 2, figsize=(16, 6))
 points_to_study_function = equispaced_points(-3.98, 3.98, 150)
 points_to_study_equifunction = equispaced_points(-3.46, 3.46, 150)
 
-# Gráfico para puntos equiespaciados
-axs[0].plot(points_to_study_function, fa(points_to_study_function), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
-axs[0].plot(x_equispaced_fa, y_equispaced_fa, 'o', label='$Puntos\ de\ Colocación$ (Equispaciado)', color='blue')
-# axs[0].plot(x_equispaced_fa, fa_interpolation_equispaced(x_equispaced_fa), label='$Interpolación$ (Equispaciado)', color='green')
-axs[0].plot(points_to_study_equifunction, spline_equispaced_fa(points_to_study_equifunction), label='$Interpolación$ (Equispaciado)', color='green')
-axs[0].set_xlabel('$x$')
-axs[0].set_ylabel('$f_a(x)$')
-axs[0].set_title('Interpolación de $f_a(x)$ con Splines Cúbico con Puntos Equiespaciados')
-axs[0].legend()
-axs[0].grid(True)
-
-# Gráfico para puntos no equiespaciados
-axs[1].plot(points_to_study_function, fa(points_to_study_function), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
-axs[1].plot(x_nonequispaced_fa, y_nonequispaced_fa, 'o', label='$Puntos\ de\ Colocación$ (No equiespaciado)', color = 'orange')
-axs[1].plot(points_to_study_function, spline_nonequispaced_fa(points_to_study_function), label='$Interpolación$ (No equiespaciado)', color = 'red')
-axs[1].set_xlabel('$x$')
-axs[1].set_ylabel('$f_a(x)$')
-axs[1].set_title('Interpolación de $f_a(x)$ con Splines Cúbico con Puntos No Equiespaciados')
-axs[1].legend()
-axs[1].grid(True)
-
-plt.tight_layout()
-plt.show()
-
 # Graficar la interpolación de fa(x) con ambos puntos y fa(x)
-plt.figure(figsize=(12, 8))
-plt.plot(points_to_study_function, fa(points_to_study_function), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
-plt.plot(x_equispaced_fa, y_equispaced_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)', color = 'blue')
-plt.plot(points_to_study_equifunction, spline_equispaced_fa(points_to_study_equifunction), label='$Interpolación$ (Equispaciado)', color = 'green')
-plt.plot(x_nonequispaced_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)', color = 'orange')
-plt.plot(points_to_study_function, spline_nonequispaced_fa(points_to_study_function), label='$Interpolación$ (No equiespaciado)', color = 'red')
+graficar_interpol_ambos_puntos(spline_few_equispaced_fa, spline_few_nonequispaced_fa, x_few_equispaced_fa, y_few_equispaced_fa, x_few_nonequispaced_fa, y_few_nonequispaced_fa, "Splines Cúbicos", "pocos")
 
-plt.xlabel('$x$')
-plt.ylabel('$f_a(x)$')
-plt.title('Interpolación de $f_a(x)$ con Splines Cúbico con Ambos Puntos de Colocación')
-plt.legend()
-plt.grid(True)
-plt.show()
+graficar_error(spline_few_equispaced_fa, spline_few_nonequispaced_fa, x_compare_few_equipoints_fa, x_compare_few_nonequipoints_fa, "Splines Cúbicos", "pocos")
 
-error_equispaced_w_midpoints = np.abs(fa(x_compare_equipoints_fa) - spline_equispaced_fa(x_compare_equipoints_fa))
-error_nonequispaced_w_midpoints = np.abs(fa(x_compare_nonequipoints_fa) - spline_nonequispaced_fa(x_compare_nonequipoints_fa))
+graficar_interpol_ambos_puntos(spline_more_equispaced_fa, spline_more_nonequispaced_fa, x_more_equispaced_fa, y_more_equispaced_fa, x_more_nonequispaced_fa, y_more_nonequispaced_fa, "Splines Cúbicos", "más")
 
-plt.figure(figsize=(10, 6))
-plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, 'o')
-plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, 'o')
-plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, label='$Error$ (Equispaciado)')
-plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, label='$Error$ (No equiespaciado)')
-plt.xlabel('$x$')
-plt.ylabel('$Error$')
-plt.title('Error de Interpolación de $f_a(x)$')
-plt.legend()
-plt.grid(True)
-plt.show()
+graficar_error(spline_more_equispaced_fa, spline_more_nonequispaced_fa, x_compare_more_equipoints_fa, x_compare_more_nonequipoints_fa, "Splines Cúbicos", "más")
+
 
 # plt.plot(x_compare_equipoints_fa, y_compare_equipoints_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)')
 # plt.plot(x_compare_nonequipoints_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)')
