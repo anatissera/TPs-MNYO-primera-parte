@@ -62,29 +62,23 @@ plt.show()
 
 
 # ERROR 
-# Calcular el error entre las interpolaciones en puntos equiespaciados y no equiespaciados
-error_fb = abs(Y_interp_equispaced_fb - Y_interp_nonequispaced_fb)
+error_equispaced_fb = np.abs(fb(X1_grid, X2_grid) - Y_interp_equispaced_fb)
+error_nonequispaced_fb = np.abs(fb(X1_grid, X2_grid) - Y_interp_nonequispaced_fb)
 
-# Transformar la matriz de error en una lista de valores
-error_fb_values = error_fb.flatten()
+fig_error, axes_error = plt.subplots(1, 2, figsize=(16, 6), subplot_kw={'projection': '3d'})
 
-# Crear un array con los índices de los puntos
-indices = np.arange(len(error_fb_values))
+axes_error[0].plot_surface(X1_grid, X2_grid, error_equispaced_fb, cmap='viridis', alpha=0.8)
+axes_error[0].set_xlabel('$x_1$')
+axes_error[0].set_ylabel('$x_2$')
+axes_error[0].set_title('Error de Interpolación (P. Equiespaciados)')
 
-# Graficar el error
-plt.figure(figsize=(10, 6))
-plt.plot(indices, error_fb_values, color='blue')
-plt.title('Error entre Interpolaciones de fb')
-plt.xlabel('Índices')
-plt.ylabel('Error')
-plt.grid(True)
+axes_error[1].plot_surface(X1_grid, X2_grid, error_nonequispaced_fb, cmap='viridis', alpha=0.8)
+axes_error[1].set_xlabel('$x_1$')
+axes_error[1].set_ylabel('$x_2$')
+axes_error[1].set_title('Error de Interpolación (P. No Equiespaciados)')
+
+plt.tight_layout()
 plt.show()
-
-
-
-
-
-
 
 
 

@@ -1,3 +1,4 @@
+
 # latex formula generator -> te facilita el código
 
 import numpy as np
