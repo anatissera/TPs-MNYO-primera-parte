@@ -90,7 +90,6 @@ points_to_study_function = equispaced_points(-3.98, 3.98, 150)
 points_to_study_equifunction = equispaced_points(-3.46, 3.46, 150)
 
 # Graficar la interpolación de fa(x) con ambos puntos y fa(x)
-graficar_interpol_ambos_puntos(fa_lagrange_few_equispaced, fa_lagrange_few_nonequispaced, x_few_equispaced_fa, y_few_equispaced_fa, x_few_nonequispaced_fa, y_few_nonequispaced_fa, "Lagrange", "pocos")
 
 # buscar puntos para comparar -> para el error
 
@@ -112,15 +111,8 @@ def generate_midpoints(lst): # -> solo los midpoints
 x_compare_few_equipoints_fa = generate_midpoints(x_few_equispaced_fa)
 x_compare_few_nonequipoints_fa = generate_midpoints(x_few_nonequispaced_fa)
 
-graficar_error(fa_lagrange_few_equispaced, fa_lagrange_few_nonequispaced, x_compare_few_equipoints_fa, x_compare_few_nonequipoints_fa, "Lagrange", "pocos")
-
-graficar_interpol_ambos_puntos(fa_lagrange_more_equispaced, fa_lagrange_more_nonequispaced, x_more_equispaced_fa, y_more_equispaced_fa, x_more_nonequispaced_fa, y_more_nonequispaced_fa, "Lagrange", "más")
-
 x_compare_more_equipoints_fa = generate_midpoints(x_more_equispaced_fa)
 x_compare_more_nonequipoints_fa = generate_midpoints(x_more_nonequispaced_fa)
-
-graficar_error(fa_lagrange_more_equispaced, fa_lagrange_more_nonequispaced, x_compare_more_equipoints_fa, x_compare_more_nonequipoints_fa, "Lagrange", "más")
-
 
 # hacer lo mismo con splines 
 spline_few_equispaced_fa = CubicSpline(x_few_equispaced_fa, y_few_equispaced_fa)
@@ -139,16 +131,6 @@ spline_more_nonequispaced_fa = CubicSpline(x_more_nonequispaced_fa_sorted, y_mor
 
 points_to_study_function = equispaced_points(-3.98, 3.98, 150)
 points_to_study_equifunction = equispaced_points(-3.46, 3.46, 150)
-
-# Graficar la interpolación de fa(x) con ambos puntos y fa(x)
-graficar_interpol_ambos_puntos(spline_few_equispaced_fa, spline_few_nonequispaced_fa, x_few_equispaced_fa, y_few_equispaced_fa, x_few_nonequispaced_fa, y_few_nonequispaced_fa, "Splines Cúbicos", "pocos")
-
-graficar_error(spline_few_equispaced_fa, spline_few_nonequispaced_fa, x_compare_few_equipoints_fa, x_compare_few_nonequipoints_fa, "Splines Cúbicos", "pocos")
-
-graficar_interpol_ambos_puntos(spline_more_equispaced_fa, spline_more_nonequispaced_fa, x_more_equispaced_fa, y_more_equispaced_fa, x_more_nonequispaced_fa, y_more_nonequispaced_fa, "Splines Cúbicos", "más")
-
-graficar_error(spline_more_equispaced_fa, spline_more_nonequispaced_fa, x_compare_more_equipoints_fa, x_compare_more_nonequipoints_fa, "Splines Cúbicos", "más")
-
 
 # plt.plot(x_compare_equipoints_fa, y_compare_equipoints_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)')
 # plt.plot(x_compare_nonequipoints_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)')
@@ -204,3 +186,28 @@ graficar_error(spline_more_equispaced_fa, spline_more_nonequispaced_fa, x_compar
 # median_error_nonequispaced = np.median(error_nonequispaced)
 # max_error_nonequispaced = np.max(error_nonequispaced)
 # min_error_nonequispaced = np.min(error_nonequispaced)
+
+def graficar():
+    
+    graficar_interpol_ambos_puntos(fa_lagrange_few_equispaced, fa_lagrange_few_nonequispaced, x_few_equispaced_fa, y_few_equispaced_fa, x_few_nonequispaced_fa, y_few_nonequispaced_fa, "Lagrange", "pocos")
+
+    graficar_error(fa_lagrange_few_equispaced, fa_lagrange_few_nonequispaced, x_compare_few_equipoints_fa, x_compare_few_nonequipoints_fa, "Lagrange", "pocos")
+
+    graficar_interpol_ambos_puntos(fa_lagrange_more_equispaced, fa_lagrange_more_nonequispaced, x_more_equispaced_fa, y_more_equispaced_fa, x_more_nonequispaced_fa, y_more_nonequispaced_fa, "Lagrange", "más")
+
+    graficar_error(fa_lagrange_more_equispaced, fa_lagrange_more_nonequispaced, x_compare_more_equipoints_fa, x_compare_more_nonequipoints_fa, "Lagrange", "más")
+
+    # Graficar la interpolación de fa(x) con ambos puntos y fa(x)
+    graficar_interpol_ambos_puntos(spline_few_equispaced_fa, spline_few_nonequispaced_fa, x_few_equispaced_fa, y_few_equispaced_fa, x_few_nonequispaced_fa, y_few_nonequispaced_fa, "Splines Cúbicos", "pocos")
+
+    graficar_error(spline_few_equispaced_fa, spline_few_nonequispaced_fa, x_compare_few_equipoints_fa, x_compare_few_nonequipoints_fa, "Splines Cúbicos", "pocos")
+
+    graficar_interpol_ambos_puntos(spline_more_equispaced_fa, spline_more_nonequispaced_fa, x_more_equispaced_fa, y_more_equispaced_fa, x_more_nonequispaced_fa, y_more_nonequispaced_fa, "Splines Cúbicos", "más")
+
+    graficar_error(spline_more_equispaced_fa, spline_more_nonequispaced_fa, x_compare_more_equipoints_fa, x_compare_more_nonequipoints_fa, "Splines Cúbicos", "más")
+
+def main():
+    graficar()
+    
+if __name__ == "__main__":
+    main()
