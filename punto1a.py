@@ -179,6 +179,11 @@ def splines_interpol(num_points, method, q_points):
 # max_error_nonequispaced = np.max(error_nonequispaced)
 # min_error_nonequispaced = np.min(error_nonequispaced)
 
+"""
+grafiacar splines vs lagrange con su mejor version y error
+
+"""
+
 def graficar():
     lagrange_interpol(13, "Lagrange", "pocos")
     lagrange_interpol(20, "Lagrange", "muchos")

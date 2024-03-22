@@ -106,5 +106,25 @@ rbf_nonequispaced_fb = Rbf(X1_nonequigrid.flatten(), X2_nonequigrid.flatten(), z
 Y_interp_nonequispaced_fb_rbf = rbf_nonequispaced_fb(X1_grid, X2_grid)
 
 
+fig = plt.figure(figsize=(14, 6))
+
+# Subplot para puntos equiespaciados
+ax1 = fig.add_subplot(121, projection='3d')
+ax1.plot_surface(X1_grid, X2_grid, fb(X1_grid, X2_grid), cmap='viridis', alpha=0.3, label='Función original')
+ax1.plot_surface(X1_grid, X2_grid, Y_interp_equispaced_fb_rbf, cmap='plasma', alpha=0.8, label='Interpolación Rbf')
+ax1.set_xlabel('$x_1$')
+ax1.set_ylabel('$x_2$')
+ax1.set_title('Interpolación Rbf para puntos equiespaciados')
+
+# Subplot para puntos no equiespaciados
+ax2 = fig.add_subplot(122, projection='3d')
+ax2.plot_surface(X1_grid, X2_grid, fb(X1_grid, X2_grid), cmap='viridis', alpha=0.3, label='Función original')
+ax2.plot_surface(X1_grid, X2_grid, Y_interp_nonequispaced_fb_rbf, cmap='plasma', alpha=0.8, label='Interpolación Rbf')
+ax2.set_xlabel('$x_1$')
+ax2.set_ylabel('$x_2$')
+ax2.set_title('Interpolación Rbf para puntos no equiespaciados')
+
+plt.tight_layout()
+plt.show()
 
 # ERROR  --> investigar para hacerlo en 2d
