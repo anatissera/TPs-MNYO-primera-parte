@@ -9,30 +9,62 @@
 import pandas as pd
 import numpy as np
 from scipy.interpolate import CubicSpline
+from scipy.interpolate import make_interp_spline
 import matplotlib.pyplot as plt
 
-mediciones_1 = pd.read_csv('myno_mediciones.csv')
-ground_truth = pd.read_csv('myno_ground_truth.csv')
+ground_truth_df = pd.read_csv("mnyo_ground_truth.csv", sep=" ", header=None, names=["x1", "x2"])
+mediciones_1_df = pd.read_csv("mnyo_mediciones.csv", sep=" ", header=None, names=["x1", "x2"])
 
-x1_registered = mediciones_1.iloc[0].values
-x2_registered = mediciones_1.iloc[1].values
+interpolated_trajectory_x1 = CubicSpline(mediciones_1_df.index, mediciones_1_df["x1"]) # uso los índices de las filas del DataFrame como los puntos de referencia para la interpolación
+interpolated_trajectory_x2 = CubicSpline(mediciones_1_df.index, mediciones_1_df["x2"])
 
-x1 = ground_truth.iloc[0].values
-x2 = ground_truth.iloc[1].values
+points_to_evaluate = np.linspace(mediciones_1_df.index.min(), mediciones_1_df.index.max(), 1000)
 
-# X1_equigrid, X2_equigrid = np.meshgrid(x1, x1)
+plt.figure(figsize=(12, 5))
 
-splines_func = CubicSpline(x1_registered)
+plt.scatter(mediciones_1_df["x1"], mediciones_1_df["x2"], label="Mediciones", color='orange')
+plt.plot(interpolated_trajectory_x1(points_to_evaluate), interpolated_trajectory_x2(points_to_evaluate), label='Interpolación con Splines Cúbicos', color='red')
 
-y_interp = splines_func (x1, x2)
+plt.plot(ground_truth_df["x1"], ground_truth_df["x2"], label='Ground Truth', linestyle='-.', color='black')
 
-plt.figure(figsize=(8, 6))
-plt.plot(x1, y_interp, label='Interpolación', color='red')
-plt.scatter(x1_registered, x2_registered, label='Mediciones Registradas', color='blue')
-plt.plot(x1, x2, label='Ground Truth', linestyle='--', color='green')
-plt.xlabel('x1')
-plt.ylabel('x2')
-plt.title('Interpolación con Splines Cúbicos')
+plt.title('Trayedoria Interpolada del primer vehículo')
+plt.xlabel('eje X')
+plt.ylabel('eje Y')
+
+plt.legend()
+plt.show()
+
+# points_to_compare = np.linspace(mediciones_1_df.index.min(), mediciones_1_df.index.max(), 100)
+points_to_compare = np.linspace(mediciones_1_df.index.min(), mediciones_1_df.index.max(), 100)
+
+error_x1 = np.abs(ground_truth_df["x1"] - interpolated_trajectory_x1(points_to_compare))
+error_x2 = np.abs(ground_truth_df["x2"] - interpolated_trajectory_x2(points_to_compare))
+
+plt.figure(figsize=(10, 6))
+plt.plot(points_to_compare, error_x1, 'o')
+plt.plot(points_to_compare, error_x2, 'o')
+plt.plot(points_to_compare, error_x1, label='$Error x1$')
+plt.plot(points_to_compare, error_x2, label='$Error x2$')
+plt.xlabel('$x$')
+plt.ylabel('$Error$')
+plt.title(f"$Error absoluto$ de trayectoria interpolada con Splines Cúbicos contra el ground truth")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+error_x1 = np.abs(ground_truth_df["x1"] - interpolated_trajectory_x1(ground_truth_df.index))
+error_x2 = np.abs(ground_truth_df["x2"] - interpolated_trajectory_x2(ground_truth_df.index))
+
+plt.figure(figsize=(10, 6))
+plt.plot(ground_truth_df.index, error_x1, 'o')
+plt.plot(ground_truth_df.index, error_x2, 'o')
+plt.plot(ground_truth_df.index, error_x1, label='$Error x1$')
+plt.plot(ground_truth_df.index, error_x2, label='$Error x2$')
+# plt.xlabel('$x$')
+# plt.ylabel('$Error$')
+plt.xlabel('$Tiempo$')
+plt.ylabel('$Error$')
+plt.title(f"Error de Interpolación de trayectoria en función del tiempo con Splines Cúbicos")
 plt.legend()
 plt.grid(True)
 plt.show()
