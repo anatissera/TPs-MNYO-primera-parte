@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import lagrange
 from scipy.interpolate import CubicSpline
 
+# Falta interpolar linealmente
+
 def fa(x):
     return 0.3 ** abs(abs((x) ))* np.sin(4 * x) - np.tanh(2 * x) + 2
 
@@ -182,9 +184,12 @@ def graficar():
     lagrange_interpol(20, "Lagrange", "muchos")
     splines_interpol(13, "Splines", "pocos")
     splines_interpol(20, "Splines", "muchos")
+    splines_interpol(50, "Splines", "50")
 
 def main():
     graficar()
     
 if __name__ == "__main__":
     main()
+    
+# comparar todos los errores en el mismo gráfico

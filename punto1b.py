@@ -6,6 +6,31 @@ import numpy as np
 from scipy.interpolate import lagrange
 
 
+# sp.interpolate.RegularGridInterpolator con método lineal, 5x5, 25x25 puntos.
+# Observamos que a medida que aumentamos la cantidad de
+# puntos equidistantes el error disminuye. Los resultados tambien muestran que, al menos para esta funci ´ on, los puntos de ´
+# Chebyshev no mejoran el error.
+
+# para la interpolación por splines
+# cúbicos utilizar puntos equidistantes resulta en una estabilidad
+# mayor en la estimacion de la función
+
+# PONER EL ERROR BOUND EN EL TÍTULO DEL ERROR
+
+# ejemplos
+# poner cuál fue la más rápida y cuál fue la más precisa
+# Por otro lado, los metodos de interpolación nearest neighbor
+# e interpolacion lineal destacan por su rapidez en la ejecución.
+# Estos metodos son más rápidos y parecieran ser más adecuados
+# para aplicaciones en tiempo real o para conjuntos de datos muy
+# grandes. Sin embargo, proporcionan una interpolacion menos
+# precisa en comparacion con los métodos más complejos. En
+# conclusion, la elección del método de interpolación dependerá
+# del caso de uso específico.
+# Ademas, se encontró que aumentar el número de puntos de interpolacion 
+# no siempre resulta en una disminución del error (ej lagrange).
+
+
 # Definir la función fb(x1, x2) (de consigna)
 def fb(x1, x2):
     return 0.75 * np.exp(-((10 * x1 - 2)**2 / 4) - ((9 * x2 - 2)**2 / 4)) + \
