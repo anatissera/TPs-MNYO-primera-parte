@@ -1,3 +1,5 @@
+latex formula generator -> te facilita el código
+
 Interpolar fa(x) con lagrange, haciendo un for iterando por puntos:
 (es lo mismo que usar interpld())
 from scipy.interpolate import Lagrangre también
