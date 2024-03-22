@@ -4,6 +4,7 @@ from mpl_toolkits.mplot3d import Axes3D # para el b
 from scipy.interpolate import RectBivariateSpline
 import numpy as np
 from scipy.interpolate import lagrange
+from scipy.interpolate import Rbf
 
 
 # sp.interpolate.RegularGridInterpolator con método lineal, 5x5, 25x25 puntos.
@@ -67,6 +68,8 @@ X1_grid, X2_grid = np.meshgrid(x1_grid, x2_grid)
 Y_interp_equispaced_fb = spline_equispaced_fb(x1_grid, x2_grid)
 Y_interp_nonequispaced_fb = spline_nonequispaced_fb(x1_grid, x2_grid)
 
+
+# Graficar la función fb y su interpolación con splines cubicos
 fig, axes = plt.subplots(1, 2, figsize=(16, 6), subplot_kw={'projection': '3d'})
 
 axes[0].plot_surface(X1_grid, X2_grid, fb(X1_grid, X2_grid), cmap='viridis', alpha=0.3)
@@ -84,6 +87,24 @@ axes[1].set_title('Interpolación de $f_b(x_1, x_2)$ con Splines Cúbicos (P. No
 
 plt.tight_layout()
 plt.show()
+
+
+#interpolacion con Rbf
+
+
+
+# Puntos de interpolación equiespaciados
+rbf_equispaced_fb = Rbf(X1_equigrid.flatten(), X2_equigrid.flatten(), z_equispaced_fb.flatten())
+
+# Interpolación en la malla de puntos
+Y_interp_equispaced_fb_rbf = rbf_equispaced_fb(X1_grid, X2_grid)
+
+# Puntos de interpolación no equiespaciados
+rbf_nonequispaced_fb = Rbf(X1_nonequigrid.flatten(), X2_nonequigrid.flatten(), z_nonequispaced_fb.flatten())
+
+# Interpolación en la malla de puntos
+Y_interp_nonequispaced_fb_rbf = rbf_nonequispaced_fb(X1_grid, X2_grid)
+
 
 
 # ERROR  --> investigar para hacerlo en 2d
