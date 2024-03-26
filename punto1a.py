@@ -4,8 +4,6 @@ from scipy.interpolate import lagrange
 from scipy.interpolate import CubicSpline
 from scipy.interpolate import interp1d
 
-# Falta interpolar linealmente
-
 def fa(x):
     return 0.3 ** abs(abs((x) ))* np.sin(4 * x) - np.tanh(2 * x) + 2
 
@@ -155,6 +153,46 @@ def splines_interpol(num_points):
     # graficar_error(spline_equispaced_fa, spline_nonequispaced_fa, x_compare_equipoints_fa, x_compare_nonequipoints_fa, method, q_points)
 
 
+def graficar_error_por_nodos(nodes_q, func, func_text):
+    x = np.linspace(xa_min, xa_max, 100)
+    y = fa(x)
+    error_equiespaced_median = []
+    error_nonequispaced_median = []
+    error_equiespaced_max = []
+    error_nonequispaced_max = []
+    
+    nodes = [x for x in range(2, nodes_q+1)]
+    for node in nodes:
+        x_equispaced = np.linspace(xa_min, xa_max, node)
+        x_nonequispaced = np.sort(chebyshev_points(xa_min, xa_max, node))
+        
+        z_equispaced = fa(x_equispaced)
+        z_nonequispaced = fa(x_nonequispaced)
+        
+        y_interp_equispaced = func(x_equispaced, z_equispaced) (x)
+        y_interp_nonequispaced = func(x_nonequispaced, z_nonequispaced) (x)
+        
+        error_equispaced = np.abs(y - y_interp_equispaced)
+        error_nonequispaced = np.abs(y - y_interp_nonequispaced)
+        
+        error_equiespaced_median.append(np.median(error_equispaced))
+        error_nonequispaced_median.append(np.median(error_nonequispaced))
+        
+        error_equiespaced_max.append(np.max(error_equispaced))
+        error_nonequispaced_max.append(np.max(error_nonequispaced))
+        
+    plt.figure(figsize=(10, 6))
+    plt.plot(nodes, error_equiespaced_median, label='Mediana del error equiespaciado', color = "darkred")
+    plt.plot(nodes, error_equiespaced_max, label='Máximo del error equiespaciado', color = "darksalmon")
+    plt.plot(nodes, error_nonequispaced_median, label='Mediana del error no equiespaciado', color = "darkgreen")
+    plt.plot(nodes, error_nonequispaced_max, label='Máximo del error no equiespaciado', color = "darkseagreen")
+    plt.xlabel('Cantidad de nodos')
+    plt.ylabel('Error')
+    plt.title(f"Error de interpolación con {func_text} en función de la cantidad de nodos")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
 
 """
 grafiacar splines vs lagrange con su mejor version y error
@@ -162,14 +200,18 @@ grafiacar splines vs lagrange con su mejor version y error
 """    
 
 def main():
-    linear_interpol(13, "Lineal", "13")
-    linear_interpol(20, "Lineal", "20")
-    linear_interpol(35, "Lineal", "35")
-    lagrange_interpol(13, "Lagrange", "13")
-    lagrange_interpol(20, "Lagrange", "20")
-    splines_interpol(13, "Splines", "13")
-    splines_interpol(20, "Splines", "20")
-    splines_interpol(35, "Splines", "35")
+    graficar_error_por_nodos(35, CubicSpline, "Splines Cúbicos")
+    graficar_error_por_nodos(20, lagrange, "Lagrange")
+    graficar_error_por_nodos(20, interp1d, "Interpolación lineal")
+    linear_interpol(13)
+    linear_interpol(20)
+    linear_interpol(35)
+    lagrange_interpol(13)
+    lagrange_interpol(20)
+    splines_interpol(13)
+    splines_interpol(20)
+    splines_interpol(35)
+    
     
 if __name__ == "__main__":
     main()

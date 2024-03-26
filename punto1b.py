@@ -72,8 +72,7 @@ def splines_cubicos(num_points):
 
     fig, axes = plt.subplots(1, 2, figsize=(16, 6), subplot_kw={'projection': '3d'})
 
-    axes[0].plot_surface(X1_grid, X2_grid, fb(X1_grid, X2_grid), cmap='viridis', alpha=0.3)
-    axes[1].plot_surface(X1_grid, X2_grid, fb(X1_grid, X2_grid), cmap='viridis', alpha=0.3)
+
 
     axes[0].plot_surface(X1_grid, X2_grid, Y_interp_equispaced_fb, cmap='viridis', alpha=0.8)
     axes[0].set_xlabel('$x_1$')
@@ -85,45 +84,46 @@ def splines_cubicos(num_points):
     axes[1].set_ylabel('$x_2$')
     axes[1].set_title(f"Interpolación de $f_b(x_1, x_2)$ con Splines Cúbicos (P. No Equiespaciados: {num_points})")
 
+    axes[0].plot_wireframe(X1_grid, X2_grid, fb(X1_grid, X2_grid), alpha=0.3, color= "navy")
+    axes[1].plot_wireframe(X1_grid, X2_grid, fb(X1_grid, X2_grid), alpha=0.3, color= "navy")
+    
     plt.tight_layout()
     plt.show()
 
+def graficar_error_por_nodos(nodes_q):
+   def graficar_error_por_nodos(nodes_q):
+    y = fb(X1_grid, X2_grid)
+    error_equiespaced_median = []
+    error_nonequispaced_median = []
+    
+    nodes = [x for x in range(4, nodes_q+1)]
+    for node in nodes:
+        x_equispaced = np.linspace(xb_min, xb_max, node)
+        x_nonequispaced = np.sort(chebyshev_points(xb_min, xb_max, node))
+        
+        X1_equigrid, X2_equigrid = np.meshgrid(x_equispaced, x_equispaced)
+        z_equispaced_fb = fb(X1_equigrid, X2_equigrid)
 
-#interpolacion con Rbf
-def rbf(num_points):
-    x1_equispaced_fb, x2_equispaced_fb, x1_nonequispaced_fb, x2_nonequispaced_fb, X1_equigrid, X2_equigrid, z_equispaced_fb, X1_nonequigrid, X2_nonequigrid, z_nonequispaced_fb = definir_puntos(num_points)
-
-    # Puntos de interpolación equiespaciados
-    rbf_equispaced_fb = Rbf(X1_equigrid.flatten(), X2_equigrid.flatten(), z_equispaced_fb.flatten())
-
-    # Interpolación en la malla de puntos
-    Y_interp_equispaced_fb_rbf = rbf_equispaced_fb(X1_grid, X2_grid)
-
-    # Puntos de interpolación no equiespaciados
-    rbf_nonequispaced_fb = Rbf(X1_nonequigrid.flatten(), X2_nonequigrid.flatten(), z_nonequispaced_fb.flatten())
-
-    # Interpolación en la malla de puntos
-    Y_interp_nonequispaced_fb_rbf = rbf_nonequispaced_fb(X1_grid, X2_grid)
-
-
-    fig = plt.figure(figsize=(14, 6))
-
-    # Subplot para puntos equiespaciados
-    ax1 = fig.add_subplot(121, projection='3d')
-    ax1.plot_surface(X1_grid, X2_grid, fb(X1_grid, X2_grid), cmap='viridis', alpha=0.3, label='Función original')
-    ax1.plot_surface(X1_grid, X2_grid, Y_interp_equispaced_fb_rbf, cmap='plasma', alpha=0.8, label='Interpolación Rbf')
-    ax1.set_xlabel('$x_1$')
-    ax1.set_ylabel('$x_2$')
-    ax1.set_title('Interpolación Rbf para puntos equiespaciados')
-
-    # Subplot para puntos no equiespaciados
-    ax2 = fig.add_subplot(122, projection='3d')
-    ax2.plot_surface(X1_grid, X2_grid, fb(X1_grid, X2_grid), cmap='viridis', alpha=0.3, label='Función original')
-    ax2.plot_surface(X1_grid, X2_grid, Y_interp_nonequispaced_fb_rbf, cmap='plasma', alpha=0.8, label='Interpolación Rbf')
-    ax2.set_xlabel('$x_1$')
-    ax2.set_ylabel('$x_2$')
-    ax2.set_title('Interpolación Rbf para puntos no equiespaciados')
-
+        X1_nonequigrid, X2_nonequigrid = np.meshgrid(x_nonequispaced, x_nonequispaced)
+        z_nonequispaced_fb = fb(X1_nonequigrid, X2_nonequigrid)
+        
+        interp_equispaced = RectBivariateSpline(x_equispaced, x_equispaced, z_equispaced_fb) (X1_grid, X2_grid)
+        interp_nonequispaced = RectBivariateSpline(x_nonequispaced, x_nonequispaced, z_nonequispaced_fb) (X1_grid, X2_grid)
+        
+        error_equispaced = np.abs(y - interp_equispaced)
+        error_nonequispaced = np.abs(y - interp_nonequispaced)
+        
+        error_equiespaced_median.append(np.median(error_equispaced))
+        error_nonequispaced_median.append(np.median(error_nonequispaced))
+        
+    plt.figure(figsize=(10, 6))
+    plt.plot(nodes, error_equiespaced_median, label='Error equiespaciado')
+    plt.plot(nodes, error_nonequispaced_median, label='Error no equiespaciado')
+    plt.xlabel('Cantidad de nodos')
+    plt.ylabel('Error')
+    plt.title(f"Error de interpolación con Splines Cúbicos en función de la cantidad de nodos")
+    plt.legend()
+    plt.grid(True)
     plt.tight_layout()
     plt.show()
 
@@ -131,8 +131,7 @@ def rbf(num_points):
 def main():
     splines_cubicos(15)
     splines_cubicos(25)
-    rbf(15)
-    rbf(25)
+    graficar_error_por_nodos(50)
 
 if __name__ == "__main__":
     main()
