@@ -2,7 +2,6 @@ import pandas as pd
 from punto2a import *
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import newton
 
 mediciones_2_df = pd.read_csv("mnyo_mediciones2.csv", sep=" ", header=None, names=["x1", "x2"])
 
@@ -21,14 +20,17 @@ def interseccion_trayec_splines3(t, t2):
 
 def newton_2d(f, P0, P1, tol=1e-6, max_iter=100):
     P = np.array([P0, P1])
+    n = 0
     for _ in range(max_iter):
         f_val = f(*P)
+        n+=1
         if np.linalg.norm(f_val) < tol:
             break
         J = np.array([[f(P[0]+tol, P[1])[0]-f_val[0], f(P[0], P[1]+tol)[0]-f_val[0]],
                       [f(P[0]+tol, P[1])[1]-f_val[1], f(P[0], P[1]+tol)[1]-f_val[1]]]) / tol
         delta_P = np.linalg.solve(J, np.array([-f_val[0], -f_val[1]]))
         P = P + delta_P
+    print(f"El método convergió en {n} iteraciones")
     return tuple(P)
 
 t0 = mediciones_1_df.index.min()
@@ -63,7 +65,7 @@ def graficar_trayectorias_intersec():
     plt.tight_layout()
     plt.show()
 
-def graficar_error_abs():
+def graficar_error_entre_coordenadas():
     median_error_x1 = np.median(error_x1)
     median_error_x2 = np.median(error_x2)
     
@@ -83,7 +85,7 @@ def graficar_error_abs():
 
 def main():
     graficar_trayectorias_intersec()
-    graficar_error_abs()
+    graficar_error_entre_coordenadas()
     
 if __name__ == "__main__":
     main()
