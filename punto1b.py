@@ -60,35 +60,6 @@ def splines_cubicos(num_points):
     plt.tight_layout()
     plt.show()
 
-
-def splines_quinticos(num_points):
-    x1_equispaced_fb, x2_equispaced_fb, x1_nonequispaced_fb, x2_nonequispaced_fb, X1_equigrid, X2_equigrid, z_equispaced_fb, X1_nonequigrid, X2_nonequigrid, z_nonequispaced_fb = definir_puntos(num_points)
-
-    spline_equispaced_fb = RectBivariateSpline (x1_equispaced_fb, x2_equispaced_fb, z_equispaced_fb, kx = 5, ky= 5)
-    spline_nonequispaced_fb = RectBivariateSpline (x1_nonequispaced_fb, x2_nonequispaced_fb, z_nonequispaced_fb, kx = 5, ky= 5)
-
-    Y_interp_equispaced_fb = spline_equispaced_fb(x1_grid, x2_grid)
-    Y_interp_nonequispaced_fb = spline_nonequispaced_fb(x1_grid, x2_grid)
-
-    fig, axes = plt.subplots(1, 2, figsize=(16, 6), subplot_kw={'projection': '3d'})
-
-    axes[0].plot_surface(X1_grid, X2_grid, Y_interp_equispaced_fb, cmap='viridis', alpha=0.8)
-    axes[0].set_xlabel('$x_1$')
-    axes[0].set_ylabel('$x_2$')
-    axes[0].set_title(f"Interpolación de $f_b(x_1, x_2)$ con Splines Quínticos (P. Equiespaciados: {num_points})")
-
-    axes[1].plot_surface(X1_grid, X2_grid, Y_interp_nonequispaced_fb, cmap='viridis', alpha=0.8)
-    axes[1].set_xlabel('$x_1$')
-    axes[1].set_ylabel('$x_2$')
-    axes[1].set_title(f"Interpolación de $f_b(x_1, x_2)$ con Splines Quínticos (P. No Equiespaciados: {num_points})")
-
-    axes[0].plot_wireframe(X1_grid, X2_grid, fb(X1_grid, X2_grid), alpha=0.3, color="navy")
-    axes[1].plot_wireframe(X1_grid, X2_grid, fb(X1_grid, X2_grid), alpha=0.3, color="navy")
-    
-    plt.tight_layout()
-    plt.show() 
-
-
 def graficar_error_por_nodos(nodes_max, func, func_text, to_start, kx=None, ky=None):
     Z_real = fb(X1_grid, X2_grid)
 
@@ -133,11 +104,13 @@ def graficar_error_por_nodos(nodes_max, func, func_text, to_start, kx=None, ky=N
     plt.show()
 
 def main():  
-    graficar_error_por_nodos(40, RectBivariateSpline, "Splines Lineales", 2, kx=1, ky=1)  
+    # graficar_error_por_nodos(40, RectBivariateSpline, "Splines Lineales", 2, kx=1, ky=1)  
     splines_cubicos(16)
+    graficar_error_por_nodos(40, RectBivariateSpline, "Splines Lineales", 2, kx=1, ky=1)  
     graficar_error_por_nodos(40, RectBivariateSpline, "Splines Cúbicos", 4, kx=3, ky=3)
-    splines_quinticos(16)
     graficar_error_por_nodos(40, RectBivariateSpline, "Splines Quínticos", 6, kx=5, ky=5)
+    # splines_quinticos(16)
+    # graficar_error_por_nodos(40, RectBivariateSpline, "Splines Quínticos", 6, kx=5, ky=5)
     
 if __name__ == "__main__":
     main()
