@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt # para el a
 from mpl_toolkits.mplot3d import Axes3D # para el b
 from scipy.interpolate import RectBivariateSpline
 import numpy as np
-from scipy.interpolate import griddata
+from scipy.interpolate import NearestNDInterpolator
 
 
 # sp.interpolate.RegularGridInterpolator con método lineal, 5x5, 25x25 puntos.
@@ -57,6 +57,35 @@ def definir_puntos(num_points):
     
     return x1_equispaced_fb, x2_equispaced_fb, x1_nonequispaced_fb, x2_nonequispaced_fb, X1_equigrid, X2_equigrid, z_equispaced_fb, X1_nonequigrid, X2_nonequigrid, z_nonequispaced_fb
 
+def nearest_neighbor(num_points):
+    x1_equispaced_fb, x2_equispaced_fb, x1_nonequispaced_fb, x2_nonequispaced_fb, X1_equigrid, X2_equigrid, z_equispaced_fb, X1_nonequigrid, X2_nonequigrid, z_nonequispaced_fb = definir_puntos(num_points)
+    
+    spline_equispaced_fb = NearestNDInterpolator(np.column_stack((X1_equigrid.flatten(), X2_equigrid.flatten())), z_equispaced_fb.flatten())
+    spline_nonequispaced_fb = NearestNDInterpolator(np.column_stack((X1_nonequigrid.flatten(), X2_nonequigrid.flatten())), z_nonequispaced_fb.flatten())
+
+    interp_points = np.column_stack((X1_grid.flatten(), X2_grid.flatten()))
+    Y_interp_equispaced_fb = spline_equispaced_fb(interp_points)
+    Y_interp_nonequispaced_fb = spline_nonequispaced_fb(interp_points)
+    
+    fig, axes = plt.subplots(1, 2, figsize=(16, 6), subplot_kw={'projection': '3d'})
+    # ax = fig.add_subplot(111, projection='3d')
+
+    axes[0].plot_surface(X1_grid, X2_grid, Y_interp_equispaced_fb.reshape(X1_grid.shape), cmap='viridis', alpha=0.8)
+    axes[0].set_xlabel('$x_1$')
+    axes[0].set_ylabel('$x_2$')
+    axes[0].set_title(f"Interpolación de $f_b(x_1, x_2)$ con Nearest Neighbor (P. Equiespaciados: {num_points})")
+
+    axes[1].plot_surface(X1_grid, X2_grid, Y_interp_nonequispaced_fb.reshape(X1_grid.shape), cmap='viridis', alpha=0.8)
+    axes[1].set_xlabel('$x_1$')
+    axes[1].set_ylabel('$x_2$')
+    axes[1].set_title(f"Interpolación de $f_b(x_1, x_2)$ con Nearest Neighbor (P. No Equiespaciados: {num_points})")
+
+    axes[0].plot_wireframe(X1_grid, X2_grid, fb(X1_grid, X2_grid), alpha=0.3, color= "navy")
+    axes[1].plot_wireframe(X1_grid, X2_grid, fb(X1_grid, X2_grid), alpha=0.3, color= "navy")
+    
+    plt.tight_layout()
+    plt.show()
+    
 def splines_cubicos(num_points):
     x1_equispaced_fb, x2_equispaced_fb, x1_nonequispaced_fb, x2_nonequispaced_fb, X1_equigrid, X2_equigrid, z_equispaced_fb, X1_nonequigrid, X2_nonequigrid, z_nonequispaced_fb = definir_puntos(num_points)
 
@@ -84,7 +113,7 @@ def splines_cubicos(num_points):
     plt.tight_layout()
     plt.show()
 
-def graficar_error_por_nodos(nodes_max, func_text):
+def graficar_error_por_nodos(nodes_max, func, func_text):
     Z_real = fb(X1_grid, X2_grid)
 
     error_equiespaced_median = []
@@ -97,7 +126,7 @@ def graficar_error_por_nodos(nodes_max, func_text):
         x1_eq = np.linspace(xb_min, xb_max, nodes)
         x2_eq = np.linspace(xb_min, xb_max, nodes)
         X1_eq, X2_eq = np.meshgrid(x1_eq, x2_eq)
-        Z_interp_eq = RectBivariateSpline(x1_eq, x2_eq, fb(X1_eq, X2_eq), kx=1, ky=1)(x1_grid, x2_grid)
+        Z_interp_eq = func(x1_eq, x2_eq, fb(X1_eq, X2_eq), kx=1, ky=1)(x1_grid, x2_grid)
         error_eq = np.abs(Z_interp_eq - Z_real)
         error_eq_max= np.max(error_eq)
         error_eq_median = np.median(error_eq)
@@ -107,7 +136,7 @@ def graficar_error_por_nodos(nodes_max, func_text):
         x1_noneq = np.sort(chebyshev_points(xb_min, xb_max, nodes))
         x2_noneq = np.sort(chebyshev_points(xb_min, xb_max, nodes))
         X1_noneq, X2_noneq = np.meshgrid(x1_noneq, x2_noneq)
-        Z_interp_noneq = RectBivariateSpline(x1_noneq, x2_noneq, fb(X1_noneq, X2_noneq), kx=1, ky=1)(x1_grid, x2_grid)
+        Z_interp_noneq = func(x1_noneq, x2_noneq, fb(X1_noneq, X2_noneq), kx=1, ky=1)(x1_grid, x2_grid)
         error_noneq = np.abs(Z_interp_noneq - Z_real)
         error_noneq_max= np.max(error_noneq)
         error_noneq_median = np.median(error_noneq)
@@ -128,9 +157,10 @@ def graficar_error_por_nodos(nodes_max, func_text):
     plt.show()
 
 def main():
-    graficar_error_por_nodos(50, "Splines Cúbicos")
+    graficar_error_por_nodos(50, RectBivariateSpline, "Splines Cúbicos")
     splines_cubicos(15)
     splines_cubicos(25)
+    nearest_neighbor(35)
     
 if __name__ == "__main__":
     main()

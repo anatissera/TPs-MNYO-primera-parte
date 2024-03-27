@@ -139,6 +139,7 @@ def splines_interpol(num_points):
 
 def graficar_error_por_nodos(nodes_q, func, func_text):
     x = np.linspace(xa_min, xa_max, 100)
+    
     y = fa(x)
     error_equiespaced_median = []
     error_nonequispaced_median = []
@@ -149,6 +150,11 @@ def graficar_error_por_nodos(nodes_q, func, func_text):
     for node in nodes:
         x_equispaced = np.linspace(xa_min, xa_max, node)
         x_nonequispaced = np.sort(chebyshev_points(xa_min, xa_max, node))
+        
+        if func == interp1d:
+            x_min = max(xa_min, min(x_nonequispaced))
+            x_max = min(xa_max, max(x_nonequispaced))
+            x = np.linspace(x_min, x_max, 100)
         
         z_equispaced = fa(x_equispaced)
         z_nonequispaced = fa(x_nonequispaced)
@@ -177,17 +183,13 @@ def graficar_error_por_nodos(nodes_q, func, func_text):
     plt.grid(True)
     plt.tight_layout()
     plt.show()
-
-"""
-grafiacar splines vs lagrange con su mejor version y error
-
-"""    
+  
 
 def main():
     graficar_error_por_nodos(35, CubicSpline, "Splines Cúbicos")
     graficar_error_por_nodos(20, lagrange, "Lagrange")
-    # graficar_error_por_nodos(20, interp1d, "Interpolación lineal")
-    linear_interpol(35)
+    graficar_error_por_nodos(40, interp1d, "Interpolación lineal")
+    linear_interpol(36)
     lagrange_interpol(13)
     lagrange_interpol(20)
     splines_interpol(20)
@@ -195,5 +197,3 @@ def main():
     
 if __name__ == "__main__":
     main()
-    
-# comparar todos los errores en el mismo gráfico
