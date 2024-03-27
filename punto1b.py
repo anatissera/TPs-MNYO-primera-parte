@@ -85,6 +85,8 @@ def nearest_neighbor(num_points):
     
     plt.tight_layout()
     plt.show()
+
+
     
 def splines_cubicos(num_points):
     x1_equispaced_fb, x2_equispaced_fb, x1_nonequispaced_fb, x2_nonequispaced_fb, X1_equigrid, X2_equigrid, z_equispaced_fb, X1_nonequigrid, X2_nonequigrid, z_nonequispaced_fb = definir_puntos(num_points)
@@ -112,6 +114,35 @@ def splines_cubicos(num_points):
     
     plt.tight_layout()
     plt.show()
+
+
+def splines_quinticos(num_points):
+    x1_equispaced_fb, x2_equispaced_fb, x1_nonequispaced_fb, x2_nonequispaced_fb, X1_equigrid, X2_equigrid, z_equispaced_fb, X1_nonequigrid, X2_nonequigrid, z_nonequispaced_fb = definir_puntos(num_points)
+
+    spline_equispaced_fb = RectBivariateSpline(x1_equispaced_fb, x2_equispaced_fb, z_equispaced_fb, kx=5, ky=5)
+    spline_nonequispaced_fb = RectBivariateSpline(x1_nonequispaced_fb, x2_nonequispaced_fb, z_nonequispaced_fb, kx=5, ky=5)
+
+    Y_interp_equispaced_fb = spline_equispaced_fb(x1_grid, x2_grid)
+    Y_interp_nonequispaced_fb = spline_nonequispaced_fb(x1_grid, x2_grid)
+
+    fig, axes = plt.subplots(1, 2, figsize=(16, 6), subplot_kw={'projection': '3d'})
+
+    axes[0].plot_surface(X1_grid, X2_grid, Y_interp_equispaced_fb, cmap='viridis', alpha=0.8)
+    axes[0].set_xlabel('$x_1$')
+    axes[0].set_ylabel('$x_2$')
+    axes[0].set_title(f"Interpolación de $f_b(x_1, x_2)$ con Splines Quínticos (P. Equiespaciados: {num_points})")
+
+    axes[1].plot_surface(X1_grid, X2_grid, Y_interp_nonequispaced_fb, cmap='viridis', alpha=0.8)
+    axes[1].set_xlabel('$x_1$')
+    axes[1].set_ylabel('$x_2$')
+    axes[1].set_title(f"Interpolación de $f_b(x_1, x_2)$ con Splines Quínticos (P. No Equiespaciados: {num_points})")
+
+    axes[0].plot_wireframe(X1_grid, X2_grid, fb(X1_grid, X2_grid), alpha=0.3, color="navy")
+    axes[1].plot_wireframe(X1_grid, X2_grid, fb(X1_grid, X2_grid), alpha=0.3, color="navy")
+    
+    plt.tight_layout()
+    plt.show() 
+
 
 def graficar_error_por_nodos(nodes_max, func, func_text):
     Z_real = fb(X1_grid, X2_grid)
@@ -156,11 +187,64 @@ def graficar_error_por_nodos(nodes_max, func, func_text):
     plt.tight_layout()
     plt.show()
 
+def graficar_error_por_nodos_splines_quinticos(nodes_max, func, func_text):
+    Z_real = fb(X1_grid, X2_grid)
+
+    error_equiespaced_median = []
+    error_nonequispaced_median = []
+    error_equiespaced_max = []
+    error_nonequispaced_max = []
+    
+    nodes_range = range(2, nodes_max + 1)
+    for nodes in nodes_range:
+        x1_eq = np.linspace(xb_min, xb_max, nodes)
+        x2_eq = np.linspace(xb_min, xb_max, nodes)
+        X1_eq, X2_eq = np.meshgrid(x1_eq, x2_eq)
+        
+        # Interpolación con splines quinticos para puntos equiespaciados
+        Z_interp_eq_quintic = func(x1_eq, x2_eq, fb(X1_eq, X2_eq), kx=5, ky=5)(x1_grid, x2_grid)
+        error_eq_quintic = np.abs(Z_interp_eq_quintic - Z_real)
+        error_eq_max_quintic = np.max(error_eq_quintic)
+        error_eq_median_quintic = np.median(error_eq_quintic)
+        error_equiespaced_median.append(error_eq_median_quintic)
+        error_equiespaced_max.append(error_eq_max_quintic)
+        
+        # Interpolación con splines quinticos para puntos no equiespaciados
+        x1_noneq = np.sort(chebyshev_points(xb_min, xb_max, nodes))
+        x2_noneq = np.sort(chebyshev_points(xb_min, xb_max, nodes))
+        X1_noneq, X2_noneq = np.meshgrid(x1_noneq, x2_noneq)
+        Z_interp_noneq_quintic = func(x1_noneq, x2_noneq, fb(X1_noneq, X2_noneq), kx=5, ky=5)(x1_grid, x2_grid)
+        error_noneq_quintic = np.abs(Z_interp_noneq_quintic - Z_real)
+        error_noneq_max_quintic = np.max(error_noneq_quintic)
+        error_noneq_median_quintic = np.median(error_noneq_quintic)
+        error_nonequispaced_median.append(error_noneq_median_quintic)
+        error_nonequispaced_max.append(error_noneq_max_quintic)
+       
+    plt.figure(figsize=(10, 6))
+    plt.plot(nodes_range, error_equiespaced_median, label='Mediana del error equiespaciado (quinticos)', color="darkred")
+    plt.plot(nodes_range, error_equiespaced_max, label='Máximo del error equiespaciado (quinticos)', color="darksalmon")
+    plt.plot(nodes_range, error_nonequispaced_median, label='Mediana del error no equiespaciado (quinticos)', color="darkgreen")
+    plt.plot(nodes_range, error_nonequispaced_max, label='Máximo del error no equiespaciado (quinticos)', color="darkseagreen")
+    
+    plt.xlabel('Cantidad de nodos')
+    plt.ylabel('Error')
+    plt.title(f"Error de interpolación con {func_text} en función de la cantidad de nodos (Splines Quinticos)")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
+
 def main():
-    graficar_error_por_nodos(50, RectBivariateSpline, "Splines Cúbicos")
-    splines_cubicos(15)
-    splines_cubicos(25)
-    nearest_neighbor(35)
+    splines_quinticos(16)
+    #graficar_error_por_nodos_splines_quinticos(50,RectBivariateSpline, "Splines Quinticos")
+    #splines_quinticos(25)
+    #graficar_error_por_nodos(50, RectBivariateSpline, "Splines Cúbicos")
+    splines_cubicos(16) #cambie a 16 porque en el informa el graf esta con 16
+    #splines_cubicos(25)
+    #nearest_neighbor(35)
+
     
 if __name__ == "__main__":
     main()
