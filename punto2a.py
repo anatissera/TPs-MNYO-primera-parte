@@ -48,26 +48,9 @@ def graficar_error_abs():
     plt.grid(True)
     plt.show()
 
-def graficar_error_en_tiempo():
-    error_x1 = np.abs(ground_truth_df["x1"] - splines3_x1_vehic1(ground_truth_df.index))
-    error_x2 = np.abs(ground_truth_df["x2"] - splines3_x2_vehic1(ground_truth_df.index))
-
-    plt.figure(figsize=(10, 6))
-    plt.plot(ground_truth_df.index, error_x1, 'o')
-    plt.plot(ground_truth_df.index, error_x2, 'o')
-    plt.plot(ground_truth_df.index, error_x1, label='$Error x1$')
-    plt.plot(ground_truth_df.index, error_x2, label='$Error x2$')
-    plt.xlabel('$Tiempo$')
-    plt.ylabel('$Error$')
-    plt.title(f"Error de Interpolación de trayectoria en función del tiempo con Splines Cúbicos")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
 def main():
     graficar_trayectoria_splines_3()
     graficar_error_abs()
-    graficar_error_en_tiempo()
     
 if __name__ == "__main__":
     main()
