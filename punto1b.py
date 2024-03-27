@@ -4,6 +4,8 @@ from mpl_toolkits.mplot3d import Axes3D # para el b
 from scipy.interpolate import RectBivariateSpline
 import numpy as np
 from scipy.interpolate import NearestNDInterpolator
+from scipy.interpolate import UnivariateSpline
+from scipy.interpolate import interp2d
 
 
 # sp.interpolate.RegularGridInterpolator con método lineal, 5x5, 25x25 puntos.
@@ -119,8 +121,8 @@ def splines_cubicos(num_points):
 def splines_quinticos(num_points):
     x1_equispaced_fb, x2_equispaced_fb, x1_nonequispaced_fb, x2_nonequispaced_fb, X1_equigrid, X2_equigrid, z_equispaced_fb, X1_nonequigrid, X2_nonequigrid, z_nonequispaced_fb = definir_puntos(num_points)
 
-    spline_equispaced_fb = RectBivariateSpline(x1_equispaced_fb, x2_equispaced_fb, z_equispaced_fb, kx=5, ky=5)
-    spline_nonequispaced_fb = RectBivariateSpline(x1_nonequispaced_fb, x2_nonequispaced_fb, z_nonequispaced_fb, kx=5, ky=5)
+    spline_equispaced_fb = interp2d(x1_equispaced_fb, x2_equispaced_fb, z_equispaced_fb, kind = 'quintic')
+    spline_nonequispaced_fb = interp2d(x1_nonequispaced_fb, x2_nonequispaced_fb, z_nonequispaced_fb, kind = 'quintic')
 
     Y_interp_equispaced_fb = spline_equispaced_fb(x1_grid, x2_grid)
     Y_interp_nonequispaced_fb = spline_nonequispaced_fb(x1_grid, x2_grid)
@@ -241,6 +243,7 @@ def main():
     #graficar_error_por_nodos_splines_quinticos(50,RectBivariateSpline, "Splines Quinticos")
     #splines_quinticos(25)
     #graficar_error_por_nodos(50, RectBivariateSpline, "Splines Cúbicos")
+    graficar_error_por_nodos(50, NearestNDInterpolator, "Splines Quínticos")
     splines_cubicos(16) #cambie a 16 porque en el informa el graf esta con 16
     #splines_cubicos(25)
     #nearest_neighbor(35)
