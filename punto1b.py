@@ -38,8 +38,6 @@ def fb(x1, x2):
 xb_min = -1
 xb_max = 1
 
-# variables globales
-# malla de puntos para evaluar la interpolación
 x1_grid = np.linspace(xb_min, xb_max, 100)
 x2_grid = np.linspace(xb_min, xb_max, 100)
 X1_grid, X2_grid = np.meshgrid(x1_grid, x2_grid)
@@ -51,7 +49,6 @@ def definir_puntos(num_points):
     x1_nonequispaced_fb = np.sort(chebyshev_points(xb_min, xb_max, num_points))
     x2_nonequispaced_fb = np.sort(chebyshev_points(xb_min, xb_max, num_points))
    
-    # Evaluar la función fb en la malla de puntos
     X1_equigrid, X2_equigrid = np.meshgrid(x1_equispaced_fb, x2_equispaced_fb)
     z_equispaced_fb = fb(X1_equigrid, X2_equigrid)
 
@@ -71,8 +68,6 @@ def splines_cubicos(num_points):
 
     fig, axes = plt.subplots(1, 2, figsize=(16, 6), subplot_kw={'projection': '3d'})
 
-
-
     axes[0].plot_surface(X1_grid, X2_grid, Y_interp_equispaced_fb, cmap='viridis', alpha=0.8)
     axes[0].set_xlabel('$x_1$')
     axes[0].set_ylabel('$x_2$')
@@ -90,66 +85,52 @@ def splines_cubicos(num_points):
     plt.show()
 
 def graficar_error_por_nodos(nodes_max, func_text):
-    x = np.linspace(xb_min, xb_max, 100)
-    y = np.linspace(xb_min, xb_max, 100)
-    X, Y = np.meshgrid(x, y)
-    Z = fb(X, Y) 
-    
-    error_equispaced_median = np.zeros(nodes_max)
-    error_nonequispaced_median = np.zeros(nodes_max)
-    error_equispaced_max = np.zeros(nodes_max)
-    error_nonequispaced_max = np.zeros(nodes_max)
-   
-    error_equispaced_median[0] = np.nan
-    error_nonequispaced_median[0] = np.nan
-    error_equispaced_max[0] = np.nan
-    error_nonequispaced_max[0] = np.nan
-    
-    error_equispaced_median[1] = np.nan
-    error_nonequispaced_median[1] = np.nan
-    error_equispaced_max[1] = np.nan
-    error_nonequispaced_max[1] = np.nan
-   
-    for node in range(2, nodes_max + 1):
-        x_eq = np.linspace(xb_min, xb_max, node) 
-        y_eq = np.linspace(xb_min, xb_max, node)
-        X_eq, Y_eq = np.meshgrid(x_eq, y_eq)
-        z_eq = fb(X_eq, Y_eq)
-        
-        x_noneq = np.sort(chebyshev_points(xb_min, xb_max, node))
-        y_noneq = np.sort(chebyshev_points(xb_min, xb_max, node))
-        X_noneq, Y_noneq = np.meshgrid(x_noneq, y_noneq)
-        z_noneq = fb(X_noneq, Y_noneq)
-        
-        z_eq_interp = griddata((X_eq.ravel(), Y_eq.ravel()), z_eq.ravel(), (X, Y), method='cubic')
-        z_noneq_interp = griddata((X_noneq.ravel(), Y_noneq.ravel()), z_noneq.ravel(), (X, Y), method='cubic')
-        error_equispaced = np.abs(z_eq_interp - fb(X, Y))
-        error_nonequispaced = np.abs(z_noneq_interp - fb(X, Y))
-        error_equispaced_max[node - 1] = np.max(error_equispaced)
-        error_equispaced_median[node - 1] = np.median(error_equispaced)
-        error_nonequispaced_max[node - 1] = np.max(error_nonequispaced)
-        error_nonequispaced_median[node - 1] = np.median(error_nonequispaced)
+    Z_real = fb(X1_grid, X2_grid)
 
-    fig = plt.figure(figsize=(12, 6))
-    ax = fig.add_subplot()
-    ax.plot(np.arange(1, nodes_max + 1), error_equispaced_max, label='Máximo del error equiespaciado', color="red")
-    ax.plot(np.arange(1, nodes_max + 1), error_equispaced_median, label='Mediana del error equiespaciado', color="salmon")
-    ax.plot(np.arange(1, nodes_max + 1), error_nonequispaced_max, label='Máximo del error no equiespaciado', color="green")
-    ax.plot(np.arange(1, nodes_max + 1), error_nonequispaced_median, label='Mediana del error no equiespaciado', color="seagreen")
-    ax.set_xlabel('Cantidad de nodos')
-    ax.set_xticks(np.arange(0, nodes_max + 1, 5))
-    ax.set_ylabel('Error')
-    ax.legend()
-    plt.suptitle(f"Error de la interpolación usando {func_text}", fontsize=16)
+    error_equiespaced_median = []
+    error_nonequispaced_median = []
+    error_equiespaced_max = []
+    error_nonequispaced_max = []
+    
+    nodes_range = range(2, nodes_max + 1)
+    for nodes in nodes_range:
+        x1_eq = np.linspace(xb_min, xb_max, nodes)
+        x2_eq = np.linspace(xb_min, xb_max, nodes)
+        X1_eq, X2_eq = np.meshgrid(x1_eq, x2_eq)
+        Z_interp_eq = RectBivariateSpline(x1_eq, x2_eq, fb(X1_eq, X2_eq), kx=1, ky=1)(x1_grid, x2_grid)
+        error_eq = np.abs(Z_interp_eq - Z_real)
+        error_eq_max= np.max(error_eq)
+        error_eq_median = np.median(error_eq)
+        error_equiespaced_median.append(error_eq_median)
+        error_equiespaced_max.append(error_eq_max)
+        
+        x1_noneq = np.sort(chebyshev_points(xb_min, xb_max, nodes))
+        x2_noneq = np.sort(chebyshev_points(xb_min, xb_max, nodes))
+        X1_noneq, X2_noneq = np.meshgrid(x1_noneq, x2_noneq)
+        Z_interp_noneq = RectBivariateSpline(x1_noneq, x2_noneq, fb(X1_noneq, X2_noneq), kx=1, ky=1)(x1_grid, x2_grid)
+        error_noneq = np.abs(Z_interp_noneq - Z_real)
+        error_noneq_max= np.max(error_noneq)
+        error_noneq_median = np.median(error_noneq)
+        error_nonequispaced_median.append(error_noneq_median)
+        error_nonequispaced_max.append(error_noneq_max)
+       
+    plt.figure(figsize=(10, 6))
+    plt.plot(nodes_range, error_equiespaced_median, label='Mediana del error equiespaciado', color = "darkred")
+    plt.plot(nodes_range, error_equiespaced_max, label='Máximo del error equiespaciado', color = "darksalmon")
+    plt.plot(nodes_range, error_nonequispaced_median, label='Mediana del error no equiespaciado', color = "darkgreen")
+    plt.plot(nodes_range, error_nonequispaced_max, label='Máximo del error no equiespaciado', color = "darkseagreen")
+    plt.xlabel('Cantidad de nodos')
+    plt.ylabel('Error')
+    plt.title(f"Error de interpolación con {func_text} en función de la cantidad de nodos")
+    plt.legend()
+    plt.grid(True)
     plt.tight_layout()
     plt.show()
 
-# ERROR  --> investigar para hacerlo en 2d
 def main():
     graficar_error_por_nodos(50, "Splines Cúbicos")
     splines_cubicos(15)
     splines_cubicos(25)
     
-
 if __name__ == "__main__":
     main()

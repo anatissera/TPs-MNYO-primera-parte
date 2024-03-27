@@ -33,61 +33,45 @@ def generate_midpoints(lst): # -> solo los midpoints
     #     return np.array(midpoints)
     
 def graficar_interpol_ambos_puntos(f_interpol_equispaced, f_interpol_nonequispaced, x_equispaced_fa, y_equispaced_fa, x_nonequispaced_fa, y_nonequispaced_fa, x_compare_equipoints_fa, x_compare_nonequipoints_fa, method, q_points):
-    fig, axs = plt.subplots(1, 2, figsize=(16, 6))
+    plt.figure(figsize=(16, 6))
     
     points_to_study_function = equispaced_points(-3.97, 3.97, 150)
     points_to_study_equifunction = equispaced_points(-4, 4, 150)
     
-    axs[0].plot(points_to_study_function, fa(points_to_study_function), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
-    axs[0].plot(x_equispaced_fa, y_equispaced_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)', color = 'blue')
-    axs[0].plot(points_to_study_equifunction, f_interpol_equispaced(points_to_study_equifunction), label='$Interpolación$ (Equispaciado)', color = 'green')
-    axs[0].plot(x_nonequispaced_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)', color = 'orange')
-    axs[0].plot(points_to_study_function, f_interpol_nonequispaced(points_to_study_function), label='$Interpolación$ (No equiespaciado)', color = 'red')
-    axs[0].set_xlabel('$x$')
-    axs[0].set_ylabel('$f_a(x)$')
-    axs[0].set_title(f"Interpolación de $f_a(x)$ con {method} con {q_points} Puntos de Colocación")
-    axs[0].legend()
-    axs[0].grid(True)
+    plt.plot(points_to_study_function, fa(points_to_study_function), label='$f_a(x)$', linestyle='--', color='black')  # Graficar la función fa(x)
+    plt.plot(x_equispaced_fa, y_equispaced_fa, 'o', label='$Puntos de Colocación$ (Equispaciado)', color = 'blue')
+    plt.plot(points_to_study_equifunction, f_interpol_equispaced(points_to_study_equifunction), label='$Interpolación$ (Equispaciado)', color = 'green')
+    plt.plot(x_nonequispaced_fa, y_nonequispaced_fa, 'o', label='$Puntos de Colocación$ (No equiespaciado)', color = 'orange')
+    plt.plot(points_to_study_function, f_interpol_nonequispaced(points_to_study_function), label='$Interpolación$ (No equiespaciado)', color = 'red')
+    plt.xlabel('$x$')
+    plt.ylabel('$f_a(x)$')
+    plt.title(f"Interpolación de $f_a(x)$ con {method} con {q_points} Puntos de Colocación")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
     
+def graficar_error(f_interpol_equispaced, f_interpol_nonequispaced, x_compare_equipoints_fa, x_compare_nonequipoints_fa, method, q_points):
     error_equispaced_w_midpoints = np.abs(fa(x_compare_equipoints_fa) - f_interpol_equispaced(x_compare_equipoints_fa))
     error_nonequispaced_w_midpoints = np.abs(fa(x_compare_nonequipoints_fa) - f_interpol_nonequispaced(x_compare_nonequipoints_fa))
-
-    axs[1].plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, 'o')
-    axs[1].plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, 'o')
-    axs[1].plot(x_compare_equipoints_fa, error_equispaced_w_midpoints)
-    axs[1].plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints)
-    axs[1].set_xlabel('$x$')
-    axs[1].set_ylabel('$Error$')
-    axs[1].set_title(f"Error de Interpolación con {method} de $f_a(x)$ con {q_points} puntos")
-    axs[1].grid(True)
 
     median_error_equispaced = np.median(error_equispaced_w_midpoints)
     median_error_nonequispaced = np.median(error_nonequispaced_w_midpoints)
 
     legend_equispaced = f'$Error$ (Equispaciado) - \n$Mediana:$ {median_error_equispaced:.5f}'
     legend_nonequispaced = f'$Error$ (No equiespaciado) - \n$Mediana:$ {median_error_nonequispaced:.5f}'
-
-    axs[1].legend([legend_equispaced, legend_nonequispaced], fontsize='small')
     
-    plt.tight_layout()
+    plt.figure(figsize=(10, 6))
+    plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, 'o')
+    plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, 'o')
+    plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, label='$Error$ (Equispaciado)')
+    plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, label='$Error$ (No equiespaciado)')
+    plt.xlabel('$x$')
+    plt.ylabel('$Error$')
+    plt.title(f"Error de Interpolación con {method} de $f_a(x)$ con {q_points} puntos")
+    plt.legend([legend_equispaced, legend_nonequispaced], fontsize='small')
+    plt.grid(True)
     plt.show()
-    
-    
-# def graficar_error(f_interpol_equispaced, f_interpol_nonequispaced, x_compare_equipoints_fa, x_compare_nonequipoints_fa, method, q_points):
-#     error_equispaced_w_midpoints = np.abs(fa(x_compare_equipoints_fa) - f_interpol_equispaced(x_compare_equipoints_fa))
-#     error_nonequispaced_w_midpoints = np.abs(fa(x_compare_nonequipoints_fa) - f_interpol_nonequispaced(x_compare_nonequipoints_fa))
 
-#     plt.figure(figsize=(10, 6))
-#     plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, 'o')
-#     plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, 'o')
-#     plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, label='$Error$ (Equispaciado)')
-#     plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, label='$Error$ (No equiespaciado)')
-#     plt.xlabel('$x$')
-#     plt.ylabel('$Error$')
-#     plt.title(f"Error de Interpolación con {method} de $f_a(x)$ con {q_points} puntos")
-#     plt.legend()
-#     plt.grid(True)
-#     plt.show()
 
 def interpolacion_lineal(x, x1, y1, x2, y2):
     m = (y2 - y1) / (x2 - x1)
@@ -202,7 +186,7 @@ grafiacar splines vs lagrange con su mejor version y error
 def main():
     graficar_error_por_nodos(35, CubicSpline, "Splines Cúbicos")
     graficar_error_por_nodos(20, lagrange, "Lagrange")
-    graficar_error_por_nodos(20, interp1d, "Interpolación lineal")
+    # graficar_error_por_nodos(20, interp1d, "Interpolación lineal")
     linear_interpol(13)
     linear_interpol(20)
     linear_interpol(35)
