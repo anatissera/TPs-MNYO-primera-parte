@@ -1,10 +1,7 @@
 from punto1a import equispaced_points, chebyshev_points
-import matplotlib.pyplot as plt # para el a
-from mpl_toolkits.mplot3d import Axes3D # para el b
+import matplotlib.pyplot as plt
 from scipy.interpolate import RectBivariateSpline
 import numpy as np
-from scipy.interpolate import NearestNDInterpolator
-from scipy.interpolate import RegularGridInterpolator
 
 def fb(x1, x2):
     return 0.75 * np.exp(-((10 * x1 - 2)**2 / 4) - ((9 * x2 - 2)**2 / 4)) + \
@@ -103,14 +100,11 @@ def graficar_error_por_nodos(nodes_max, func, func_text, to_start, kx=None, ky=N
     plt.tight_layout()
     plt.show()
 
-def main():  
-    # graficar_error_por_nodos(40, RectBivariateSpline, "Splines Lineales", 2, kx=1, ky=1)  
+def main():   
     splines_cubicos(16)
     graficar_error_por_nodos(40, RectBivariateSpline, "Splines Lineales", 2, kx=1, ky=1)  
     graficar_error_por_nodos(40, RectBivariateSpline, "Splines Cúbicos", 4, kx=3, ky=3)
     graficar_error_por_nodos(40, RectBivariateSpline, "Splines Quínticos", 6, kx=5, ky=5)
-    # splines_quinticos(16)
-    # graficar_error_por_nodos(40, RectBivariateSpline, "Splines Quínticos", 6, kx=5, ky=5)
     
 if __name__ == "__main__":
     main()
