@@ -146,7 +146,7 @@ def splines_quinticos(num_points):
     plt.show() 
 
 
-def graficar_error_por_nodos(nodes_max, func, func_text):
+def graficar_error_por_nodos(nodes_max, func, func_text, to_start=6, kind=None, kx=None, ky=None):
     Z_real = fb(X1_grid, X2_grid)
 
     error_equiespaced_median = []
@@ -154,12 +154,15 @@ def graficar_error_por_nodos(nodes_max, func, func_text):
     error_equiespaced_max = []
     error_nonequispaced_max = []
     
-    nodes_range = range(2, nodes_max + 1)
+    nodes_range = range(to_start, nodes_max + 1)
     for nodes in nodes_range:
         x1_eq = np.linspace(xb_min, xb_max, nodes)
         x2_eq = np.linspace(xb_min, xb_max, nodes)
         X1_eq, X2_eq = np.meshgrid(x1_eq, x2_eq)
-        Z_interp_eq = func(x1_eq, x2_eq, fb(X1_eq, X2_eq), kx=1, ky=1)(x1_grid, x2_grid)
+        if kind is not None:
+            Z_interp_eq = func(x1_eq, x2_eq, fb(X1_eq, X2_eq), kind=kind)(x1_grid, x2_grid)
+        else:
+            Z_interp_eq = func(x1_eq, x2_eq, fb(X1_eq, X2_eq), kx=kx, ky=ky)(x1_grid, x2_grid)
         error_eq = np.abs(Z_interp_eq - Z_real)
         error_eq_max= np.max(error_eq)
         error_eq_median = np.median(error_eq)
@@ -169,7 +172,10 @@ def graficar_error_por_nodos(nodes_max, func, func_text):
         x1_noneq = np.sort(chebyshev_points(xb_min, xb_max, nodes))
         x2_noneq = np.sort(chebyshev_points(xb_min, xb_max, nodes))
         X1_noneq, X2_noneq = np.meshgrid(x1_noneq, x2_noneq)
-        Z_interp_noneq = func(x1_noneq, x2_noneq, fb(X1_noneq, X2_noneq), kx=1, ky=1)(x1_grid, x2_grid)
+        if kind is not None:
+            Z_interp_noneq = func(x1_noneq, x2_noneq, fb(X1_noneq, X2_noneq), kind=kind)(x1_grid, x2_grid)
+        else:
+            Z_interp_noneq = func(x1_noneq, x2_noneq, fb(X1_noneq, X2_noneq), kx=kx, ky=ky)(x1_grid, x2_grid)
         error_noneq = np.abs(Z_interp_noneq - Z_real)
         error_noneq_max= np.max(error_noneq)
         error_noneq_median = np.median(error_noneq)
@@ -189,13 +195,11 @@ def graficar_error_por_nodos(nodes_max, func, func_text):
     plt.tight_layout()
     plt.show()
 
-def main():
+def main():    
+    splines_cubicos(16)
+    graficar_error_por_nodos(40, RectBivariateSpline, "Splines Cúbicos", kx=1, ky=1)
     splines_quinticos(16)
-    
-    graficar_error_por_nodos(50, RectBivariateSpline, "Splines Cúbicos")
-    # graficar_error_por_nodos(50, interp2d, "Splines Quínticos")
-    splines_cubicos(16) #cambie a 16 porque en el informa el graf esta con 16
-  
+    graficar_error_por_nodos(40, interp2d, "Splines Quínticos", kind='quintic')
 
     
 if __name__ == "__main__":
