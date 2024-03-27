@@ -187,14 +187,10 @@ def main():
     graficar_error_por_nodos(35, CubicSpline, "Splines Cúbicos")
     graficar_error_por_nodos(20, lagrange, "Lagrange")
     # graficar_error_por_nodos(20, interp1d, "Interpolación lineal")
-    linear_interpol(13)
-    linear_interpol(20)
     linear_interpol(35)
     lagrange_interpol(13)
     lagrange_interpol(20)
-    splines_interpol(13)
     splines_interpol(20)
-    splines_interpol(35)
     
     
 if __name__ == "__main__":
