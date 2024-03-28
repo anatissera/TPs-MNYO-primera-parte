@@ -31,26 +31,30 @@ def graficar_trayectoria_splines_3():
     plt.show()
 
 points_to_compare = np.linspace(mediciones_1_df.index.min(), mediciones_1_df.index.max(), 100)
+    
+def graficar_euclidean_error_abs():
+    interp_x1 = splines3_x1_vehic1(points_to_compare)
+    interp_x2 = splines3_x2_vehic1(points_to_compare)
 
-def graficar_error_abs():
-    error_x1 = np.abs(ground_truth_df["x1"] - splines3_x1_vehic1(points_to_compare))
-    error_x2 = np.abs(ground_truth_df["x2"] - splines3_x2_vehic1(points_to_compare))
+    error = np.sqrt((ground_truth_df["x1"] - interp_x1)**2 + (ground_truth_df["x2"] - interp_x2)**2)
+
+    print("Mediana del error:", error.median())
+    print("Max del error:", error.sum())
 
     plt.figure(figsize=(10, 6))
-    plt.plot(points_to_compare, error_x1, 'o')
-    plt.plot(points_to_compare, error_x2, 'o')
-    plt.plot(points_to_compare, error_x1, label='$Error x1$')
-    plt.plot(points_to_compare, error_x2, label='$Error x2$')
-    plt.xlabel('$x$')
-    plt.ylabel('$Error$')
-    plt.title(f"$Error absoluto$ de trayectoria interpolada con Splines Cúbicos contra el ground truth")
+    plt.plot(points_to_compare, error,'o', label = "puntos evaluados")
+    plt.plot(points_to_compare, error, label ="Error")
+    plt.xlabel('Index')
+    plt.ylabel('Error')
+    plt.title("$Error absoluto$ de trayectoria interpolada con Splines Cúbicos contra el ground truth")
     plt.legend()
     plt.grid(True)
     plt.show()
+    
 
 def main():
     graficar_trayectoria_splines_3()
-    graficar_error_abs()
+    graficar_euclidean_error_abs()
     
 if __name__ == "__main__":
     main()

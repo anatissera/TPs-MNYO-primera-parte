@@ -50,16 +50,17 @@ def graficar_trayectorias_intersec():
     plt.figure(figsize=(10, 6))
     plt.plot(ground_truth_df["x1"], ground_truth_df["x2"], label='Ground Truth', linestyle='-.', color='dimgrey')
 
-    plt.scatter(mediciones_1_df["x1"], mediciones_1_df["x2"], label="Mediciones", color='yellowgreen', s=20)
+    plt.scatter(mediciones_1_df["x1"], mediciones_1_df["x2"], label="Mediciones v1", color='yellowgreen', s=20)
     plt.plot(splines3_x1_vehic1(points_to_evaluate_v1), splines3_x2_vehic1(points_to_evaluate_v1), label='Interpolación con Splines Cúbicos v1', color='teal')
 
+    plt.scatter(mediciones_2_df["x1"], mediciones_2_df["x2"], label="Mediciones v2", color='plum', s=20)
     plt.plot(splines3_x1_vehic2(points_to_evaluate_v2), splines3_x2_vehic2(points_to_evaluate_v2), label='Interpolation con Splines Cúbicos v2', color='mediumpurple')
 
     plt.plot(x_interseccion_1, y_interseccion_1, 'x', label="Intersección", markersize=8.5, color='darkred',  markeredgewidth=4)
 
     plt.xlabel("Coordenada $x1$")
     plt.ylabel("Coordenada $x2$")
-    plt.title("Trayectorias de los 2 Vehículos")
+    plt.title("Trayectorias de los 2 Vehículos e intersección")
     plt.legend()
     plt.grid()
     plt.tight_layout()
