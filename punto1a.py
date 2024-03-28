@@ -17,21 +17,13 @@ def equispaced_points(a, b, num_points):
 def chebyshev_points(a, b, num_points):
     return (a + b) / 2 + (b - a) / 2 * np.cos((2 * np.arange(1, num_points + 1) - 1) * np.pi / (2 * num_points))
 
-def generate_midpoints(lst): # -> solo los midpoints
+def generate_midpoints(lst):
         midpoints = []
         for i in range(len(lst) - 1):
             midpoint = (lst[i] + lst[i+1]) / 2.0
             midpoints.append(midpoint)
         return np.array(midpoints)
 
-    # def generate_midpoints(lst): # -> los midpoints y los puntos de interpolación
-    #     midpoints = []
-    #     for i in range(len(lst) - 1):
-    #         midpoint = (lst[i] + lst[i+1]) / 2.0
-    #         midpoints.extend([lst[i], midpoint])
-    #     midpoints.append(lst[-1])  # Agregar el último elemento de la lista original
-    #     return np.array(midpoints)
-    
 def graficar_interpol_ambos_puntos(f_interpol_equispaced, f_interpol_nonequispaced, x_equispaced_fa, y_equispaced_fa, x_nonequispaced_fa, y_nonequispaced_fa, x_compare_equipoints_fa, x_compare_nonequipoints_fa, method, q_points):
     plt.figure(figsize=(16, 6))
     
@@ -57,17 +49,17 @@ def graficar_error(f_interpol_equispaced, f_interpol_nonequispaced, x_compare_eq
     median_error_equispaced = np.median(error_equispaced_w_midpoints)
     median_error_nonequispaced = np.median(error_nonequispaced_w_midpoints)
 
-    legend_equispaced = f'$Error$ (Equispaciado) - \n$Mediana:$ {median_error_equispaced:.5f}'
-    legend_nonequispaced = f'$Error$ (No equiespaciado) - \n$Mediana:$ {median_error_nonequispaced:.5f}'
+    legend_equispaced = f'$Error$ $absoluto$ (Equispaciado) - \n$Mediana:$ {median_error_equispaced:.5f}'
+    legend_nonequispaced = f'$Error$ $absoluto$ (No equiespaciado) - \n$Mediana:$ {median_error_nonequispaced:.5f}'
     
     plt.figure(figsize=(10, 6))
     plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, 'o')
     plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, 'o')
-    plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, label='$Error$ (Equispaciado)')
-    plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, label='$Error$ (No equiespaciado)')
+    plt.plot(x_compare_equipoints_fa, error_equispaced_w_midpoints, label='$Error$ $absoluto$ (Equispaciado)')
+    plt.plot(x_compare_nonequipoints_fa, error_nonequispaced_w_midpoints, label='$Error$ $absoluto$ (No equiespaciado)')
     plt.xlabel('$x$')
     plt.ylabel('$Error$')
-    plt.title(f"Error de Interpolación con {method} de $f_a(x)$ con {q_points} puntos")
+    plt.title(f"Error absoluto de Interpolación con {method} de $f_a(x)$ con {q_points} puntos")
     plt.legend([legend_equispaced, legend_nonequispaced], fontsize='small')
     plt.grid(True)
     plt.show()

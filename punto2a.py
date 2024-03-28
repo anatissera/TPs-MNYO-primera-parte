@@ -38,15 +38,15 @@ def graficar_euclidean_error_abs():
 
     error = np.sqrt((ground_truth_df["x1"] - interp_x1)**2 + (ground_truth_df["x2"] - interp_x2)**2)
 
-    print("Mediana del error:", error.median())
-    print("Max del error:", error.sum())
+    print("Mediana del error absoluto:", error.median())
+    print("Max del error absoluto:", error.sum())
 
     plt.figure(figsize=(10, 6))
     plt.plot(points_to_compare, error,'o', label = "puntos evaluados")
-    plt.plot(points_to_compare, error, label ="Error")
+    plt.plot(points_to_compare, error, label ="Error absoluto")
     plt.xlabel('Index')
     plt.ylabel('Error')
-    plt.title("$Error absoluto$ de trayectoria interpolada con Splines Cúbicos contra el ground truth")
+    plt.title("$Error$ $absoluto$ de trayectoria interpolada con Splines Cúbicos contra el ground truth")
     plt.legend()
     plt.grid(True)
     plt.show()
@@ -76,7 +76,7 @@ def error_max():
 
 def main():
     graficar_trayectoria_splines_3()
-    graficar_error_abs()
+    graficar_euclidean_error_abs()
     
 if __name__ == "__main__":
     main()

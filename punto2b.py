@@ -56,8 +56,7 @@ def graficar_trayectorias_intersec():
     plt.scatter(mediciones_2_df["x1"], mediciones_2_df["x2"], label="Mediciones v2", color='plum', s=20)
     plt.plot(splines3_x1_vehic2(points_to_evaluate_v2), splines3_x2_vehic2(points_to_evaluate_v2), label='Interpolation con Splines Cúbicos v2', color='mediumpurple')
 
-    plt.plot(x_interseccion_1, y_interseccion_1, 'x', label="Intersección", markersize=8.5, color='darkred',  markeredgewidth=4)
-
+    plt.plot(x_interseccion_1, y_interseccion_1, 'x', label="Intersección", markersize=8.5, color='darkred',  markeredgewidth=4)    
     plt.xlabel("Coordenada $x1$")
     plt.ylabel("Coordenada $x2$")
     plt.title("Trayectorias de los 2 Vehículos e intersección")

@@ -65,8 +65,8 @@ def graficar_error_por_nodos(nodes_max, func, func_text, to_start, kx=None, ky=N
     error_equiespaced_max = []
     error_nonequispaced_max = []
     
-    nodes_range = range(to_start, nodes_max + 1)
-    for nodes in nodes_range:
+    q_nodes = range(to_start, nodes_max + 1)
+    for nodes in q_nodes:
         x1_eq = np.linspace(xb_min, xb_max, nodes)
         x2_eq = np.linspace(xb_min, xb_max, nodes)
         X1_eq, X2_eq = np.meshgrid(x1_eq, x2_eq)
@@ -88,13 +88,13 @@ def graficar_error_por_nodos(nodes_max, func, func_text, to_start, kx=None, ky=N
         error_nonequispaced_max.append(error_noneq_max)
        
     plt.figure(figsize=(10, 6))
-    plt.plot(nodes_range, error_equiespaced_median, label='Mediana del error equiespaciado', color = "darkred")
-    plt.plot(nodes_range, error_equiespaced_max, label='Máximo del error equiespaciado', color = "darksalmon")
-    plt.plot(nodes_range, error_nonequispaced_median, label='Mediana del error no equiespaciado', color = "darkgreen")
-    plt.plot(nodes_range, error_nonequispaced_max, label='Máximo del error no equiespaciado', color = "darkseagreen")
+    plt.plot(q_nodes, error_equiespaced_median, label='Mediana del error absoluto equiespaciado', color = "darkred")
+    plt.plot(q_nodes, error_equiespaced_max, label='Máximo del error absoluto equiespaciado', color = "darksalmon")
+    plt.plot(q_nodes, error_nonequispaced_median, label='Mediana del error absoluto no equiespaciado', color = "darkgreen")
+    plt.plot(q_nodes, error_nonequispaced_max, label='Máximo del error absoluto no equiespaciado', color = "darkseagreen")
     plt.xlabel('Cantidad de nodos')
     plt.ylabel('Error')
-    plt.title(f"Error de interpolación con {func_text} en función de la cantidad de nodos")
+    plt.title(f"Error absoluto de interpolación con {func_text} en función de la cantidad de nodos")
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
