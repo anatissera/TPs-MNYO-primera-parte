@@ -1,7 +1,3 @@
-# se puede hacer una tabla de error absoluto comparando splines y lagrange ponele
-
-# splines cúbicos, splines de 6to orden, Newton, Gauss-Newton
-
 import pandas as pd
 import numpy as np
 from scipy.interpolate import CubicSpline
@@ -39,40 +35,17 @@ def graficar_euclidean_error_abs():
     error = np.sqrt((ground_truth_df["x1"] - interp_x1)**2 + (ground_truth_df["x2"] - interp_x2)**2)
 
     print("Mediana del error absoluto:", error.median())
-    print("Max del error absoluto:", error.sum())
+    print("Máximo del error absoluto:", error.sum())
 
     plt.figure(figsize=(10, 6))
-    plt.plot(points_to_compare, error,'o', label = "puntos evaluados")
-    plt.plot(points_to_compare, error, label ="Error absoluto")
-    plt.xlabel('Index')
+    plt.plot(points_to_compare, error,'o', label = "puntos evaluados", color = 'darkgoldenrod')
+    plt.plot(points_to_compare, error, label ="Error absoluto", color = 'orange')
+    plt.xlabel('Índice')
     plt.ylabel('Error')
     plt.title("$Error$ $absoluto$ de trayectoria interpolada con Splines Cúbicos contra el ground truth")
     plt.legend()
     plt.grid(True)
     plt.show()
-    
-
-def error_promedio():
-    error_x1 = np.abs(ground_truth_df["x1"] - splines3_x1_vehic1(points_to_compare))
-    error_x2 = np.abs(ground_truth_df["x2"] - splines3_x2_vehic1(points_to_compare))
-
-    error_promedio_x1 = np.median(error_x1)
-    error_promedio_x2 = np.median(error_x2)
-
-    print(f"Error promedio en x1: {error_promedio_x1}")
-    print(f"Error promedio en x2: {error_promedio_x2}")
-
-
-def error_max():
-    error_x1 = np.abs(ground_truth_df["x1"] - splines3_x1_vehic1(points_to_compare))
-    error_x2 = np.abs(ground_truth_df["x2"] - splines3_x2_vehic1(points_to_compare))
-
-    error_max_x1 = np.max(error_x1)
-    error_max_x2 = np.max(error_x2)
-
-    print(f"Error máximo en x1: {error_max_x1}")
-    print(f"Error máximo en x2: {error_max_x2}")
-
 
 def main():
     graficar_trayectoria_splines_3()

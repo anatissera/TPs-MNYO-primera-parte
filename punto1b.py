@@ -57,7 +57,7 @@ def splines_cubicos(num_points):
     plt.tight_layout()
     plt.show()
 
-def graficar_error_por_nodos(nodes_max, func, func_text, to_start, kx=None, ky=None):
+def graficar_error_por_nodos(nodes_max, func_text, to_start, kx=None, ky=None):
     Z_real = fb(X1_grid, X2_grid)
 
     error_equiespaced_median = []
@@ -70,7 +70,7 @@ def graficar_error_por_nodos(nodes_max, func, func_text, to_start, kx=None, ky=N
         x1_eq = np.linspace(xb_min, xb_max, nodes)
         x2_eq = np.linspace(xb_min, xb_max, nodes)
         X1_eq, X2_eq = np.meshgrid(x1_eq, x2_eq)
-        Z_interp_eq = func(x1_eq, x2_eq, fb(X1_eq, X2_eq), kx=kx, ky=ky)(x1_grid, x2_grid)
+        Z_interp_eq = RectBivariateSpline(x1_eq, x2_eq, fb(X1_eq, X2_eq), kx=kx, ky=ky)(x1_grid, x2_grid)
         error_eq = np.abs(Z_interp_eq - Z_real)
         error_eq_max= np.max(error_eq)
         error_eq_median = np.median(error_eq)
@@ -80,7 +80,7 @@ def graficar_error_por_nodos(nodes_max, func, func_text, to_start, kx=None, ky=N
         x1_noneq = np.sort(chebyshev_points(xb_min, xb_max, nodes))
         x2_noneq = np.sort(chebyshev_points(xb_min, xb_max, nodes))
         X1_noneq, X2_noneq = np.meshgrid(x1_noneq, x2_noneq)
-        Z_interp_noneq = func(x1_noneq, x2_noneq, fb(X1_noneq, X2_noneq), kx=kx, ky=ky)(x1_grid, x2_grid)
+        Z_interp_noneq = RectBivariateSpline(x1_noneq, x2_noneq, fb(X1_noneq, X2_noneq), kx=kx, ky=ky)(x1_grid, x2_grid)
         error_noneq = np.abs(Z_interp_noneq - Z_real)
         error_noneq_max= np.max(error_noneq)
         error_noneq_median = np.median(error_noneq)
@@ -102,9 +102,9 @@ def graficar_error_por_nodos(nodes_max, func, func_text, to_start, kx=None, ky=N
 
 def main():   
     splines_cubicos(16)
-    graficar_error_por_nodos(40, RectBivariateSpline, "Splines Lineales", 2, kx=1, ky=1)  
-    graficar_error_por_nodos(40, RectBivariateSpline, "Splines Cúbicos", 4, kx=3, ky=3)
-    graficar_error_por_nodos(40, RectBivariateSpline, "Splines Quínticos", 6, kx=5, ky=5)
+    graficar_error_por_nodos(40, "Splines Lineales", 2, kx=1, ky=1)  
+    graficar_error_por_nodos(40, "Splines Cúbicos", 4, kx=3, ky=3)
+    graficar_error_por_nodos(40, "Splines Quínticos", 6, kx=5, ky=5)
     
 if __name__ == "__main__":
     main()

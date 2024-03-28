@@ -1,3 +1,4 @@
+# se puede hacer una tabla de error absoluto comparando splines y lagrange ponele
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import lagrange
@@ -24,6 +25,15 @@ def generate_midpoints(lst):
             midpoints.append(midpoint)
         return np.array(midpoints)
 
+def definir_puntos(num_points):
+    x_equispaced_fa = equispaced_points(xa_min, xa_max, num_points)
+    x_nonequispaced_fa = chebyshev_points(xa_min, xa_max, num_points)
+
+    y_equispaced_fa = fa(x_equispaced_fa)
+    y_nonequispaced_fa = fa(x_nonequispaced_fa)
+    
+    return x_equispaced_fa, x_nonequispaced_fa, y_equispaced_fa, y_nonequispaced_fa
+    
 def graficar_interpol_ambos_puntos(f_interpol_equispaced, f_interpol_nonequispaced, x_equispaced_fa, y_equispaced_fa, x_nonequispaced_fa, y_nonequispaced_fa, x_compare_equipoints_fa, x_compare_nonequipoints_fa, method, q_points):
     plt.figure(figsize=(16, 6))
     
@@ -71,16 +81,12 @@ def interpolacion_lineal(x, x1, y1, x2, y2):
 
 
 def linear_interpol(num_points):
-    x_equispaced_fa = equispaced_points(xa_min, xa_max, num_points)
-    x_nonequispaced_fa = chebyshev_points(xa_min, xa_max, num_points)
-
-    y_equispaced_fa = fa(x_equispaced_fa)
-    y_nonequispaced_fa = fa(x_nonequispaced_fa)
+    
+    x_equispaced_fa, x_nonequispaced_fa, y_equispaced_fa, y_nonequispaced_fa = definir_puntos(num_points)
 
     fa_linear_equispaced = interp1d(x_equispaced_fa, y_equispaced_fa)
     fa_linear_nonequispaced = interp1d(x_nonequispaced_fa, y_nonequispaced_fa)
 
-    # buscar puntos para comparar -> para el error
     x_compare_equipoints_fa = generate_midpoints(x_equispaced_fa)
     x_compare_nonequipoints_fa = generate_midpoints(x_nonequispaced_fa)
     
@@ -88,30 +94,19 @@ def linear_interpol(num_points):
 
 def lagrange_interpol(num_points):
             
-    x_equispaced_fa = equispaced_points(xa_min, xa_max, num_points)
-    x_nonequispaced_fa = chebyshev_points(xa_min, xa_max, num_points)
-
-    y_equispaced_fa = fa(x_equispaced_fa)
-    y_nonequispaced_fa = fa(x_nonequispaced_fa)
+    x_equispaced_fa, x_nonequispaced_fa, y_equispaced_fa, y_nonequispaced_fa = definir_puntos(num_points)
 
     fa_lagrange_equispaced = lagrange(x_equispaced_fa, y_equispaced_fa)
     fa_lagrange_nonequispaced = lagrange(x_nonequispaced_fa, y_nonequispaced_fa)
 
-    # buscar puntos para comparar -> para el error
     x_compare_equipoints_fa = generate_midpoints(x_equispaced_fa)
     x_compare_nonequipoints_fa = generate_midpoints(x_nonequispaced_fa)
     
     graficar_interpol_ambos_puntos(fa_lagrange_equispaced, fa_lagrange_nonequispaced, x_equispaced_fa, y_equispaced_fa, x_nonequispaced_fa, y_nonequispaced_fa, x_compare_equipoints_fa, x_compare_nonequipoints_fa, "Lagrange", num_points)
 
-    # graficar_error(fa_lagrange_equispaced, fa_lagrange_nonequispaced, x_compare_equipoints_fa, x_compare_nonequipoints_fa, method, q_points)
-
-
-def splines_interpol(num_points):
-    x_equispaced_fa = equispaced_points(xa_min, xa_max, num_points)
-    x_nonequispaced_fa = chebyshev_points(xa_min, xa_max, num_points)
-
-    y_equispaced_fa = fa(x_equispaced_fa)
-    y_nonequispaced_fa = fa(x_nonequispaced_fa)
+def splines_cubic_interpol(num_points):
+    
+    x_equispaced_fa, x_nonequispaced_fa, y_equispaced_fa, y_nonequispaced_fa = definir_puntos(num_points)
 
     spline_equispaced_fa = CubicSpline(x_equispaced_fa, y_equispaced_fa)
 
@@ -125,9 +120,6 @@ def splines_interpol(num_points):
     spline_nonequispaced_fa = CubicSpline(x_nonequispaced_fa_sorted, y_nonequispaced_fa_sorted)
     
     graficar_interpol_ambos_puntos(spline_equispaced_fa, spline_nonequispaced_fa, x_equispaced_fa, y_equispaced_fa, x_nonequispaced_fa, y_nonequispaced_fa, x_compare_equipoints_fa, x_compare_nonequipoints_fa, "Splines Cúbicos", num_points)
-
-    # graficar_error(spline_equispaced_fa, spline_nonequispaced_fa, x_compare_equipoints_fa, x_compare_nonequipoints_fa, method, q_points)
-
 
 def graficar_error_por_nodos(nodes_q, func, func_text):
     x = np.linspace(xa_min, xa_max, 100)
@@ -164,13 +156,13 @@ def graficar_error_por_nodos(nodes_q, func, func_text):
         error_nonequispaced_max.append(np.max(error_nonequispaced))
         
     plt.figure(figsize=(10, 6))
-    plt.plot(nodes, error_equiespaced_median, label='Mediana del error equiespaciado', color = "darkred")
-    plt.plot(nodes, error_equiespaced_max, label='Máximo del error equiespaciado', color = "darksalmon")
-    plt.plot(nodes, error_nonequispaced_median, label='Mediana del error no equiespaciado', color = "darkgreen")
-    plt.plot(nodes, error_nonequispaced_max, label='Máximo del error no equiespaciado', color = "darkseagreen")
+    plt.plot(nodes, error_equiespaced_median, label='$Mediana$ del error absoluto equiespaciado', color = "darkred")
+    plt.plot(nodes, error_equiespaced_max, label='Máximo del error absoluto equiespaciado', color = "darksalmon")
+    plt.plot(nodes, error_nonequispaced_median, label='$Mediana$ del error absoluto $\\bf{no}$ equiespaciado', color = "darkgreen")
+    plt.plot(nodes, error_nonequispaced_max, label='Máximo del error absoluto $\\bf{no}$ equiespaciado', color = "darkseagreen")
     plt.xlabel('Cantidad de nodos')
     plt.ylabel('Error')
-    plt.title(f"Error de interpolación con {func_text} en función de la cantidad de nodos")
+    plt.title(f"Error absoluto de interpolación con {func_text} en función de la cantidad de nodos")
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
@@ -184,7 +176,7 @@ def main():
     linear_interpol(36)
     lagrange_interpol(13)
     lagrange_interpol(20)
-    splines_interpol(20)
+    splines_cubic_interpol(20)
     
     
 if __name__ == "__main__":
