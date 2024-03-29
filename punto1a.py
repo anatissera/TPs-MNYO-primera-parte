@@ -1,4 +1,3 @@
-# se puede hacer una tabla de error absoluto comparando splines y lagrange ponele
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import lagrange
@@ -74,11 +73,9 @@ def graficar_error(f_interpol_equispaced, f_interpol_nonequispaced, x_compare_eq
     plt.grid(True)
     plt.show()
 
-
 def interpolacion_lineal(x, x1, y1, x2, y2):
     m = (y2 - y1) / (x2 - x1)
     return m * (x - x1) + y1
-
 
 def linear_interpol(num_points):
     
@@ -167,7 +164,6 @@ def graficar_error_por_nodos(nodes_q, func, func_text):
     plt.grid(True)
     plt.tight_layout()
     plt.show()
-  
 
 def main():
     linear_interpol(36)
@@ -177,7 +173,6 @@ def main():
     graficar_error_por_nodos(20, lagrange, "Lagrange")
     graficar_error_por_nodos(35, CubicSpline, "Splines Cúbicos")
     splines_cubic_interpol(20)
-    
     
 if __name__ == "__main__":
     main()
