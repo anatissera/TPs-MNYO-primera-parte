@@ -44,17 +44,19 @@ x_interseccion_2, y_interseccion_2 = splines3_x1_vehic2(t2_interseccion), spline
 error_x1 = np.abs(x_interseccion_1 - x_interseccion_2)
 error_x2 = np.abs(y_interseccion_1 - y_interseccion_2)
 
+
+print(f"tiempos de intersección-> vehículo 1:{t_interseccion} y vehículo 2:{t2_interseccion}")
 print(f"Coordenadas de la intersección-> vehículo 1:({x_interseccion_1}, {y_interseccion_1}) y vehículo 2:({x_interseccion_2}, {y_interseccion_2})")
 
 def graficar_trayectorias_intersec():
     plt.figure(figsize=(10, 6))
     plt.plot(ground_truth_df["x1"], ground_truth_df["x2"], label='Ground Truth', linestyle='-.', color='dimgrey')
 
-    plt.scatter(mediciones_1_df["x1"], mediciones_1_df["x2"], label="Mediciones v1", color='yellowgreen', s=20)
-    plt.plot(splines3_x1_vehic1(points_to_evaluate_v1), splines3_x2_vehic1(points_to_evaluate_v1), label='Interpolación con Splines Cúbicos v1', color='teal')
+    plt.scatter(mediciones_1_df["x1"], mediciones_1_df["x2"], label="Mediciones v1", color='yellowgreen', s=25)
+    plt.plot(splines3_x1_vehic1(points_to_evaluate_v1), splines3_x2_vehic1(points_to_evaluate_v1), label='$\sigma_1(t)$ Interpolación con Splines Cúbicos v1', color='teal')
 
-    plt.scatter(mediciones_2_df["x1"], mediciones_2_df["x2"], label="Mediciones v2", color='plum', s=20)
-    plt.plot(splines3_x1_vehic2(points_to_evaluate_v2), splines3_x2_vehic2(points_to_evaluate_v2), label='Interpolation con Splines Cúbicos v2', color='mediumpurple')
+    plt.scatter(mediciones_2_df["x1"], mediciones_2_df["x2"], label="Mediciones v2", color='plum', s=25)
+    plt.plot(splines3_x1_vehic2(points_to_evaluate_v2), splines3_x2_vehic2(points_to_evaluate_v2), label="$\sigma_2(t')$ Interpolation con Splines Cúbicos v2", color='mediumpurple')
 
     plt.plot(x_interseccion_1, y_interseccion_1, 'x', label="Intersección", markersize=8.5, color='darkred',  markeredgewidth=4)    
     plt.xlabel("Coordenada $x1$")
@@ -66,8 +68,6 @@ def graficar_trayectorias_intersec():
     plt.show()
 
 def graficar_error_entre_coordenadas():
-    median_error_x1 = np.median(error_x1)
-    median_error_x2 = np.median(error_x2)
     
     plt.figure(figsize=(7, 6))
     index = np.arange(2)
@@ -78,8 +78,8 @@ def graficar_error_entre_coordenadas():
     plt.title('$Error$ entre las Coordenadas de la Intersección')
     plt.xticks(index, ('$x1$', '$x2$'))
     text_offset = 0.0000000000035
-    plt.text(0, text_offset, f"Mediana: {round(median_error_x1, 15)}", ha='center', va='bottom', fontsize=9)
-    plt.text(1, text_offset, f"Mediana: {round(median_error_x2, 16)}", ha='center', va='bottom', fontsize=9)
+    plt.text(0, text_offset, f"Diferencia: {round(error_x1, 15)}", ha='center', va='bottom', fontsize=9)
+    plt.text(1, text_offset, f"Diferencia: {round(error_x2, 16)}", ha='center', va='bottom', fontsize=9)
     plt.tight_layout()
     plt.show()
 

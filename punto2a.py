@@ -35,7 +35,8 @@ def graficar_euclidean_error_abs():
     error = np.sqrt((ground_truth_df["x1"] - interp_x1)**2 + (ground_truth_df["x2"] - interp_x2)**2)
 
     print("Mediana del error absoluto:", error.median())
-    print("Máximo del error absoluto:", error.sum())
+    print("Máximo del error absoluto:", error.max())
+    print("Promedio del error absoluto:", error.mean())
 
     plt.figure(figsize=(10, 6))
     plt.plot(points_to_compare, error,'o', label = "puntos evaluados", color = 'darkgoldenrod')
