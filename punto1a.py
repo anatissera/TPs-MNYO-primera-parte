@@ -170,12 +170,12 @@ def graficar_error_por_nodos(nodes_q, func, func_text):
   
 
 def main():
-    graficar_error_por_nodos(35, CubicSpline, "Splines Cúbicos")
-    graficar_error_por_nodos(20, lagrange, "Lagrange")
-    graficar_error_por_nodos(40, interp1d, "Interpolación lineal")
     linear_interpol(36)
+    graficar_error_por_nodos(40, interp1d, "Interpolación lineal")
     lagrange_interpol(13)
     lagrange_interpol(20)
+    graficar_error_por_nodos(20, lagrange, "Lagrange")
+    graficar_error_por_nodos(35, CubicSpline, "Splines Cúbicos")
     splines_cubic_interpol(20)
     
     

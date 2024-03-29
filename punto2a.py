@@ -9,7 +9,7 @@ mediciones_1_df = pd.read_csv("mnyo_mediciones.csv", sep=" ", header=None, names
 splines3_x1_vehic1 = CubicSpline(mediciones_1_df.index, mediciones_1_df["x1"]) # uso los índices de las filas del DataFrame como los puntos de referencia para la interpolación
 splines3_x2_vehic1 = CubicSpline(mediciones_1_df.index, mediciones_1_df["x2"])
 
-points_to_evaluate_v1 = np.linspace(mediciones_1_df.index.min(), mediciones_1_df.index.max(), 1000)
+puntos_a_evaluar_v1 = np.linspace(mediciones_1_df.index.min(), mediciones_1_df.index.max(), 1000)
 
 def graficar_trayectoria_splines_3():
     plt.figure(figsize=(12, 5))
@@ -17,7 +17,7 @@ def graficar_trayectoria_splines_3():
     plt.plot(ground_truth_df["x1"], ground_truth_df["x2"], label='Ground Truth', linestyle='-.', color='black')
 
     plt.scatter(mediciones_1_df["x1"], mediciones_1_df["x2"], label="Mediciones", color='orange')
-    plt.plot(splines3_x1_vehic1(points_to_evaluate_v1), splines3_x2_vehic1(points_to_evaluate_v1), label='Interpolación con Splines Cúbicos', color='red')
+    plt.plot(splines3_x1_vehic1(puntos_a_evaluar_v1), splines3_x2_vehic1(puntos_a_evaluar_v1), label='Interpolación con Splines Cúbicos', color='red')
 
     plt.title('Trayedoria Interpolada del primer vehículo')
     plt.xlabel('eje X')

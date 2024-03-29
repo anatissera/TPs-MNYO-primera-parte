@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 mediciones_2_df = pd.read_csv("mnyo_mediciones2.csv", sep=" ", header=None, names=["x1", "x2"])
 
-points_to_evaluate_v2 = np.linspace(mediciones_2_df.index.min(), mediciones_2_df.index.max(), 1000)
+puntos_a_evaluar_v2 = np.linspace(mediciones_2_df.index.min(), mediciones_2_df.index.max(), 1000)
 
 splines3_x1_vehic2 = CubicSpline(mediciones_2_df.index, mediciones_2_df["x1"]) # uso los índices de las filas del DataFrame como los puntos de referencia para la interpolación
 splines3_x2_vehic2 = CubicSpline(mediciones_2_df.index, mediciones_2_df["x2"])
@@ -53,10 +53,10 @@ def graficar_trayectorias_intersec():
     plt.plot(ground_truth_df["x1"], ground_truth_df["x2"], label='Ground Truth', linestyle='-.', color='dimgrey')
 
     plt.scatter(mediciones_1_df["x1"], mediciones_1_df["x2"], label="Mediciones v1", color='yellowgreen', s=25)
-    plt.plot(splines3_x1_vehic1(points_to_evaluate_v1), splines3_x2_vehic1(points_to_evaluate_v1), label='$\sigma_1(t)$ Interpolación con Splines Cúbicos v1', color='teal')
+    plt.plot(splines3_x1_vehic1(puntos_a_evaluar_v1), splines3_x2_vehic1(puntos_a_evaluar_v1), label='$\sigma_1(t)$ Interpolación con Splines Cúbicos v1', color='teal')
 
     plt.scatter(mediciones_2_df["x1"], mediciones_2_df["x2"], label="Mediciones v2", color='plum', s=25)
-    plt.plot(splines3_x1_vehic2(points_to_evaluate_v2), splines3_x2_vehic2(points_to_evaluate_v2), label="$\sigma_2(t')$ Interpolation con Splines Cúbicos v2", color='mediumpurple')
+    plt.plot(splines3_x1_vehic2(puntos_a_evaluar_v2), splines3_x2_vehic2(puntos_a_evaluar_v2), label="$\sigma_2(t')$ Interpolation con Splines Cúbicos v2", color='mediumpurple')
 
     plt.plot(x_interseccion_1, y_interseccion_1, 'x', label="Intersección", markersize=8.5, color='darkred',  markeredgewidth=4)    
     plt.xlabel("Coordenada $x1$")
@@ -70,13 +70,13 @@ def graficar_trayectorias_intersec():
 def graficar_error_entre_coordenadas():
     
     plt.figure(figsize=(7, 6))
-    index = np.arange(2)
+    indice = np.arange(2)
 
-    plt.bar(index, [error_x1, error_x2], 0.4, color=['khaki', 'darkseagreen'])
+    plt.bar(indice, [error_x1, error_x2], 0.4, color=['khaki', 'darkseagreen'])
     plt.xlabel('$Dimensiones$')
     plt.ylabel('$Error$')
     plt.title('$Error$ entre las Coordenadas de la Intersección')
-    plt.xticks(index, ('$x1$', '$x2$'))
+    plt.xticks(indice, ('$x1$', '$x2$'))
     text_offset = 0.0000000000035
     plt.text(0, text_offset, f"Diferencia: {round(error_x1, 15)}", ha='center', va='bottom', fontsize=9)
     plt.text(1, text_offset, f"Diferencia: {round(error_x2, 16)}", ha='center', va='bottom', fontsize=9)

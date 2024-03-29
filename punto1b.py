@@ -44,12 +44,12 @@ def splines_cubicos(num_points):
     axes[0].plot_surface(X1_grid, X2_grid, Y_interp_equispaced_fb, cmap='viridis', alpha=0.8)
     axes[0].set_xlabel('$x_1$')
     axes[0].set_ylabel('$x_2$')
-    axes[0].set_title(f"Interpolación de $f_b(x_1, x_2)$ con Splines Cúbicos (P. Equiespaciados: {num_points})")
+    axes[0].set_title(f"Interpolación de $f_b(x_1, x_2)$ con Splines Cúbicos \n(P. Equiespaciados: {num_points})")
 
     axes[1].plot_surface(X1_grid, X2_grid, Y_interp_nonequispaced_fb, cmap='viridis', alpha=0.8)
     axes[1].set_xlabel('$x_1$')
     axes[1].set_ylabel('$x_2$')
-    axes[1].set_title(f"Interpolación de $f_b(x_1, x_2)$ con Splines Cúbicos (P. No Equiespaciados: {num_points})")
+    axes[1].set_title(f"Interpolación de $f_b(x_1, x_2)$ con Splines Cúbicos \n(P. No Equiespaciados: {num_points})")
 
     axes[0].plot_wireframe(X1_grid, X2_grid, fb(X1_grid, X2_grid), alpha=0.3, color= "navy")
     axes[1].plot_wireframe(X1_grid, X2_grid, fb(X1_grid, X2_grid), alpha=0.3, color= "navy")
@@ -87,8 +87,6 @@ def graficar_error_por_nodos(nodes_max, func_text, to_start, kx=None, ky=None):
         error_nonequispaced_median.append(error_noneq_median)
         error_nonequispaced_max.append(error_noneq_max)
         print(nodes, error_eq_median)
-    
-    print ( max(error_equiespaced_max) )
        
     plt.figure(figsize=(10, 6))
     plt.plot(q_nodes, error_equiespaced_median, label='$Mediana$ del error absoluto equiespaciado', color = "darkred")
