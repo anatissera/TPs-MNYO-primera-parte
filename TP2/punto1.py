@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 # definiciones de consigna
 # N(t) =
 
-def exponential_solution(t, N0, r):
+def exponential_solution(t, N0, h):
     """
     Calcula la solución exponencial de la ecuación diferencial de crecimiento poblacional.
 
@@ -17,23 +17,23 @@ def exponential_solution(t, N0, r):
     Retorna:
     N: arreglo unidimensional de tamaño poblacional en cada instante de tiempo t
     """
-    return N0 * np.exp(r * t)
+    return N0 * np.exp(h * t)
 
-def exponential_dNdt(N0, r):
-    dNdt = r*N0
+def exponential_dNdt(N0, h):
+    dNdt = h * N0
     return dNdt
 
-def logistic_solution(t, N0, r, K):
+def logistic_solution(t, N0, h, K):
     """
     Mismo que exponencial pero calcula la solución logística
     Nuevo parámetro:
     K: capacidad de carga de la población 
     """
-    exponent = -r * t
+    exponent = -h * t
     return K / (1 + (K / N0 - 1) * np.exp(exponent)) #sol chequeada en internet
 
-def logistic_dNdt(N0, r, K):
-    dNdt = r*N0*(1-N0/K)
+def logistic_dNdt(N0, h, K):
+    dNdt = h * N0 * (1-N0/K)
     return dNdt
 
 # con pseudocódigo de las diapositivas de Martín
@@ -101,9 +101,83 @@ def runge_kutta_4(f, t_span, y0, N):
 # 5) La curva es simétrica respecto a su punto central= K/2.
 
 
-# def main():
-#     # graficar
-    
-# if __name__ == '__main__':
-#     main()
+def calculate_exact_solutions(t, N0, h, K):
+    N_exact_logistic = logistic_solution(t, N0, h, K)
+    N_exact_exponential = exponential_solution(t, N0, h)
+    return N_exact_logistic, N_exact_exponential
 
+
+def plot_solutions_exact(t, N0, r, K, title):
+    N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, r, K)
+   
+    plt.figure(figsize=(10, 5))
+
+    plt.plot(t, N_exact_exponential, label='Solución Exacta Exponencial', color='mediumseagreen')
+    plt.plot(t, N_exact_logistic, label='Solución Exacta Logística', color='lightcoral')
+
+    plt.xlabel('Tiempo')
+    plt.ylabel('Tamaño Poblacional (N)')
+    plt.title(title)
+    plt.legend()
+    plt.grid(True)
+
+    plt.show()
+    
+def plot_solutions_numerical(t, N0, h, K, time, space, title):
+    plt.figure(figsize=(10, 5))
+    
+    N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, h, K)
+
+    _, N_numerical_euler = euler_method(lambda t, N: h * N * (1 - N / K), (0, time), N0, space)  # Corregido aquí
+    _, N_numerical_rk4 = runge_kutta_4(lambda t, N: h * N * (1 - N / K), (0, time), N0, space)
+
+    plt.plot(t, N_exact_exponential, linestyle ='dashed', label='Solución Exacta Exponencial', c='mediumseagreen')
+    plt.plot(t, N_exact_logistic, linestyle ='dashed', label='Solución Exacta Logística', c= 'lightcoral')
+    plt.plot(t, N_numerical_euler, label='Solución Numérica Exponencial', color='skyblue')
+    plt.plot(t, N_numerical_rk4, label='Solución Numérica Logística', color='rebeccapurple')
+
+    plt.xlabel('Tiempo')
+    plt.ylabel('Tamaño Poblacional (N)')
+    plt.title(title)
+    plt.legend()
+    plt.grid(True)
+
+    plt.show()
+
+def plot_population_variation(t, N0, h, K, title):
+    
+    N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, h, K)
+    dN_exact_logistic = logistic_dNdt(N_exact_logistic, h, K)
+    dN_exact_exponential = exponential_dNdt(N_exact_exponential, h)
+    
+    plt.figure(figsize=(10, 5))
+
+    plt.plot(N_exact_exponential, dN_exact_exponential, label = 'variación exponencial')
+    plt.plot(N_exact_logistic, dN_exact_logistic,  label = 'variación exponencial')
+
+    plt.xlabel('Tamaño Poblacional (N)')
+    plt.ylabel('Variación Poblacional (dN/dt)')
+    plt.title(title)
+    plt.grid(True)
+
+    plt.show()
+
+N0_values = [10, 50, 100]  
+h = 0.1 
+K_values = [100, 200, 300] 
+
+t = np.linspace(0, 10, 100)
+t2 = np.linspace(0, 20, 200)
+
+def main():
+   
+    plot_solutions_exact(t, N0_values[0], h, K_values[0], 'Soluciones Exactas')
+    plot_solutions_numerical(t, N0_values[0], h, K_values[0], 10, 100, 'Soluciones Numéricas')
+    plot_solutions_numerical(t2, N0_values[1], h, K_values[1], 20, 200, 'Soluciones Numéricas')
+    plot_solutions_numerical(t2, N0_values[2], h, K_values[2], 20, 200, 'Soluciones Numéricas')
+
+    plot_population_variation(t, N0_values[0], h, K_values[0], 'Variación Poblacional')
+
+# Graficar
+if __name__ == '__main__':
+    main()
