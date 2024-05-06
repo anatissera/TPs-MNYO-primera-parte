@@ -1,4 +1,4 @@
-from punto1a import equispaced_points, chebyshev_points
+from TP1.punto1a import equispaced_points, chebyshev_points
 import matplotlib.pyplot as plt
 from scipy.interpolate import RectBivariateSpline
 import numpy as np

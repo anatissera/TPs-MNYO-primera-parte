@@ -1,5 +1,5 @@
 import pandas as pd
-from punto2a import *
+from TP1.punto2a import *
 import numpy as np
 import matplotlib.pyplot as plt
 
