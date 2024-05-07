@@ -144,6 +144,27 @@ def plot_solutions_numerical(t, N0, h, K, time, space, title):
 
     plt.show()
 
+def plot_solutions_numerical_sn(t, N0, h, K, time, space, title):
+    plt.figure(figsize=(10, 5))
+    
+    N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, h, K)
+
+    _, N_numerical_euler = euler_method(lambda t, N: h * N * (1 - N / K), (0, time), N0, space)  # Corregido aquí
+    _, N_numerical_rk4 = runge_kutta_4(lambda t, N: h * N * (1 - N / K), (0, time), N0, space)
+
+    # plt.plot(t, N_exact_exponential, linestyle ='dashed', label='Solución Exacta Exponencial', c='mediumseagreen')
+    plt.plot(t, N_exact_logistic, linestyle ='dashed', label='Solución Exacta Logística', c= 'lightcoral')
+    plt.plot(t, N_numerical_euler, label='Solución Numérica Exponencial', color='skyblue')
+    plt.plot(t, N_numerical_rk4, label='Solución Numérica Logística', color='rebeccapurple')
+
+    plt.xlabel('Tiempo')
+    plt.ylabel('Tamaño Poblacional (N)')
+    plt.title(title)
+    plt.legend()
+    plt.grid(True)
+
+    plt.show()
+
 def plot_population_variation(t, N0, h, K, title):
     
     N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, h, K)
@@ -152,8 +173,10 @@ def plot_population_variation(t, N0, h, K, title):
     
     plt.figure(figsize=(10, 5))
 
-    plt.plot(N_exact_exponential, dN_exact_exponential, label = 'variación exponencial')
-    plt.plot(N_exact_logistic, dN_exact_logistic,  label = 'variación exponencial')
+    if title == 'Variación Exponencial':
+        plt.plot(N_exact_exponential, dN_exact_exponential, label = title, color = 'mediumseagreen')
+    else:
+        plt.plot(N_exact_logistic, dN_exact_logistic,  label = title, color = 'lightcoral')
 
     plt.xlabel('Tamaño Poblacional (N)')
     plt.ylabel('Variación Poblacional (dN/dt)')
@@ -164,19 +187,22 @@ def plot_population_variation(t, N0, h, K, title):
 
 N0_values = [10, 50, 100]  
 h = 0.1 
-K_values = [100, 200, 300] 
+K_values = [100, 200, 100000] 
 
 t = np.linspace(0, 10, 100)
 t2 = np.linspace(0, 20, 200)
+t3 = np.linspace(0, 250, 1000)
 
 def main():
    
-    plot_solutions_exact(t, N0_values[0], h, K_values[0], 'Soluciones Exactas')
-    plot_solutions_numerical(t, N0_values[0], h, K_values[0], 10, 100, 'Soluciones Numéricas')
-    plot_solutions_numerical(t2, N0_values[1], h, K_values[1], 20, 200, 'Soluciones Numéricas')
-    plot_solutions_numerical(t2, N0_values[2], h, K_values[2], 20, 200, 'Soluciones Numéricas')
+    # plot_solutions_exact(t, N0_values[0], h, K_values[0], 'Soluciones Exactas')
+    # plot_solutions_numerical(t, N0_values[0], h, K_values[0], 10, 100, 'Soluciones Numéricas')
+    # plot_solutions_numerical(t2, N0_values[1], h, K_values[1], 20, 200, 'Soluciones Numéricas')
+    plot_solutions_numerical(t3, N0_values[0], h, K_values[2], 250, 1000, 'Soluciones Numéricas')
+    plot_solutions_numerical_sn(t3, N0_values[0], h, K_values[2], 250, 1000, 'Soluciones Numéricas')
 
-    plot_population_variation(t, N0_values[0], h, K_values[0], 'Variación Poblacional')
+    plot_population_variation(t3, N0_values[0], h, K_values[2], 'Variación Exponencial')
+    plot_population_variation(t3, N0_values[0], h, K_values[2], 'Variación Logística')
 
 # Graficar
 if __name__ == '__main__':
