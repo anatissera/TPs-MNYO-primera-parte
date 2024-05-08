@@ -46,35 +46,35 @@ def euler_method(f, t_span, y0, N):
     a, b = t_span
     h = (b - a) / N
     t_values = [a]
-    w_values = [y0]
+    y_values = [y0]
 
     for i in range(1, N + 1):
         t = a + i * h
         t_values.append(t)
-        w = w_values[-1] + h * f(t_values[-1], w_values[-1])
-        w_values.append(w)
+        y = y_values[-1] + h * f(t_values[-1], y_values[-1])
+        y_values.append(y)
 
-    return t_values[:-1], w_values[:-1]
+    return t_values[:-1], y_values[:-1]
 
 def runge_kutta_4(f, t_span, y0, N):
     a, b = t_span
     h = (b - a) / N
     t_values = [a]
-    w_values = [y0]
+    y_values = [y0]
 
     for i in range(1, N + 1):
         t = a + i * h
         t_values.append(t)
 
-        K1 = h * f(t_values[i - 1], w_values[i - 1])
-        K2 = h * f(t_values[i - 1] + h / 2, w_values[i - 1] + K1 / 2)
-        K3 = h * f(t_values[i - 1] + h / 2, w_values[i - 1] + K2 / 2)
-        K4 = h * f(t_values[i - 1] + h, w_values[i - 1] + K3)
+        K1 = h * f(t_values[i - 1], y_values[i - 1])
+        K2 = h * f(t_values[i - 1] + h / 2, y_values[i - 1] + K1 / 2)
+        K3 = h * f(t_values[i - 1] + h / 2, y_values[i - 1] + K2 / 2)
+        K4 = h * f(t_values[i - 1] + h, y_values[i - 1] + K3)
 
-        w = w_values[i - 1] + (K1 + 2 * K2 + 2 * K3 + K4) / 6
-        w_values.append(w)
+        y = y_values[i - 1] + (K1 + 2 * K2 + 2 * K3 + K4) / 6
+        y_values.append(y)
 
-    return t_values[:-1], w_values[:-1]   # el [:-1] es para que ambos tengan la misma dimensión
+    return t_values[:-1], y_values[:-1]   # el [:-1] es para que ambos tengan la misma dimensión
 
 # consigna
 # 1. Obtener la solución exacta de la ecuación logística y la ecuación exponencial. 

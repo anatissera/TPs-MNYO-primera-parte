@@ -153,13 +153,13 @@ plt.tight_layout()
 plt.show()
 
 
-# # Parámetros del sistema
-# r1 = 0.1
-# r2 = 0.1
-# K1 = 4000
-# K2 = 3800
-# alpha12 = 0.3
-# alpha21 = 2
+# Parámetros del sistema
+r1 = 0.1
+r2 = 0.1
+K1 = 4000
+K2 = 3800
+alpha12 = 0.3
+alpha21 = 2
 
 # # Definir el rango de valores para N1 y N2
 # N1_range = np.linspace(0, 5000, 100)
@@ -193,8 +193,8 @@ plt.show()
 # plt.show()
 
 
-# import numpy as np
-# import matplotlib.pyplot as plt
+# # import numpy as np
+# # import matplotlib.pyplot as plt
 
 # # Define the range of values for N1 and N2
 # N1_values = np.linspace(0, K1, 20)
@@ -206,7 +206,7 @@ plt.show()
 # # Calculate the rate of change of each population at each point
 # dN1, dN2 = lotka_volterra(0, [N1, N2], r1, r2, K1, K2, alpha12, alpha21)
 
-# # Normalize the arrows so their size represents their speed
+# 
 # M = np.hypot(dN1, dN2)
 # dN1 /= M
 # dN2 /= M
@@ -252,83 +252,42 @@ def isoclinas(N1_values, N2_values, K1, K2, alpha12, alpha21):
 #     isoclinas_N2 = (K2 - alpha21 * N1_values) / alpha21
 #     return isoclinas_N1, isoclinas_N2
 
-# # Definimos el rango de valores para N1 y N2
-# N1_values_a = np.linspace(0, K1_a, 100)
-# N2_values_a = np.linspace(0, K2_a, 100)
-
-# # Calculamos las isóclinas
-# isoclinas_N1, isoclinas_N2 = isoclinas(N1_values_a, N2_values_a, K1_a, K2_a, alpha12_a, alpha21_a)
-
-# # Graficamos las isóclinas
-# plt.plot(N1_values_a, isoclinas_N2, 'r--', label='Isóclina N2')
-# plt.plot(isoclinas_N1, N2_values_a, 'b--', label='Isóclina N1')
-
-# # Graficamos el punto de equilibrio
-# plt.plot(K1_a/alpha12_a, K2_a/alpha21_a, 'ko', label='Punto de Equilibrio')
-
-# # Calculamos el campo vectorial
-# N1_a, N2_a = np.meshgrid(N1_values_a, N2_values_a)
-# dN1dtvar = dN1dt(N1_a, N2_a, r1_a, K1_a, alpha12_a)
-# dN2dtvar = dN2dt(N1_a, N2_a, r2_a, K2_a, alpha21_a)
-# norm = np.sqrt(dN1dtvar**2 + dN2dtvar**2)
-# dN1dt_normalized = dN1dtvar / norm
-# dN2dt_normalized = dN2dtvar / norm
-
-# # Graficamos el campo vectorial
-# plt.quiver(N1_a, N2_a, dN1dt_normalized, dN2dt_normalized, color='g', label='Campo Vectorial')
-
-# # Ajustamos los límites de los ejes
-# plt.xlim(0, K1_a)
-# plt.ylim(0, K2_a)
-
-# # Añadimos leyenda y etiquetas
-# plt.xlabel('N1')
-# plt.ylabel('N2')
-# plt.title('Isóclinas, Punto de Equilibrio y Campo Vectorial')
-# plt.legend()
-# plt.grid(True)
-# plt.show()
-
-
-def isoclinas(N1_values, N2_values, K1, K2, alpha12, alpha21):
-    isoclinas_N1 = np.where(alpha12 != 0, (K1 - alpha12 * N2_values) / alpha12, K1)
-    isoclinas_N2 = np.where(alpha21 != 0, (K2 - alpha21 * N1_values) / alpha21, K2)
-    return isoclinas_N1, isoclinas_N2
-
-def campo_vectorial(N1_values, N2_values, r1, r2, K1, K2, alpha12, alpha21):
-    N1, N2 = np.meshgrid(N1_values, N2_values)
+def campo_vectorial(r1, r2, K1, K2, alpha12, alpha21):
+    N1, N2 = np.meshgrid(np.linspace(0, K1, 20), np.linspace(0, K2, 20))
     dN1 = dN1dt(N1, N2, r1, K1, alpha12)
     dN2 = dN2dt(N1, N2, r2, K2, alpha21)
-    norm = np.sqrt(dN1**2 + dN2**2)
-    return N1, N2, dN1 / norm, dN2 / norm
+    # Normalize the arrows so their size represents their speed
+    norm = np.sqrt(np.max(dN1)**2 + np.max(dN2)**2)
+    return dN1 / norm, dN2 / norm
 
-# Definición de parámetros para cada caso
-cases = [
-    {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a'},
-    {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b'},
-    {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c'},
-    {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d'}
-]
-
-# Configuración de la grilla
-N1_values = np.linspace(0, 5000, 100)
-N2_values = np.linspace(0, 5000, 100)
-N1, N2 = np.meshgrid(N1_values, N2_values)
-
+cases = {
+    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a'},
+    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b'},
+    'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c'},
+    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d'}
+}
 plt.figure(figsize=(12, 12))
 
-for i, case in enumerate(cases, start=1):
+for i, case in enumerate(cases.values(), start=1):
+    
+    N1_values = np.linspace(0, case['K1'], 20)
+    N2_values = np.linspace(0, case['K2'], 20)
+    N1, N2 = np.meshgrid(N1_values, N2_values)
+    
     plt.subplot(2, 2, i)
     plt.title(case['title'])
     
     # Calcular isoclinas
     isoc_N1, isoc_N2 = isoclinas(N1_values, N2_values, case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-    plt.plot(N1_values, isoc_N2, 'r--', label='Isoclina N2')
-    plt.plot(isoc_N1, N2_values, 'b--', label='Isoclina N1')
+   # curva de nivel
+    plt.contour(N1, N2, isoc_N1, levels=[0], colors='r', label='Isoclina N1')
+    plt.contour(N1, N2, isoc_N2, levels=[0], colors='b', label='Isoclina N2')
+    # plt.plot(N1_values, isoc_N2, 'r--', label='Isoclina N2')
+    # plt.plot(isoc_N1, N2_values, 'b--', label='Isoclina N1')
     
     # Calcular campo vectorial
-    _, _, dN1_norm, dN2_norm = campo_vectorial(N1_values, N2_values, case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-    plt.quiver(N1, N2, dN1_norm, dN2_norm, scale=50, color='g', label='Campo Vectorial')
+    dN1_norm, dN2_norm = campo_vectorial(case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+    plt.quiver(N1, N2, dN1_norm, dN2_norm, scale=50, color='g', label='Campo Vectorial', cmap = 'jet')
     
     plt.xlabel('N1')
     plt.ylabel('N2')
@@ -338,32 +297,3 @@ for i, case in enumerate(cases, start=1):
 
 plt.tight_layout()
 plt.show()
-
-
-
-cases = {
-    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a'},
-    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b'},
-    'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c'},
-    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d'}
-}
-
-for case, params in cases.items():
-    N1_values = np.linspace(0, params['K1'], 100)
-    N2_values = np.linspace(0, params['K2'], 100)
-
-    isoc_N1, isoc_N2 = isoclinas(N1_values, N2_values, params['K1'], params['K2'], params['alpha12'], params['alpha21'])
-    _, _, dN1_norm, dN2_norm = campo_vectorial(N1_values, N2_values, params['r1'], params['r2'], params['K1'], params['K2'], params['alpha12'], params['alpha21'])
-
-    plt.figure()
-
-    plt.quiver(N1_values, N2_values, dN1_norm, dN2_norm, scale=50, cmap='jet')
-
-    plt.plot(N1_values, isoc_N2, 'r--', label='Isoclina N2')
-    plt.plot(isoc_N1, N2_values, 'b--', label='Isoclina N1')
-
-    plt.xlabel('N1')
-    plt.ylabel('N2')
-    plt.title(f'Isoclinas y campo vectorial para el caso {params["title"]}')
-    plt.legend()
-    plt.show()
