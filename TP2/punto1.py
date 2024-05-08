@@ -1,6 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+# introducción, el código de rk4 y euler. 
+# método elegido, el h que eleigmos y por qué
+
+
 # definiciones de consigna
 # N(t) =
 
@@ -100,6 +104,10 @@ def runge_kutta_4(f, t_span, y0, N):
 
 # 5) La curva es simétrica respecto a su punto central= K/2.
 
+
+# hacer gráfico que demuestre qué son los parámetros. cambio k, la población max va a ser distinto. 
+# en un eje un parámetro k y en el otro cómo cambia la población
+# diagrama de Fases
 
 def calculate_exact_solutions(t, N0, h, K):
     N_exact_logistic = logistic_solution(t, N0, h, K)
