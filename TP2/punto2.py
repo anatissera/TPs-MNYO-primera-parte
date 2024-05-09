@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from punto1 import runge_kutta_4
+# from punto1 import runge_kutta_4
+from scipy.optimize import fsolve
 
 # diagrama de fases -> para comparar las Ns
 # flechas
@@ -49,108 +50,34 @@ def runge_kutta4_system(f, t0, y0, tf, h, *args):
     
     return t_values, y_values
 
+def punto_equilibrio(r1, r2, K1, K2, a12, a21):
+    # Para encontrar los puntos de equilibrio, primero igualamos las derivadas a cero y resolvemos para N1 y N2.
+    # Busco donde dN1/dt = 0 y dN2/dt = 0
+    def f(x):
+        return [r1 * x[0] * (K1 - x[0] - a12 * x[1]) / K1, r2 * x[1] * (K2 - x[1] - a21 * x[0]) / K2]
+    
+    return fsolve(f, [K1/2, K2/2])
+
+
 # Caso a y b: competidores intersp más fuertes eliminan a los más débiles
 
 h = 0.1
 tf = 100
 t0 = 0
+N1_0 = 10
+N2_0 = 10
 
 # Caso a: 
 # K1 > K2/α21 & K2 < K1/α12
-r1_a = 0.1
-r2_a = 0.1
-K1_a = 4000
-K2_a = 3800
-alpha12_a = 0.3
-alpha21_a = 2
-N1_0_a = 10
-N2_0_a = 10
-
-t_values_a, y_values_a = runge_kutta4_system(lotka_volterra, t0, [N1_0_a, N2_0_a], tf, h, r1_a, r2_a, K1_a, K2_a, alpha12_a, alpha21_a)
 
 # Caso b: 
 # K1 /α12 < K2 & K1 < K2/α21
-r1_b = 0.1
-r2_b = 0.1
-K1_b = 4500
-K2_b = 5000  # Capacidad de carga de la especie 2 es menor
-alpha12_b = 2
-alpha21_b = 0.3
-N1_0_b = 10
-N2_0_b = 10
-y0_b = np.array([N1_0_b, N2_0_b])
-t_values_b, y_values_b = runge_kutta4_system(lotka_volterra, t0, [N1_0_b, N2_0_b], tf, h, r1_b, r2_b, K1_b, K2_b, alpha12_b, alpha21_b)
 
 # caso c: Puntos de equilibrio estables
 # k1 > k2/α21 & k2 > k1/α12
-r1_c = 0.3
-r2_c = 0.6
-K1_c = 1500
-K2_c = 1400
-alpha12_c = 0.4  # Msima competencia interespecífica
-alpha21_c = 0.4
-N1_0_c = 10
-N2_0_c = 10
-t_values_c, y_values_c = runge_kutta4_system(lotka_volterra, t0, [N1_0_c, N2_0_c], tf, h, r1_c, r2_c, K1_c, K2_c, alpha12_c, alpha21_c)
 
 # Caso d: Puntos de equilibrio inestables 
 # K1 > K2 α12 & K2 > K1 α21
-r1_d = 0.2
-r2_d = 0.2
-K1_d = 1000
-K2_d = 1400
-alpha12_d = 1.7
-alpha21_d = 2  # Mayor competencia interespecífica
-N1_0_d = 10
-N2_0_d = 10
-
-t_values_d, y_values_d = runge_kutta4_system(lotka_volterra, t0, [N1_0_d, N2_0_d], tf, h, r1_d, r2_d, K1_d, K2_d, alpha12_d, alpha21_d)
-
-
-plt.figure(figsize=(10, 10))
-
-# Caso a
-plt.subplot(2, 2, 1)
-plt.plot(t_values_a, y_values_a[:, 0], label='N1(t)')
-plt.plot(t_values_a, y_values_a[:, 1], label='N2(t)')
-plt.xlabel('Tiempo')
-plt.ylabel('Población')
-plt.title('Caso a: N1 sobrevive (es más fuerte), N2 se extingue')
-plt.legend()
-plt.grid(True)
-
-# Caso b
-plt.subplot(2, 2, 2)
-plt.plot(t_values_b, y_values_b[:, 0], label='N1(t)')
-plt.plot(t_values_b, y_values_b[:, 1], label='N2(t)')
-plt.xlabel('Tiempo')
-plt.ylabel('Población')
-plt.title('Caso b: N2 sobrevive, N1 se extingue')
-plt.legend()
-plt.grid(True)
-
-# Caso c
-plt.subplot(2, 2, 3)
-plt.plot(t_values_c, y_values_c[:, 0], label='N1(t)')
-plt.plot(t_values_c, y_values_c[:, 1], label='N2(t)')
-plt.xlabel('Tiempo')
-plt.ylabel('Población')
-plt.title('Caso c: Equilibrio estable entre N1 y N2')
-plt.legend()
-plt.grid(True)
-
-# Caso d
-plt.subplot(2, 2, 4)
-plt.plot(t_values_d, y_values_d[:, 0], label='N1(t)')
-plt.plot(t_values_d, y_values_d[:, 1], label='N2(t)')
-plt.xlabel('Tiempo')
-plt.ylabel('Población')
-plt.title('Caso d: Equilibrio inestable entre N1 y N2')
-plt.legend()
-plt.grid(True)
-
-plt.tight_layout()
-plt.show()
 
 
 # # Parámetros del sistema
@@ -161,8 +88,24 @@ plt.show()
 # alpha12 = 0.3
 # alpha21 = 2
 
-# # import numpy as np
-# # import matplotlib.pyplot as plt
+
+# puntos de equilibrio 
+# Para la especie 1: N1 = k1 - α12 * N2
+
+# Cuando N1= 0, N2= K1/ α12 y cuando N2= 0 N1= K1
+
+# Para la especie 2:  N2 = k2 - α21 * N1 
+
+# Cuando N2= 0 N1= K2 /α21 y cuando N1= 0 N2= K2
+
+# dN2/dt = 0 tiene como ordenada al origen K2 y como raíz K2/α21
+# dN1/dt = 0 tiene como ordenada al origen K1/α12 y como raíz K1.
+# El eje de las absisas (X) es N1 y el eje de las ordenadas (Y) es N2.
+
+
+
+
+
 
 # # Define the range of values for N1 and N2
 # N1_values = np.linspace(0, K1, 20)
@@ -192,29 +135,15 @@ plt.show()
 # plt.title('Isoclines and vector field for case a')
 # plt.show()
 
-# puntos de equilibrio 
-# Para la especie 1: N1 = k1 - α12 * N2
 
-# Cuando N1= 0, N2= K1/ α12 y cuando N2= 0 N1= K1
-
-# Para la especie 2:  N2 = k2 - α21 * N1 
-
-# Cuando N2= 0 N1= K2 /α21 y cuando N1= 0 N2= K2
-
-# dN2/dt = 0 tiene como ordenada al origen K2 y como raíz K2/α21
-# dN1/dt = 0 tiene como ordenada al origen K1/α12 y como raíz K1.
-# El eje de las absisas (X) es N1 y el eje de las ordenadas (Y) es N2.
-
-# Parámetros del sistema
 
 
 cases = {
-    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a'},
-    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b'},
-    'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c'},
-    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d'}
+    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a', 'case': 'N1 sobrevive (es más fuerte), N2 se extingue'},
+    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b', 'case': 'N2 sobrevive, N1 se extingue'},
+    'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c', 'case': 'Equilibrio estable entre N1 y N2'},
+    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d', 'case': 'Equilibrio inestable entre N1 y N2'}
 }
-
 # def campo_vectorial(r1, r2, K1, K2, alpha12, alpha21):
 #     N1, N2 = np.meshgrid(np.linspace(0, K1, 20), np.linspace(0, K2, 20))
 #     dN1 = dN1dt(N1, N2, r1, K1, alpha12)
@@ -258,7 +187,22 @@ cases = {
 # plt.tight_layout()
 # plt.show()
 
+def graficar_soluciones_rk(t0, N1_0, N2_0, tf, h, cases):
+    plt.figure(figsize=(10, 10))
 
+    for i, case in enumerate(cases.values(), start=1):
+        t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+        plt.subplot(2, 2, i)        
+        plt.plot(t_values, y_values[:, 0], label='N1(t)')
+        plt.plot(t_values, y_values[:, 1], label='N2(t)')
+        plt.xlabel('Tiempo')
+        plt.ylabel('Población')
+        plt.title(case['title'] + ': ' + case['case'])
+        plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+    
 def calcular_isoclinas_y_graficar_contour_color(title, r1, r2, K1, K2, alpha12, alpha21):
     N1 = np.linspace(0, K1, 1000)
     N2 = np.linspace(0, K2, 1000)
@@ -266,12 +210,14 @@ def calcular_isoclinas_y_graficar_contour_color(title, r1, r2, K1, K2, alpha12, 
     N1_isocline = dN1dt(N1, N2, r1, K1, alpha12)
     N2_isocline = dN2dt(N1, N2, r2, K2, alpha21)
     plt.figure(figsize=(10, 10))
-    plt.contour(N1, N2, N1_isocline, levels=[0], colors='blue', label='dN1/dt = 0')
-    plt.contour(N1, N2, N2_isocline, levels=[0], colors='red', label='dN2/dt = 0')
-
+    plt.contour(N1, N2, N1_isocline, levels=[0], colors='darkseagreen', linewidths=2) # label='dN1/dt = 0'
+    plt.contour(N1, N2, N2_isocline, levels=[0], colors='darkred', linewidths=2) # label='dN2/dt = 0'
+    punto_eq = punto_equilibrio(r1, r2, K1, K2, alpha12, alpha21)
+    plt.plot(punto_eq[0], punto_eq[1], 'o', color = 'lightseagreen', markersize = 10, label='Punto de equilibrio')
+    
     speed = np.sqrt(N1_isocline**2 + N2_isocline**2)    
     # Graficar el campo vectorial con un mapa de colores basado en la velocidad
-    strm = plt.streamplot(N1, N2, N1_isocline, N2_isocline, color=speed, linewidth=2, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+    strm = plt.streamplot(N1, N2, N1_isocline, N2_isocline, color=speed, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
     
     plt.xlabel('N1')
     plt.ylabel('N2')
@@ -296,10 +242,12 @@ def calcular_isoclinas_y_graficar_contour(title, r1, r2, K1, K2, alpha12, alpha2
     N1_isocline = dN1dt(N1, N2, r1, K1, alpha12)
     N2_isocline = dN2dt(N1, N2, r2, K2, alpha21)
     plt.figure(figsize=(10, 10))
-    plt.contour(N1, N2, N1_isocline, levels=[0], colors='blue', label='dN1/dt = 0')
-    plt.contour(N1, N2, N2_isocline, levels=[0], colors='red', label='dN2/dt = 0')
+    plt.contour(N1, N2, N1_isocline, levels=[0], colors='blue', linewidths=2) # label='dN1/dt = 0'
+    plt.contour(N1, N2, N2_isocline, levels=[0], colors='red', linewidths=2) # label='dN2/dt = 0'
     plt.quiver(N1[::75, ::75], N2[::75, ::75], N1_isocline[::75, ::75], N2_isocline[::75, ::75], scale=85**2, label='Campo Vectorial', color='black', cmap = 'jet')
-    
+    punto_eq = punto_equilibrio(r1, r2, K1, K2, alpha12, alpha21)
+    # agrandar el tamaño del punto de equilibrio
+    plt.plot(punto_eq[0], punto_eq[1], 'o', color='violet', markersize=10, label='Punto de equilibrio')
     plt.xlabel('N1')
     plt.ylabel('N2')
     plt.xlim(0, K1)
@@ -312,14 +260,62 @@ def calcular_isoclinas_y_graficar_contour(title, r1, r2, K1, K2, alpha12, alpha2
 
     return N1, N2, N1_isocline, N2_isocline
 
-cases = {
-    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a'},
-    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b'},
-    'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c'},
-    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d'}
-}
 
+def graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case):
+
+        t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+        plt.figure(figsize=(10, 10))
+        plt.plot(t_values, y_values[:, 0], label='N1(t)')
+        plt.plot(t_values, y_values[:, 1], label='N2(t)')
+        plt.xlabel('Tiempo')
+        plt.ylabel('Población')
+        plt.title(case['title'])
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+        
+def calcular_isoclinas_y_graficar_contour_color_varios(cases):
+    plt.figure(figsize=(15, 15))
+
+    for i, case in enumerate(cases.values(), start=1):
+        N1 = np.linspace(0, case['K1'], 1000)
+        N2 = np.linspace(0, case['K2'], 1000)
+        N1, N2 = np.meshgrid(N1, N2)
+        N1_isocline = dN1dt(N1, N2, case['r1'], case['K1'], case['alpha12'])
+        N2_isocline = dN2dt(N1, N2, case['r2'], case['K2'], case['alpha21'])
+        
+        plt.subplot(2, 2, i)
+        plt.contour(N1, N2, N1_isocline, levels=[0], colors='blue', label='dN1/dt = 0')
+        plt.contour(N1, N2, N2_isocline, levels=[0], colors='red', label='dN2/dt = 0')
+
+        speed = np.sqrt(N1_isocline**2 + N2_isocline**2)    
+        # Graficar el campo vectorial con un mapa de colores basado en la velocidad
+        strm = plt.streamplot(N1, N2, N1_isocline, N2_isocline, color=speed, linewidth=2, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+       
+        punto_eq = punto_equilibrio(case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+        plt.plot(punto_eq[0], punto_eq[1], 'ro', label='Punto de equilibrio', markersize=10, color = 'violet')
+        
+        plt.xlabel('N1')
+        plt.ylabel('N2')
+        plt.xlim(0, case['K1'])
+        plt.ylim(0, case['K2'])
+
+        plt.title('Isoclinas: ' + case['title'])
+        
+        # Agregar la barra de colores
+        plt.colorbar(strm.lines, label='Velocidad')
+    plt.tight_layout()
+    plt.subplots_adjust(hspace=0.3) 
+    plt.show()
+        
 def main():
+    # graficar_soluciones_rk(t0, N1_0, N2_0, tf, h, cases)
+    # calcular_isoclinas_y_graficar_contour_color_varios(cases)
+    # # para el informe se puede ver separado en -> (después lo borramos)
+    # for i, case in enumerate(cases.values(), start=1):
+    #     graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case)
+    
+    
     for i, case in enumerate(cases.values(), start=1):
         calcular_isoclinas_y_graficar_contour(case['title'], case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
         calcular_isoclinas_y_graficar_contour_color(case['title'], case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
