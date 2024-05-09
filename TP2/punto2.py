@@ -164,33 +164,33 @@ plt.show()
 # # import numpy as np
 # # import matplotlib.pyplot as plt
 
-# Define the range of values for N1 and N2
-N1_values = np.linspace(0, K1, 20)
-N2_values = np.linspace(0, K2, 20)
+# # Define the range of values for N1 and N2
+# N1_values = np.linspace(0, K1, 20)
+# N2_values = np.linspace(0, K2, 20)
 
-# Create a grid of points
-N1, N2 = np.meshgrid(N1_values, N2_values)
+# # Create a grid of points
+# N1, N2 = np.meshgrid(N1_values, N2_values)
 
-# Calculate the rate of change of each population at each point
-dN1, dN2 = lotka_volterra(0, [N1, N2], r1, r2, K1, K2, alpha12, alpha21)
+# # Calculate the rate of change of each population at each point
+# dN1, dN2 = lotka_volterra(0, [N1, N2], r1, r2, K1, K2, alpha12, alpha21)
 
-M = np.hypot(dN1, dN2)
-dN1 /= M
-dN2 /= M
+# M = np.hypot(dN1, dN2)
+# dN1 /= M
+# dN2 /= M
 
-plt.figure()
+# plt.figure()
 
-# Draw the vector field
-plt.quiver(N1, N2, dN1, dN2, M, cmap='jet')
+# # Draw the vector field
+# plt.quiver(N1, N2, dN1, dN2, M, cmap='jet')
 
-# Draw the isoclines
-plt.contour(N1, N2, dN1, levels=[0], colors='r')
-plt.contour(N1, N2, dN2, levels=[0], colors='b')
+# # Draw the isoclines
+# plt.contour(N1, N2, dN1, levels=[0], colors='r')
+# plt.contour(N1, N2, dN2, levels=[0], colors='b')
 
-plt.xlabel('N1')
-plt.ylabel('N2')
-plt.title('Isoclines and vector field for case a')
-plt.show()
+# plt.xlabel('N1')
+# plt.ylabel('N2')
+# plt.title('Isoclines and vector field for case a')
+# plt.show()
 
 # puntos de equilibrio 
 # Para la especie 1: N1 = k1 - α12 * N2
