@@ -164,34 +164,33 @@ plt.show()
 # # import numpy as np
 # # import matplotlib.pyplot as plt
 
-# # Define the range of values for N1 and N2
-# N1_values = np.linspace(0, K1, 20)
-# N2_values = np.linspace(0, K2, 20)
+# Define the range of values for N1 and N2
+N1_values = np.linspace(0, K1, 20)
+N2_values = np.linspace(0, K2, 20)
 
-# # Create a grid of points
-# N1, N2 = np.meshgrid(N1_values, N2_values)
+# Create a grid of points
+N1, N2 = np.meshgrid(N1_values, N2_values)
 
-# # Calculate the rate of change of each population at each point
-# dN1, dN2 = lotka_volterra(0, [N1, N2], r1, r2, K1, K2, alpha12, alpha21)
+# Calculate the rate of change of each population at each point
+dN1, dN2 = lotka_volterra(0, [N1, N2], r1, r2, K1, K2, alpha12, alpha21)
 
+M = np.hypot(dN1, dN2)
+dN1 /= M
+dN2 /= M
 
-# M = np.hypot(dN1, dN2)
-# dN1 /= M
-# dN2 /= M
+plt.figure()
 
-# plt.figure()
+# Draw the vector field
+plt.quiver(N1, N2, dN1, dN2, M, cmap='jet')
 
-# # Draw the vector field
-# plt.quiver(N1, N2, dN1, dN2, M, cmap='jet')
+# Draw the isoclines
+plt.contour(N1, N2, dN1, levels=[0], colors='r')
+plt.contour(N1, N2, dN2, levels=[0], colors='b')
 
-# # Draw the isoclines
-# plt.contour(N1, N2, dN1, levels=[0], colors='r')
-# plt.contour(N1, N2, dN2, levels=[0], colors='b')
-
-# plt.xlabel('N1')
-# plt.ylabel('N2')
-# plt.title('Isoclines and vector field for case a')
-# plt.show()
+plt.xlabel('N1')
+plt.ylabel('N2')
+plt.title('Isoclines and vector field for case a')
+plt.show()
 
 # puntos de equilibrio 
 # Para la especie 1: N1 = k1 - α12 * N2
@@ -209,16 +208,12 @@ plt.show()
 # Parámetros del sistema
 
 
-# Función para calcular las isoclinas
-# def isoclinas(N1_values, N2_values, K1, K2, alpha12, alpha21):
-#     isoclinas_N1 = np.where(alpha12 != 0, (K1 - alpha12 * N2_values) / alpha12, K1)
-#     isoclinas_N2 = np.where(alpha21 != 0, (K2 - alpha21 * N1_values) / alpha21, K2)
-#     return isoclinas_N1, isoclinas_N2
-
-# def isoclinas(N1_values, N2_values, K1, K2, alpha12, alpha21):
-#     isoclinas_N1 = (K1 - alpha12 * N2_values) / alpha12
-#     isoclinas_N2 = (K2 - alpha21 * N1_values) / alpha21
-#     return isoclinas_N1, isoclinas_N2
+cases = {
+    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a'},
+    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b'},
+    'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c'},
+    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d'}
+}
 
 # def campo_vectorial(r1, r2, K1, K2, alpha12, alpha21):
 #     N1, N2 = np.meshgrid(np.linspace(0, K1, 20), np.linspace(0, K2, 20))
@@ -228,16 +223,14 @@ plt.show()
 #     norm = np.sqrt(np.max(dN1)**2 + np.max(dN2)**2)
 #     return dN1 / norm, dN2 / norm
 
-# cases = {
-#     'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a'},
-#     'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b'},
-#     'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c'},
-#     'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d'}
-# }
+# def isoclinas(N1_values, N2_values, K1, K2, alpha12, alpha21):
+#     isoclinas_N1 = (K1 - alpha12 * N2_values) / alpha12
+#     isoclinas_N2 = (K2 - alpha21 * N1_values) / alpha21
+#     return isoclinas_N1, isoclinas_N2
+
 # plt.figure(figsize=(12, 12))
 
 # for i, case in enumerate(cases.values(), start=1):
-    
 #     N1_values = np.linspace(0, case['K1'], 20)
 #     N2_values = np.linspace(0, case['K2'], 20)
 #     N1, N2 = np.meshgrid(N1_values, N2_values)
@@ -247,9 +240,8 @@ plt.show()
     
 #     # Calcular isoclinas
 #     isoc_N1, isoc_N2 = isoclinas(N1_values, N2_values, case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-#    # curva de nivel
-#     # plt.contour(N1, N2, isoc_N1, levels=[0], colors='r', label='Isoclina N1')
-#     # plt.contour(N1, N2, isoc_N2, levels=[0], colors='b', label='Isoclina N2')
+    
+#     # Graficar isóclinas
 #     plt.plot(N1_values, isoc_N2, 'r--', label='Isoclina N2')
 #     plt.plot(isoc_N1, N2_values, 'b--', label='Isoclina N1')
     
@@ -266,18 +258,54 @@ plt.show()
 # plt.tight_layout()
 # plt.show()
 
-def calcular_isoclinas_y_graficar_contour(title, r1, r2, K1, K2, alpha12, alpha21):
-    N1 = np.linspace(0, K1, 20)
-    N2 = np.linspace(0, K2, 20)
+
+def calcular_isoclinas_y_graficar_contour_color(title, r1, r2, K1, K2, alpha12, alpha21):
+    N1 = np.linspace(0, K1, 1000)
+    N2 = np.linspace(0, K2, 1000)
     N1, N2 = np.meshgrid(N1, N2)
     N1_isocline = dN1dt(N1, N2, r1, K1, alpha12)
     N2_isocline = dN2dt(N1, N2, r2, K2, alpha21)
     plt.figure(figsize=(10, 10))
-    plt.contour(N1, N2, N1_isocline, levels=[0], colors='blue')
-    plt.contour(N1, N2, N2_isocline, levels=[0], colors='red')
-    plt.quiver(N1, N2, N1_isocline, N2_isocline, scale = 10000, color='g', label='Campo Vectorial')
+    plt.contour(N1, N2, N1_isocline, levels=[0], colors='blue', label='dN1/dt = 0')
+    plt.contour(N1, N2, N2_isocline, levels=[0], colors='red', label='dN2/dt = 0')
+
+    speed = np.sqrt(N1_isocline**2 + N2_isocline**2)    
+    # Graficar el campo vectorial con un mapa de colores basado en la velocidad
+    strm = plt.streamplot(N1, N2, N1_isocline, N2_isocline, color=speed, linewidth=2, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+    
     plt.xlabel('N1')
     plt.ylabel('N2')
+    plt.xlim(0, K1)
+    plt.ylim(0, K2)
+
+    plt.legend()
+    plt.title('Isoclinas: ' + title)
+    
+    # Agregar la barra de colores
+    plt.colorbar(strm.lines, label='Velocidad')
+    
+    plt.tight_layout()
+    plt.show()
+
+    return N1, N2, N1_isocline, N2_isocline
+
+def calcular_isoclinas_y_graficar_contour(title, r1, r2, K1, K2, alpha12, alpha21):
+    N1 = np.linspace(0, K1, 1000)
+    N2 = np.linspace(0, K2, 1000)
+    N1, N2 = np.meshgrid(N1, N2)
+    N1_isocline = dN1dt(N1, N2, r1, K1, alpha12)
+    N2_isocline = dN2dt(N1, N2, r2, K2, alpha21)
+    plt.figure(figsize=(10, 10))
+    plt.contour(N1, N2, N1_isocline, levels=[0], colors='blue', label='dN1/dt = 0')
+    plt.contour(N1, N2, N2_isocline, levels=[0], colors='red', label='dN2/dt = 0')
+    plt.quiver(N1[::75, ::75], N2[::75, ::75], N1_isocline[::75, ::75], N2_isocline[::75, ::75], scale=85**2, label='Campo Vectorial', color='black', cmap = 'jet')
+    
+    plt.xlabel('N1')
+    plt.ylabel('N2')
+    plt.xlim(0, K1)
+    plt.ylim(0, K2)
+
+    plt.legend()
     plt.title('Isoclinas: ' + title)
     plt.tight_layout()
     plt.show()
@@ -291,6 +319,10 @@ cases = {
     'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d'}
 }
 
-for i, case in enumerate(cases.values(), start=1):
-    calcular_isoclinas_y_graficar_contour(case['title'], case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-    
+def main():
+    for i, case in enumerate(cases.values(), start=1):
+        calcular_isoclinas_y_graficar_contour(case['title'], case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+        calcular_isoclinas_y_graficar_contour_color(case['title'], case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+
+if __name__ == '__main__':
+    main()

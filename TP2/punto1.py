@@ -200,18 +200,21 @@ K_values = [100, 200, 100000]
 t = np.linspace(0, 10, 100)
 t2 = np.linspace(0, 20, 200)
 t3 = np.linspace(0, 250, 1000)
+t4 = np.linspace(0, 150, 800)
 
 def main():
-   
+    
+
     # plot_solutions_exact(t, N0_values[0], h, K_values[0], 'Soluciones Exactas')
     # plot_solutions_numerical(t, N0_values[0], h, K_values[0], 10, 100, 'Soluciones Numéricas')
     # plot_solutions_numerical(t2, N0_values[1], h, K_values[1], 20, 200, 'Soluciones Numéricas')
     plot_solutions_numerical(t3, N0_values[0], h, K_values[2], 250, 1000, 'Soluciones Numéricas')
     plot_solutions_numerical_sn(t3, N0_values[0], h, K_values[2], 250, 1000, 'Soluciones Numéricas')
-
+    plot_solutions_numerical_sn(t4, 1, h, 100, 150, 800, 'Soluciones Numéricas')
+    
+    
     plot_population_variation(t3, N0_values[0], h, K_values[2], 'Variación Exponencial')
     plot_population_variation(t3, N0_values[0], h, K_values[2], 'Variación Logística')
 
-# Graficar
 if __name__ == '__main__':
     main()
