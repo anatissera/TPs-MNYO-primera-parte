@@ -115,6 +115,27 @@ def calculate_exact_solutions(t, N0, h, K):
     return N_exact_logistic, N_exact_exponential
 
 
+def plot_error_relativo (t, N0, h, K):
+    N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, h, K)
+    _, N_numerical_euler = euler_method(lambda t, N: h * N * (1 - N / K), (0, t[-1]), N0, len(t))
+    _, N_numerical_rk4 = runge_kutta_4(lambda t, N: h * N * (1 - N / K), (0, t[-1]), N0, len(t))
+
+    error_euler = np.abs(N_exact_exponential - N_numerical_euler)
+    error_rk4 = np.abs(N_exact_logistic - N_numerical_rk4)
+
+    plt.figure(figsize=(10, 5))
+
+    plt.plot(t, error_euler, label='Error Relativo Euler', color='skyblue')
+    plt.plot(t, error_rk4, label='Error Relativo RK4', color='rebeccapurple')
+
+    plt.xlabel('Tiempo')
+    plt.ylabel('Error Relativo')
+    plt.title('Error Relativo de las Soluciones Numéricas')
+    plt.legend()
+    plt.grid(True)
+
+    plt.show()
+    
 def plot_solutions_exact(t, N0, r, K, title):
     N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, r, K)
    
@@ -130,8 +151,36 @@ def plot_solutions_exact(t, N0, r, K, title):
     plt.grid(True)
 
     plt.show()
+
+variables = { 'vario k': [{'N0': 10, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 200, 'time': 250, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000} ], 
+             'varío N': [{'N0': 10, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000}, {'N0': 50, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000}, {'N0': 100, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000}], 
+             'varío r': [{'N0': 10, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000}, {'N0': 10, 'r': 0.5, 'K': 100, 'time': 250, 'space': 1000}, {'N0': 10, 'r': 1, 'K': 100, 'time': 250, 'space': 1000}],
+             'varío tiempo': [{'N0': 10, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 100, 'time': 150, 'space': 800}, {'N0': 10, 'r': 0.1, 'K': 100, 'time': 20, 'space': 200} ]            }
+
+
+def plot_numerical_exact_varios(variables):
+    plt.figure(figsize=(12, 12))  # Ajusta el tamaño de la figura para que haya espacio suficiente para los subgráficos
+    
+    for i, (title, casos) in enumerate(variables.items(), start=1):
+        plt.subplot(2, 2, i)
+        plt.title(title)
+        
+        for caso in casos:
+            t = np.linspace(0, int(caso['time']), int(caso['space']))
+            N_exact_logistic, _ = calculate_exact_solutions(t, caso['N0'], caso['r'], caso['K'])
+            plt.plot(t, N_exact_logistic, linestyle='dashed', label=f"N0={caso['N0']}, r={caso['r']}, K={caso['K']}")
+        
+        plt.xlabel('Tiempo')
+        plt.ylabel('Tamaño Poblacional (N)')
+        plt.legend()
+        plt.grid(True)
+    
+    # plt.tight_layout()  # Ajusta automáticamente el espacio entre subgráficos para evitar solapamientos
+    plt.show()
     
 def plot_solutions_numerical(t, N0, h, K, time, space, title):
+    
+    
     plt.figure(figsize=(10, 5))
     
     N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, h, K)
@@ -204,11 +253,12 @@ t4 = np.linspace(0, 150, 800)
 
 def main():
     
-
+    plot_numerical_exact_varios(variables)
     # plot_solutions_exact(t, N0_values[0], h, K_values[0], 'Soluciones Exactas')
     # plot_solutions_numerical(t, N0_values[0], h, K_values[0], 10, 100, 'Soluciones Numéricas')
     # plot_solutions_numerical(t2, N0_values[1], h, K_values[1], 20, 200, 'Soluciones Numéricas')
     plot_solutions_numerical(t3, N0_values[0], h, K_values[2], 250, 1000, 'Soluciones Numéricas')
+    plot_error_relativo(t3, N0_values[0], h, K_values[2])
     plot_solutions_numerical_sn(t3, N0_values[0], h, K_values[2], 250, 1000, 'Soluciones Numéricas')
     plot_solutions_numerical_sn(t4, 1, h, 100, 150, 800, 'Soluciones Numéricas')
     
