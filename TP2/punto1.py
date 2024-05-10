@@ -40,8 +40,6 @@ def logistic_dNdt(N0, h, K):
     dNdt = h * N0 * (1-N0/K)
     return dNdt
 
-# con pseudocódigo de las diapositivas de Martín
-
 def euler_method(f, t_span, y0, N):
     a, b = t_span
     h = (b - a) / N
@@ -109,32 +107,11 @@ def runge_kutta_4(f, t_span, y0, N):
 # en un eje un parámetro k y en el otro cómo cambia la población
 # diagrama de Fases
 
+
 def calculate_exact_solutions(t, N0, h, K):
     N_exact_logistic = logistic_solution(t, N0, h, K)
     N_exact_exponential = exponential_solution(t, N0, h)
     return N_exact_logistic, N_exact_exponential
-
-
-def plot_error_relativo (t, N0, h, K):
-    N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, h, K)
-    _, N_numerical_euler = euler_method(lambda t, N: h * N * (1 - N / K), (0, t[-1]), N0, len(t))
-    _, N_numerical_rk4 = runge_kutta_4(lambda t, N: h * N * (1 - N / K), (0, t[-1]), N0, len(t))
-
-    error_euler = np.abs(N_exact_exponential - N_numerical_euler)
-    error_rk4 = np.abs(N_exact_logistic - N_numerical_rk4)
-
-    plt.figure(figsize=(10, 5))
-
-    plt.plot(t, error_euler, label='Error Relativo Euler', color='skyblue')
-    plt.plot(t, error_rk4, label='Error Relativo RK4', color='rebeccapurple')
-
-    plt.xlabel('Tiempo')
-    plt.ylabel('Error Relativo')
-    plt.title('Error Relativo de las Soluciones Numéricas')
-    plt.legend()
-    plt.grid(True)
-
-    plt.show()
     
 def plot_solutions_exact(t, N0, r, K, title):
     N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, r, K)
@@ -152,76 +129,180 @@ def plot_solutions_exact(t, N0, r, K, title):
 
     plt.show()
 
-variables = { 'vario k': [{'N0': 10, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 200, 'time': 250, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000} ], 
-             'varío N': [{'N0': 10, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000}, {'N0': 50, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000}, {'N0': 100, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000}], 
-             'varío r': [{'N0': 10, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000}, {'N0': 10, 'r': 0.5, 'K': 100, 'time': 250, 'space': 1000}, {'N0': 10, 'r': 1, 'K': 100, 'time': 250, 'space': 1000}],
-             'varío tiempo': [{'N0': 10, 'r': 0.1, 'K': 100, 'time': 250, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 100, 'time': 150, 'space': 800}, {'N0': 10, 'r': 0.1, 'K': 100, 'time': 20, 'space': 200} ]            }
-
-
 def plot_numerical_exact_varios(variables):
-    plt.figure(figsize=(12, 12))  # Ajusta el tamaño de la figura para que haya espacio suficiente para los subgráficos
+    plt.figure(figsize=(12, 18))  # Ajusta el tamaño de la figura para que haya espacio suficiente para los subgráficos
     
     for i, (title, casos) in enumerate(variables.items(), start=1):
-        plt.subplot(2, 2, i)
-        plt.title(title)
-        
+        plt.subplot(3, 2, i)
+        plt.title(title + ' - Solución Logística')
+        t = np.linspace(0, 100, 1000)
+         
         for caso in casos:
-            t = np.linspace(0, int(caso['time']), int(caso['space']))
-            N_exact_logistic, _ = calculate_exact_solutions(t, caso['N0'], caso['r'], caso['K'])
-            plt.plot(t, N_exact_logistic, linestyle='dashed', label=f"N0={caso['N0']}, r={caso['r']}, K={caso['K']}")
+           
+            N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, caso['N0'], caso['r'], caso['K'])
+            plt.plot(t, N_exact_logistic, label=f"N0={caso['N0']}, r={caso['r']}, K={caso['K']}")
         
         plt.xlabel('Tiempo')
         plt.ylabel('Tamaño Poblacional (N)')
         plt.legend()
         plt.grid(True)
     
-    # plt.tight_layout()  # Ajusta automáticamente el espacio entre subgráficos para evitar solapamientos
-    plt.show()
+    for i, (title, casos) in enumerate(variables.items(), start=4):
+        plt.subplot(3, 2, i)
+        plt.title(title + ' - Solución Exponencial')
+        
+        for caso in casos:
+        
+            N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, caso['N0'], caso['r'], caso['K'])
+            plt.plot(t, N_exact_exponential, label=f"N0={caso['N0']}, r={caso['r']}, K={caso['K']}")
+        
+        plt.xlabel('Tiempo')
+        plt.ylabel('Tamaño Poblacional (N)')
+        plt.legend()
+        plt.grid(True)
     
+    plt.subplots_adjust(hspace=0.8)
+    plt.show()
+
+def plot_numerical_exact_pares(casos, title):
+    plt.figure(figsize=(12, 15))  
+    
+    for i, caso in enumerate(casos, start=1):
+        plt.subplot(2, 1, 1)
+        plt.title(title + ' - Solución Logística')
+    
+        t = np.linspace(0, caso['time'], 1000)
+        N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, caso['N0'], caso['r'], caso['K'])
+        plt.plot(t, N_exact_logistic, label=f"N0={caso['N0']}, r={caso['r']}, K={caso['K']}")
+    
+        plt.xlabel('Tiempo')
+        plt.ylabel('Tamaño Poblacional (N)')
+        plt.legend()
+        plt.grid(True)
+    
+    for i, caso in enumerate(casos, start=len(casos)+1):
+        plt.subplot(2, 1, 2)
+        plt.title(title + ' - Solución Exponencial')
+        
+        t = np.linspace(0, caso['time'], 1000)
+        N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, caso['N0'], caso['r'], caso['K'])
+        plt.plot(t, N_exact_exponential, label=f"N0={caso['N0']}, r={caso['r']}, K={caso['K']}")
+    
+        plt.xlabel('Tiempo')
+        plt.ylabel('Tamaño Poblacional (N)')
+        plt.legend()
+        plt.grid(True)
+    
+    plt.subplots_adjust(hspace=0.8)
+    plt.show()
+
 def plot_solutions_numerical(t, N0, h, K, time, space, title):
-    
-    
     plt.figure(figsize=(10, 5))
-    
     N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, h, K)
 
-    _, N_numerical_euler = euler_method(lambda t, N: h * N * (1 - N / K), (0, time), N0, space)  # Corregido aquí
-    _, N_numerical_rk4 = runge_kutta_4(lambda t, N: h * N * (1 - N / K), (0, time), N0, space)
+    _, N_logistic_euler = euler_method(lambda t, N: logistic_dNdt(N, h, K), (0, time), N0, space)  
+    _, N_logistic_rk4 = runge_kutta_4(lambda t, N: logistic_dNdt(N, h, K), (0, time), N0, space)
+    _, N_exponential_euler = euler_method(lambda t, N: exponential_dNdt(N, h), (0, time), N0, space) 
+    _, N_exponential_rk4 = runge_kutta_4(lambda t, N: exponential_dNdt(N, h) , (0, time), N0, space)
 
-    plt.plot(t, N_exact_exponential, linestyle ='dashed', label='Solución Exacta Exponencial', c='mediumseagreen')
-    plt.plot(t, N_exact_logistic, linestyle ='dashed', label='Solución Exacta Logística', c= 'lightcoral')
-    plt.plot(t, N_numerical_euler, label='Solución Numérica Exponencial', color='skyblue')
-    plt.plot(t, N_numerical_rk4, label='Solución Numérica Logística', color='rebeccapurple')
+    plt.subplot(1, 2, 1)
+    
+    plt.plot(t, N_exact_logistic, linestyle ='dashed', label='Solución Exacta Logística', c= 'darkred')
+    plt.plot(t, N_logistic_euler, label='Solución Numérica Logística con Euler', color='mediumseagreen')
+    plt.plot(t, N_logistic_rk4, label='Solución Numérica Logística con RK4', color='rebeccapurple')
+    
+    plt.xlabel('Tiempo')
+    plt.ylabel('Tamaño Poblacional (N)')
+    plt.title('Crecimiento logístico')
+    plt.legend()
+    plt.grid(True)
+    
+    plt.subplot(1, 2, 2)
+    plt.plot(t, N_exact_exponential, linestyle ='dashed', label='Solución Exacta Exponencial', c='darkgreen')
+    plt.plot(t, N_exponential_euler, label='Solución Numérica Exponencial con Euler', color='lightcoral')
+    plt.plot(t, N_exponential_rk4, label='Solución Numérica Exponencial con RK4', color='skyblue')
 
     plt.xlabel('Tiempo')
     plt.ylabel('Tamaño Poblacional (N)')
-    plt.title(title)
+    plt.title('Crecimiento exponencial')
+    plt.legend()
+    plt.grid(True)
+
+    plt.show()
+    
+
+def exponential_dNdt(N0, h):
+    dNdt = h * N0
+    return dNdt
+
+def logistic_dNdt(N0, h, K):
+    dNdt = h * N0 * (1-N0/K)
+    return dNdt
+
+def plot_error_relativo (t, N0, h, K, time, space):
+    N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, h, K)
+
+    _, N_logistic_euler = euler_method(lambda t, N: logistic_dNdt(N, h, K), (0, time), N0, space)  
+    _, N_logistic_rk4 = runge_kutta_4(lambda t, N: logistic_dNdt(N, h, K), (0, time), N0, space)
+    _, N_exponential_euler = euler_method(lambda t, N: exponential_dNdt(N, h), (0, time), N0, space) 
+    _, N_exponential_rk4 = runge_kutta_4(lambda t, N: exponential_dNdt(N, h) , (0, time), N0, space)
+
+    error_r_euler = np.abs(N_exact_exponential - N_exponential_euler) / N_exact_exponential
+    error_r_rk4 = np.abs(N_exact_logistic - N_logistic_rk4) / N_exact_logistic
+    error_r_euler_log = np.abs(N_exact_logistic - N_logistic_euler) / N_exact_logistic
+    error_r_rk4_exp = np.abs(N_exact_exponential - N_exponential_rk4) / N_exact_exponential
+    
+    plt.figure(figsize=(10, 5))
+    plt.plot(t, error_r_euler, label='Error Relativo Euler Exponencial', color='skyblue')
+    plt.plot(t, error_r_rk4, label='Error Relativo RK4 Logística', color='rebeccapurple')
+    plt.plot(t, error_r_euler_log, label='Error Relativo Euler Logística', color='mediumseagreen')
+    plt.plot(t, error_r_rk4_exp, label='Error Relativo RK4 Exponencial', color='lightcoral')
+    
+    
+    plt.xlabel('Tiempo')
+    plt.ylabel('Tamaño Poblacional (N)')
+    plt.title('Error Relativo de los Métodos Numéricos')
     plt.legend()
     plt.grid(True)
 
     plt.show()
 
-def plot_solutions_numerical_sn(t, N0, h, K, time, space, title):
-    plt.figure(figsize=(10, 5))
+def plot_error_abs (t, N0, h, K, time, space):
     
     N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, h, K)
 
-    _, N_numerical_euler = euler_method(lambda t, N: h * N * (1 - N / K), (0, time), N0, space)  # Corregido aquí
-    _, N_numerical_rk4 = runge_kutta_4(lambda t, N: h * N * (1 - N / K), (0, time), N0, space)
+    _, N_logistic_euler = euler_method(lambda t, N: logistic_dNdt(N, h, K), (0, time), N0, space)  
+    _, N_logistic_rk4 = runge_kutta_4(lambda t, N: logistic_dNdt(N, h, K), (0, time), N0, space)
+    _, N_exponential_euler = euler_method(lambda t, N: exponential_dNdt(N, h), (0, time), N0, space) 
+    _, N_exponential_rk4 = runge_kutta_4(lambda t, N: exponential_dNdt(N, h) , (0, time), N0, space)
 
-    # plt.plot(t, N_exact_exponential, linestyle ='dashed', label='Solución Exacta Exponencial', c='mediumseagreen')
-    plt.plot(t, N_exact_logistic, linestyle ='dashed', label='Solución Exacta Logística', c= 'lightcoral')
-    plt.plot(t, N_numerical_euler, label='Solución Numérica Exponencial', color='skyblue')
-    plt.plot(t, N_numerical_rk4, label='Solución Numérica Logística', color='rebeccapurple')
-
+    error_a_euler = np.abs(N_exact_exponential - N_exponential_euler)
+    error_a_rk4 = np.abs(N_exact_logistic - N_logistic_rk4) 
+    error_a_euler_log = np.abs(N_exact_logistic - N_logistic_euler)
+    error_a_rk4_exp = np.abs(N_exact_exponential - N_exponential_rk4)
+    
+    plt.figure(figsize=(10, 7))
+    plt.subplot(1, 2, 1)
+    
+    plt.plot(t, error_a_euler, label='Error Absoluto Euler Exponencial', color='skyblue')
+    plt.plot(t, error_a_rk4_exp, label='Error Absoluto RK4 Exponencial', color='lightcoral')
     plt.xlabel('Tiempo')
     plt.ylabel('Tamaño Poblacional (N)')
-    plt.title(title)
+    plt.title('Error Absoluto de los Métodos Numéricos')
+    plt.legend()
+    plt.grid(True)
+    
+    plt.subplot(1, 2, 2)
+    plt.plot(t, error_a_euler_log, label='Error Absoluto Euler Logística', color='mediumseagreen')
+    plt.plot(t, error_a_rk4, label='Error Absoluto RK4 Logística', color='rebeccapurple')
+    plt.xlabel('Tiempo')
+    plt.ylabel('Tamaño Poblacional (N)')
+    plt.title('Error Absoluto de los Métodos Numéricos')
     plt.legend()
     plt.grid(True)
 
     plt.show()
-
+  
 def plot_population_variation(t, N0, h, K, title):
     
     N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, h, K)
@@ -242,29 +323,34 @@ def plot_population_variation(t, N0, h, K, title):
 
     plt.show()
 
-N0_values = [10, 50, 100]  
+N0 = 10
 h = 0.1 
 K_values = [100, 200, 100000] 
 
-t = np.linspace(0, 10, 100)
-t2 = np.linspace(0, 20, 200)
-t3 = np.linspace(0, 250, 1000)
-t4 = np.linspace(0, 150, 800)
+
+t1 = np.linspace(0, 200, 1000)
+t2 = np.linspace(0, 250, 1000)
+
+variables = { 'vario k': [{'N0': 10, 'r': 0.1, 'K': 100, 'time': 90, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 150, 'time': 90, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 300, 'time': 90, 'space': 1000} ], 
+             'varío N': [{'N0': 10, 'r': 0.1, 'K': 150, 'time': 100, 'space': 1000}, {'N0': 50, 'r': 0.1, 'K': 150, 'time': 100, 'space': 1000}, {'N0': 100, 'r': 0.1, 'K': 150, 'time': 100, 'space': 1000}], 
+             'varío r': [{'N0': 50, 'r': -0.2, 'K': 150, 'time': 25, 'space': 1000}, {'N0': 50, 'r': 0.5, 'K': 150, 'time': 25, 'space': 1000}, {'N0': 50, 'r': 1, 'K': 150, 'time': 25, 'space': 1000}]
+             }
 
 def main():
+    plot_solutions_exact(np.linspace(0, 110, 1000), N0, h, K_values[2], 'Soluciones Exactas')
+    
+    plot_numerical_exact_pares(variables['varío N'], 'varío N')
+    plot_numerical_exact_pares(variables['varío r'], 'varío r')
+    plot_numerical_exact_pares(variables['vario k'], 'vario k')
     
     plot_numerical_exact_varios(variables)
-    # plot_solutions_exact(t, N0_values[0], h, K_values[0], 'Soluciones Exactas')
-    # plot_solutions_numerical(t, N0_values[0], h, K_values[0], 10, 100, 'Soluciones Numéricas')
-    # plot_solutions_numerical(t2, N0_values[1], h, K_values[1], 20, 200, 'Soluciones Numéricas')
-    plot_solutions_numerical(t3, N0_values[0], h, K_values[2], 250, 1000, 'Soluciones Numéricas')
-    plot_error_relativo(t3, N0_values[0], h, K_values[2])
-    plot_solutions_numerical_sn(t3, N0_values[0], h, K_values[2], 250, 1000, 'Soluciones Numéricas')
-    plot_solutions_numerical_sn(t4, 1, h, 100, 150, 800, 'Soluciones Numéricas')
     
-    
-    plot_population_variation(t3, N0_values[0], h, K_values[2], 'Variación Exponencial')
-    plot_population_variation(t3, N0_values[0], h, K_values[2], 'Variación Logística')
+    plot_solutions_numerical(t1, N0, h, K_values[2], 200, 1000, 'Soluciones Numéricas')
+    plot_error_relativo(t1, N0, h, K_values[2], 200, 1000)
+    plot_error_abs(t1, N0, h, K_values[2], 200, 1000)
+
+    plot_population_variation(t2, N0, h, K_values[2], 'Variación Exponencial')
+    plot_population_variation(t2, N0, h, K_values[2], 'Variación Logística')
 
 if __name__ == '__main__':
     main()
