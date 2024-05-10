@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 # from punto1 import runge_kutta_4
 from scipy.optimize import fsolve
+from matplotlib.legend_handler import HandlerLine2D
+from matplotlib.lines import Line2D
 
 # diagrama de fases -> para comparar las Ns
 # flechas
@@ -58,9 +60,7 @@ def punto_equilibrio(r1, r2, K1, K2, a12, a21):
     
     return fsolve(f, [K1/2, K2/2])
 
-
-# Caso a y b: competidores intersp más fuertes eliminan a los más débiles
-
+# Parámetros del sistema    
 h = 0.1
 tf = 100
 t0 = 0
@@ -104,46 +104,13 @@ N2_0 = 10
 
 
 
-
-
-
-# # Define the range of values for N1 and N2
-# N1_values = np.linspace(0, K1, 20)
-# N2_values = np.linspace(0, K2, 20)
-
-# # Create a grid of points
-# N1, N2 = np.meshgrid(N1_values, N2_values)
-
-# # Calculate the rate of change of each population at each point
-# dN1, dN2 = lotka_volterra(0, [N1, N2], r1, r2, K1, K2, alpha12, alpha21)
-
-# M = np.hypot(dN1, dN2)
-# dN1 /= M
-# dN2 /= M
-
-# plt.figure()
-
-# # Draw the vector field
-# plt.quiver(N1, N2, dN1, dN2, M, cmap='jet')
-
-# # Draw the isoclines
-# plt.contour(N1, N2, dN1, levels=[0], colors='r')
-# plt.contour(N1, N2, dN2, levels=[0], colors='b')
-
-# plt.xlabel('N1')
-# plt.ylabel('N2')
-# plt.title('Isoclines and vector field for case a')
-# plt.show()
-
-
-
-
 cases = {
-    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a', 'case': 'N1 sobrevive (es más fuerte), N2 se extingue'},
-    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b', 'case': 'N2 sobrevive, N1 se extingue'},
-    'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c', 'case': 'Equilibrio estable entre N1 y N2'},
-    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d', 'case': 'Equilibrio inestable entre N1 y N2'}
+    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a', 'case': 'N1 sobrevive (es más fuerte), N2 se extingue', 'legend_loc': 'upper center'},
+    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b', 'case': 'N2 sobrevive, N1 se extingue', 'legend_loc': 'center right'},
+    'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c', 'case': 'Equilibrio estable entre N1 y N2', 'legend_loc': 'lower left'},
+    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d', 'case': 'Equilibrio inestable entre N1 y N2', 'legend_loc': 'upper right'}
 }
+
 # def campo_vectorial(r1, r2, K1, K2, alpha12, alpha21):
 #     N1, N2 = np.meshgrid(np.linspace(0, K1, 20), np.linspace(0, K2, 20))
 #     dN1 = dN1dt(N1, N2, r1, K1, alpha12)
@@ -203,38 +170,6 @@ def graficar_soluciones_rk(t0, N1_0, N2_0, tf, h, cases):
     plt.tight_layout()
     plt.show()
     
-def calcular_isoclinas_y_graficar_contour_color(title, r1, r2, K1, K2, alpha12, alpha21):
-    N1 = np.linspace(0, K1, 1000)
-    N2 = np.linspace(0, K2, 1000)
-    N1, N2 = np.meshgrid(N1, N2)
-    N1_isocline = dN1dt(N1, N2, r1, K1, alpha12)
-    N2_isocline = dN2dt(N1, N2, r2, K2, alpha21)
-    plt.figure(figsize=(10, 10))
-    plt.contour(N1, N2, N1_isocline, levels=[0], colors='darkseagreen', linewidths=2) # label='dN1/dt = 0'
-    plt.contour(N1, N2, N2_isocline, levels=[0], colors='darkred', linewidths=2) # label='dN2/dt = 0'
-    punto_eq = punto_equilibrio(r1, r2, K1, K2, alpha12, alpha21)
-    plt.plot(punto_eq[0], punto_eq[1], 'o', color = 'lightseagreen', markersize = 10, label='Punto de equilibrio')
-    
-    speed = np.sqrt(N1_isocline**2 + N2_isocline**2)    
-    # Graficar el campo vectorial con un mapa de colores basado en la velocidad
-    strm = plt.streamplot(N1, N2, N1_isocline, N2_isocline, color=speed, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
-    
-    plt.xlabel('N1')
-    plt.ylabel('N2')
-    plt.xlim(0, K1)
-    plt.ylim(0, K2)
-
-    plt.legend()
-    plt.title('Isoclinas: ' + title)
-    
-    # Agregar la barra de colores
-    plt.colorbar(strm.lines, label='Velocidad')
-    
-    plt.tight_layout()
-    plt.show()
-
-    return N1, N2, N1_isocline, N2_isocline
-
 def calcular_isoclinas_y_graficar_contour(title, r1, r2, K1, K2, alpha12, alpha21):
     N1 = np.linspace(0, K1, 1000)
     N2 = np.linspace(0, K2, 1000)
@@ -246,7 +181,6 @@ def calcular_isoclinas_y_graficar_contour(title, r1, r2, K1, K2, alpha12, alpha2
     plt.contour(N1, N2, N2_isocline, levels=[0], colors='red', linewidths=2) # label='dN2/dt = 0'
     plt.quiver(N1[::75, ::75], N2[::75, ::75], N1_isocline[::75, ::75], N2_isocline[::75, ::75], scale=85**2, label='Campo Vectorial', color='black', cmap = 'jet')
     punto_eq = punto_equilibrio(r1, r2, K1, K2, alpha12, alpha21)
-    # agrandar el tamaño del punto de equilibrio
     plt.plot(punto_eq[0], punto_eq[1], 'o', color='violet', markersize=10, label='Punto de equilibrio')
     plt.xlabel('N1')
     plt.ylabel('N2')
@@ -259,7 +193,42 @@ def calcular_isoclinas_y_graficar_contour(title, r1, r2, K1, K2, alpha12, alpha2
     plt.show()
 
     return N1, N2, N1_isocline, N2_isocline
+    
+def calcular_isoclinas_y_graficar_contour_color(title, r1, r2, K1, K2, alpha12, alpha21, legend_loc):
+    N1 = np.linspace(0, K1, 1000)
+    N2 = np.linspace(0, K2, 1000)
+    N1, N2 = np.meshgrid(N1, N2)
+    N1_isocline = dN1dt(N1, N2, r1, K1, alpha12)
+    N2_isocline = dN2dt(N1, N2, r2, K2, alpha21)
+    plt.figure(figsize=(10, 10))
+    
+    contour1 = plt.contour(N1, N2, N1_isocline, levels=[0], colors='seagreen', linewidths=2)
+    contour2 = plt.contour(N1, N2, N2_isocline, levels=[0], colors='firebrick', linewidths=2)
+    
+    custom_lines = [Line2D([0], [0], color='seagreen', lw=2), Line2D([0], [0], color='firebrick', lw=2)]
+    plt.legend(custom_lines, ['dN1/dt = 0', 'dN2/dt = 0'], handler_map={type(contour1.collections[0]): HandlerLine2D(numpoints=4)}, fontsize = 16, loc=legend_loc,  handlelength=0.75)
+    
+    punto_eq = punto_equilibrio(r1, r2, K1, K2, alpha12, alpha21)
+    plt.plot(punto_eq[0], punto_eq[1], 'o', color='lightseagreen', markersize=10, label='Punto de equilibrio')
+    
+    speed = np.sqrt(N1_isocline**2 + N2_isocline**2)    
+    strm = plt.streamplot(N1, N2, N1_isocline, N2_isocline, color=speed, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+    
+    plt.xlabel('N1', fontsize = 17)
+    plt.ylabel('N2', fontsize = 17)
+    plt.xlim(0, K1)
+    plt.ylim(0, K2)
 
+    plt.title('Isoclinas: ' + title, fontsize = 20)
+    
+    # Barra de colores
+    colorbar = plt.colorbar(strm.lines, label='Velocidad')
+    colorbar.set_label(label='Velocidad', fontsize=14)
+
+ 
+    plt.show()
+
+    return N1, N2, N1_isocline, N2_isocline
 
 def graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case):
 
@@ -285,40 +254,45 @@ def calcular_isoclinas_y_graficar_contour_color_varios(cases):
         N2_isocline = dN2dt(N1, N2, case['r2'], case['K2'], case['alpha21'])
         
         plt.subplot(2, 2, i)
-        plt.contour(N1, N2, N1_isocline, levels=[0], colors='blue', label='dN1/dt = 0')
-        plt.contour(N1, N2, N2_isocline, levels=[0], colors='red', label='dN2/dt = 0')
+        contour1 = plt.contour(N1, N2, N1_isocline, levels=[0], colors='seagreen', linewidths=1.5)
+        contour2 = plt.contour(N1, N2, N2_isocline, levels=[0], colors='firebrick', linewidths=1.5)
+        
+        custom_lines = [Line2D([0], [0], color='seagreen', lw=2), Line2D([0], [0], color='firebrick', lw=2)]
+        plt.legend(custom_lines, ['dN1/dt = 0', 'dN2/dt = 0'], handler_map={type(contour1.collections[0]): HandlerLine2D(numpoints=4)}, fontsize = 10, loc= case['legend_loc'], handlelength=0.75)
+    
+        punto_eq = punto_equilibrio(case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+        plt.plot(punto_eq[0], punto_eq[1], 'o', color='lightseagreen', markersize=6, label='Punto de equilibrio')
 
         speed = np.sqrt(N1_isocline**2 + N2_isocline**2)    
-        # Graficar el campo vectorial con un mapa de colores basado en la velocidad
-        strm = plt.streamplot(N1, N2, N1_isocline, N2_isocline, color=speed, linewidth=2, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
-       
-        punto_eq = punto_equilibrio(case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-        plt.plot(punto_eq[0], punto_eq[1], 'ro', label='Punto de equilibrio', markersize=10, color = 'violet')
+        strm = plt.streamplot(N1, N2, N1_isocline, N2_isocline, color=speed, linewidth=0.5, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
         
-        plt.xlabel('N1')
-        plt.ylabel('N2')
+        plt.xlabel('N1', fontsize = 11)
+        plt.ylabel('N2', fontsize = 11)
         plt.xlim(0, case['K1'])
         plt.ylim(0, case['K2'])
 
-        plt.title('Isoclinas: ' + case['title'])
+        plt.title('Isoclinas: ' + case['title'], fontsize = 13)
         
-        # Agregar la barra de colores
-        plt.colorbar(strm.lines, label='Velocidad')
-    plt.tight_layout()
-    plt.subplots_adjust(hspace=0.3) 
+        # Barra de colores
+        colorbar = plt.colorbar(strm.lines, label='Velocidad')
+        colorbar.set_label(label='Velocidad', fontsize=9)
+        
+   
+    plt.subplots_adjust(hspace=0.5) 
     plt.show()
         
 def main():
-    # graficar_soluciones_rk(t0, N1_0, N2_0, tf, h, cases)
-    # calcular_isoclinas_y_graficar_contour_color_varios(cases)
-    # # para el informe se puede ver separado en -> (después lo borramos)
-    # for i, case in enumerate(cases.values(), start=1):
-    #     graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case)
+    graficar_soluciones_rk(t0, N1_0, N2_0, tf, h, cases)
+    calcular_isoclinas_y_graficar_contour_color_varios(cases)
+    
+    # para el informe se puede ver separado en -> (después lo borramos)
+    for i, case in enumerate(cases.values(), start=1):
+        graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case)
     
     
     for i, case in enumerate(cases.values(), start=1):
-        calcular_isoclinas_y_graficar_contour(case['title'], case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-        calcular_isoclinas_y_graficar_contour_color(case['title'], case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+        # calcular_isoclinas_y_graficar_contour(case['title'], case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+        calcular_isoclinas_y_graficar_contour_color(case['title'], case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'], case['legend_loc'])
 
 if __name__ == '__main__':
     main()
