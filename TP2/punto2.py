@@ -24,8 +24,6 @@ from matplotlib.lines import Line2D
 # denominadas isoclinas cero. 
 
 
-
-
 def dN1dt(N1, N2, r1, K1, alpha12):
     return r1 * N1 * ((K1 - N1 - alpha12 * N2) / K1)
 
@@ -123,13 +121,13 @@ def graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases):
         plt.subplot(2, 2, i)        
         plt.plot(t_values, y_values[:, 0], label='N1(t)')
         plt.plot(t_values, y_values[:, 1], label='N2(t)')
-        plt.xlabel('Tiempo')
-        plt.ylabel('Población')
-        plt.title(case['title'] + ': ' + case['case'])
-        plt.legend()
+        plt.xlabel('Tiempo', fontsize=15)
+        plt.ylabel('Población', fontsize=15)
+        plt.title(case['title'] + ': ' + case['case'], fontsize=16)
+        plt.legend(fontsize = 15  )
 
     # plt.tight_layout()
-    plt.subplots_adjust(hspace=0.4)
+    plt.subplots_adjust(hspace=0.55, wspace=0.3)
     plt.show()
 
     
@@ -139,11 +137,11 @@ def graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case):
         plt.figure(figsize=(10, 10))
         plt.plot(t_values, y_values[:, 0], label='N1(t)')
         plt.plot(t_values, y_values[:, 1], label='N2(t)')
-        plt.xlabel('Tiempo')
-        plt.ylabel('Población')
-        plt.title(case['title'])
-        plt.legend()
-        plt.tight_layout()
+        plt.xlabel('Tiempo', fontsize=20)
+        plt.ylabel('Población', fontsize=20)
+        plt.title(case['title'] , fontsize=22)
+        plt.legend(fontsize=20)
+        # plt.tight_layout()
         plt.show()
         
 def isoclinas_cero(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc):
@@ -178,9 +176,9 @@ def isoclinas_cero(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc):
 
     plt.title('Isoclinas: ' + title, fontsize = 20)
     
-    plt.legend(loc=legend_loc)
+    plt.legend(loc=legend_loc, fontsize=17, handlelength=0.75)
     cbar = plt.colorbar(strm.lines)
-    cbar.set_label(label='Magnitud del campo vectorial', fontsize=14)
+    cbar.set_label(label='Magnitud del campo vectorial', fontsize=18)
     
     plt.show()
         
@@ -223,13 +221,13 @@ def isoclinas__cero_y_graficar_varios(cases):
 
         plt.title('Isoclinas: ' + case['title'], fontsize = 20)
         
-        plt.legend(loc=case['legend_loc'])
+        plt.legend(loc=case['legend_loc'], handlelength=0.75)
       
     plt.subplots_adjust(hspace=0.4) 
     plt.show()
 
 cases = {
-    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a', 'case': 'N1 sobrevive (es más fuerte), N2 se extingue', 'legend_loc': 'upper center'},
+    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a', 'case': 'N1 sobrevive, N2 se extingue', 'legend_loc': 'upper center'},
     'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b', 'case': 'N2 sobrevive, N1 se extingue', 'legend_loc': 'center right'},
     'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c', 'case': 'Equilibrio estable entre N1 y N2', 'legend_loc': 'lower left'},
     'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d', 'case': 'Equilibrio inestable entre N1 y N2', 'legend_loc': 'upper right'}
