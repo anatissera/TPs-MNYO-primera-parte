@@ -131,7 +131,7 @@ def plot_solutions_exact(t, N0, r, K, title):
     plt.show()
 
 def plot_solutions_exact_varios(variables):
-    plt.figure(figsize=(12, 18))  # Ajusta el tamaño de la figura para que haya espacio suficiente para los subgráficos
+    plt.figure(figsize=(12, 18))
     
     for i, (title, casos) in enumerate(variables.items(), start=1):
         plt.subplot(3, 2, i)
@@ -372,7 +372,6 @@ def plot_population_variation(t, N0, h, K, title):
     plt.grid(True)
 
     plt.show()
-    
 
 
 N0 = 10

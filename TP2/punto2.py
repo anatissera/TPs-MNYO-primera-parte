@@ -1,8 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
-from matplotlib.legend_handler import HandlerLine2D
-from matplotlib.lines import Line2D
 
 # diagrama de fases -> para comparar las Ns
 # flechas
@@ -77,14 +75,6 @@ N2_0 = 10
 # K1 > K2 α12 & K2 > K1 α21
 
 
-# # Parámetros del sistema
-# r1 = 0.1
-# r2 = 0.1
-# K1 = 4000
-# K2 = 3800
-# alpha12 = 0.3
-# alpha21 = 2
-
 
 # puntos de equilibrio 
 # Para la especie 1: N1 = k1 - α12 * N2
@@ -94,6 +84,7 @@ N2_0 = 10
 # Para la especie 2:  N2 = k2 - α21 * N1 
 
 # Cuando N2= 0 N1= K2 /α21 y cuando N1= 0 N2= K2
+
 
 # dN2/dt = 0 tiene como ordenada al origen K2 y como raíz K2/α21
 # dN1/dt = 0 tiene como ordenada al origen K1/α12 y como raíz K1.
@@ -124,25 +115,12 @@ def graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases):
         plt.xlabel('Tiempo', fontsize=15)
         plt.ylabel('Población', fontsize=15)
         plt.title(case['title'] + ': ' + case['case'], fontsize=16)
-        plt.legend(fontsize = 15  )
-
+        plt.legend(fontsize = 15)
+        
     # plt.tight_layout()
     plt.subplots_adjust(hspace=0.55, wspace=0.3)
     plt.show()
-
     
-def graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case):
-
-        t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-        plt.figure(figsize=(10, 10))
-        plt.plot(t_values, y_values[:, 0], label='N1(t)')
-        plt.plot(t_values, y_values[:, 1], label='N2(t)')
-        plt.xlabel('Tiempo', fontsize=20)
-        plt.ylabel('Población', fontsize=20)
-        plt.title(case['title'] , fontsize=22)
-        plt.legend(fontsize=20)
-        # plt.tight_layout()
-        plt.show()
         
 def isoclinas_cero(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc):
     n1 = np.linspace(0, k1, 100)
