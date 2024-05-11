@@ -47,13 +47,13 @@ def runge_kutta4_system(f, t0, y0, tf, h, *args):
     
     return t_values, y_values
 
-def punto_equilibrio(r1, r2, K1, K2, a12, a21):
+def punto_equilibrio(r1, r2, K1, K2, a12, a21, punto=[0, 0]):
     # Para encontrar los puntos de equilibrio, primero igualamos las derivadas a cero y resolvemos para N1 y N2.
     # Busco donde dN1/dt = 0 y dN2/dt = 0
     def f(x):
         return [r1 * x[0] * (K1 - x[0] - a12 * x[1]) / K1, r2 * x[1] * (K2 - x[1] - a21 * x[0]) / K2]
     
-    return fsolve(f, [K1/2, K2/2])
+    return fsolve(f, punto)
 
 # Parámetros del sistema    
 h = 0.1
@@ -93,16 +93,16 @@ N2_0 = 10
     
 def graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case):
 
-        t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-        plt.figure(figsize=(10, 10))
-        plt.plot(t_values, y_values[:, 0], label='N1(t)')
-        plt.plot(t_values, y_values[:, 1], label='N2(t)')
-        plt.xlabel('Tiempo')
-        plt.ylabel('Población')
-        plt.title(case['title'])
-        plt.legend()
-        plt.tight_layout()
-        plt.show()
+    t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+    plt.figure(figsize=(10, 10))
+    plt.plot(t_values, y_values[:, 0], label='N1(t)')
+    plt.plot(t_values, y_values[:, 1], label='N2(t)')
+    plt.xlabel('Tiempo')
+    plt.ylabel('Población')
+    plt.title(case['title'])
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
 
 def graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases):
     plt.figure(figsize=(10, 10))
@@ -117,7 +117,6 @@ def graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases):
         plt.title(case['title'] + ': ' + case['case'], fontsize=16)
         plt.legend(fontsize = 15)
         
-    # plt.tight_layout()
     plt.subplots_adjust(hspace=0.55, wspace=0.3)
     plt.show()
     
@@ -129,8 +128,11 @@ def isoclinas_cero(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc):
     isocline1 = k1 - alpha12 * n2
     isocline2 = k2 - alpha21 * n1
     
-    punto_eq = punto_equilibrio(r1, r2, k1, k2, alpha12, alpha21)
-    
+    puntos_eq = calcular_todos_los_equililbrios(r1, r2, k1, k2, alpha12, alpha21)
+    puntos_eq_x = [p[0] for p in puntos_eq]
+    puntos_eq_y = [p[1] for p in puntos_eq]
+
+
     vn1 = np.linspace(0, k1, 50)
     vn2 = np.linspace(0, k2, 50)
     VN1, VN2 = np.meshgrid(vn1, vn2)
@@ -139,10 +141,12 @@ def isoclinas_cero(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc):
     dN2 = dN2dt(VN1, VN2, r2, k2, alpha21)
     magnitude = np.sqrt(dN1**2 + dN2**2)
     
+    
     plt.figure()
     plt.plot(n1, isocline2, label='dN2/dt = 0', color ='limegreen', linewidth=2)
     plt.plot(isocline1, n2, label='dN1/dt = 0', color = 'firebrick', linewidth=2)
-    plt.plot(punto_eq[0], punto_eq[1], 'o', color='teal', markersize=10, label='Punto de equilibrio')
+   
+    plt.scatter(puntos_eq_x, puntos_eq_y, color='teal', s=100, label='Puntos de equilibrio', zorder=3)
     
     strm = plt.streamplot(VN1, VN2, dN1, dN2, color= magnitude, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
     plt.grid()
@@ -159,7 +163,26 @@ def isoclinas_cero(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc):
     cbar.set_label(label='Magnitud del campo vectorial', fontsize=18)
     
     plt.show()
-        
+    
+def calcular_todos_los_equililbrios(r1, r2, k1, k2, alpha12, alpha21):
+    n1 = np.linspace(0, k1, 100)
+    n2 = np.linspace(0, k2, 100)
+    
+    puntos = []
+    
+    for i in range(0, 100):
+        punto_eq = punto_equilibrio(r1, r2, k1, k2, alpha12, alpha21, [n1[i], n2[i]])
+        if not es_punto_repetido(puntos, punto_eq, 1e-6):
+            puntos.append(punto_eq)
+    
+    return puntos
+
+def es_punto_repetido(lista_puntos, nuevo_punto, tolerancia):
+    for punto in lista_puntos:
+        if np.all(np.abs(np.array(punto) - np.array(nuevo_punto)) < tolerancia):
+            return True
+    return False
+
 def isoclinas__cero_y_graficar_varios(cases):
 
     plt.figure()
@@ -170,28 +193,30 @@ def isoclinas__cero_y_graficar_varios(cases):
         n1 = np.linspace(0, case['K1'], 100)
         n2 = np.linspace(0, case['K2'], 100)
         
-        isocline1 = case['K1'] - case['alpha12'] * n2
-        isocline2 = case['K2'] - case['alpha21'] * n1
+        isocline_N1 = case['K1'] - case['alpha12'] * n2
+        isocline_N2 = case['K2'] - case['alpha21'] * n1
         
-        punto_eq = punto_equilibrio(case['K1'], case['r2'], case['K1'], case['r2'], case['alpha12'], case['alpha21'])
-        
-        vn1 = np.linspace(0, case['K1'], 50)
-        vn2 = np.linspace(0, case['K2'], 50)
+        puntos_eq = calcular_todos_los_equililbrios(case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+        puntos_eq_x = [p[0] for p in puntos_eq]
+        puntos_eq_y = [p[1] for p in puntos_eq]
+
+        vn1 = np.linspace(0, case['k1'], 50)
+        vn2 = np.linspace(0, case['k2'], 50)
         VN1, VN2 = np.meshgrid(vn1, vn2)
         
-        dN1 = dN1dt(VN1, VN2, case['r1'], case['K1'], case['alpha12'])
-        dN2 = dN2dt(VN1, VN2, case['r2'], case['K2'], case['alpha21'])
+        dN1 = dN1dt(VN1, VN2, case['r1'], case['k1'], case['alpha12'])
+        dN2 = dN2dt(VN1, VN2, case['r2'], case['k2'], case['alpha21'])
         magnitude = np.sqrt(dN1**2 + dN2**2)
         
-        plt.plot(n1, isocline2, label='dN2/dt = 0', color ='limegreen', linewidth=2)
-        plt.plot(isocline1, n2, label='dN1/dt = 0', color = 'firebrick', linewidth=2)
-        plt.plot(punto_eq[0], punto_eq[1], 'o', color='teal', markersize=10, label='Punto de equilibrio')
+        plt.plot(n1, isocline_N2, label='dN2/dt = 0', color ='limegreen', linewidth=2)
+        plt.plot(isocline_N1, n2, label='dN1/dt = 0', color = 'firebrick', linewidth=2)
+    
+        plt.scatter(puntos_eq_x, puntos_eq_y, color='teal', s=100, label='Puntos de equilibrio', zorder=3)
         
         strm = plt.streamplot(VN1, VN2, dN1, dN2, color= magnitude, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
         cbar = plt.colorbar(strm.lines)
         cbar.set_label(label='Magnitud del campo vectorial', fontsize=10)
         
- 
         plt.xlabel('N1', fontsize = 14)
         plt.ylabel('N2', fontsize = 14)
         plt.xlim(0, case['K1'])
@@ -212,16 +237,15 @@ cases = {
 }
 
 def main():
-    graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases)
-    isoclinas__cero_y_graficar_varios(cases)
+    # graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases)
+    # isoclinas__cero_y_graficar_varios(cases)
     
-    # para el informe se puede ver separado en -> (después lo borramos)
+    # # para el informe se puede ver separado en -> (después lo borramos)
+    # for i, case in enumerate(cases.values(), start=1):
+    #     graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case)
+    
+    
     for i, case in enumerate(cases.values(), start=1):
-        graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case)
-    
-    
-    for i, case in enumerate(cases.values(), start=1):
-        # calcular_isoclinas_y_graficar_contour(case['title'], case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
         isoclinas_cero(case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'], case['title'], case['legend_loc'])
         
         

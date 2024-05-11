@@ -21,96 +21,123 @@ def lotka_volterra(t, y0, r1, r2, K1, alpha, beta, q):
     return np.array([dN_dt(N, P, r1, alpha, K1), dP_dt(N, P, beta, q)])
 
 
-# sirve el mismo runge kutta 4
+# # sirve el mismo runge kutta 4
 
-# Parámetros del sistema
-h = 0.1
-tf = 250
-t0 = 0
-N1_0_conejos = 2000
-N2_0_zorros = 10
+# h = 0.1
+# tf = 200
+# t0 = 0
+# N0_conejos = 2000
+# P0_zorros = 10
 
-r1 = 0.1  # Tasa de crecimiento de los conejos (conejos/mes)
-alpha = 0.005  # Eficiencia de captura (conejos*zorros/mes)
-r2 = 0.04  # Tasa de crecimiento de los zorros (zorros/mes)
-beta = 0.00004  # Eficiencia para convertir presas en nuevos depredadores (conejos*zorros/mes)
-q = 0.05  # Tasa de mortalidad per cápita de los zorros (zorros/mes)
-K1 = 10000  # Capacidad de carga del ambiente para los conejos
+# r1 = 0.1  # Tasa de crecimiento de los conejos (conejos/mes)
+# alpha = 0.005  # Eficiencia de captura (conejos*zorros/mes)
+# r2 = 0.04  # Tasa de crecimiento de los zorros (zorros/mes)
+# beta = 0.00004  # Eficiencia para convertir presas en nuevos depredadores (conejos*zorros/mes)
+# q = 0.05  # Tasa de mortalidad per cápita de los zorros (zorros/mes)
+# K1 = 10000  # Capacidad de carga del ambiente para los conejos
 
 
-# Resolución del sistema de ecuaciones diferenciales
-t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0_conejos, N2_0_zorros], tf, h, r1, r2, K1, alpha, beta, q)
-
-# Graficar las soluciones
-plt.figure(figsize=(10, 6))
-plt.plot(t_values, y_values[:, 0], label='Conejos')
-plt.plot(t_values, y_values[:, 1], label='Zorros')
-plt.xlabel('Tiempo (meses)')
-plt.ylabel('Población')
-plt.title('Dinámica de la población de conejos y zorros')
-plt.legend()
-plt.grid(True)
-plt.show()
-
-h = 0.1
-tf = 250
-t0 = 0
-N1_0_conejos = 2000
-N2_0_zorros = 10
-
-r1 = 0.1  # Tasa de crecimiento de los conejos (conejos/mes)
-alpha = 0.02  # Eficiencia de captura (conejos*zorros/mes)
-r2 = 0.08  # Tasa de crecimiento de los zorros (zorros/mes)
-beta = 0.0001  # Eficiencia para convertir presas en nuevos depredadores (conejos*zorros/mes) - Aumentada
-q = 0.05  # Tasa de mortalidad per cápita de los zorros (zorros/mes)
-K1 = 10000  # Capacidad de carga del ambiente para los conejos
-
-# Resolución del sistema de ecuaciones diferenciales
-t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0_conejos, N2_0_zorros], tf, h, r1, r2, K1, alpha, beta, q)
-
-# Graficar las soluciones
-plt.figure(figsize=(10, 6))
-plt.plot(t_values, y_values[:, 0], label='Conejos')
-plt.plot(t_values, y_values[:, 1], label='Zorros')
-plt.xlabel('Tiempo (meses)')
-plt.ylabel('Población')
-plt.title('Dinámica de la población de conejos y zorros')
-plt.legend()
-plt.grid(True)
-plt.show()
-
-# def calcular_isoclinas_y_graficar_contour_color(N_values, P_values, r, alpha, K, beta, q, legend_loc):
-#     N, P = np.meshgrid(N_values, P_values)
-#     dN = dN_dt(N, P, r, alpha, K)
-#     dP = dP_dt(N, P, beta, q)
+def punto_equilibrio(r, K, alpha, beta, q):
+    # Para encontrar los puntos de equilibrio, primero igualamos las derivadas a cero y resolvemos para N y P.
+    # Busco donde dN/dt = 0 y dP/dt = 0
     
-#     plt.figure(figsize=(10, 8))
-#     plt.contour(N, P, dN, levels=[0], colors='blue', linewidths=2)
-#     plt.contour(N, P, dP, levels=[0], colors='red', linewidths=2)
-#     plt.quiver(N[::10, ::10], P[::10, ::10], dN[::10, ::10], dP[::10, ::10], scale=300, color='black', cmap='jet', label='Campo Vectorial')
+    # x[0] = N, x[1] = P
+    def f(x):
+        return [r * x[0] * (1 - x[0] / K ) - alpha * x[0] * x[1], beta * x[0] * x[1] - q * x[1]]
+    
+    return fsolve(f, [K/2, K/2]) # punto de convergencia
 
-#     # Encontrar los puntos de equilibrio
-#     def f(x):
-#         return [dN_dt(x[0], x[1], r, alpha, K), dP_dt(x[0], x[1], beta, q)]
-#     punto_eq = fsolve(f, [0.5 * K, 0.5 * K])
-#     plt.plot(punto_eq[0], punto_eq[1], 'o', color='green', markersize=8, label='Punto de Equilibrio')
+def isoclinas_y_campo_vectorial(r, K, alpha, beta, q, title, legend_loc):
+    N = np.linspace(0, K, 100)
+    P = np.linspace(0, K, 100)
+    
+    isocline_N = q / beta * np.ones_like(N)
+    isocline_P = (r * (1 - N / K)) / alpha * np.ones_like(P)
+    
+    punto_eq = punto_equilibrio(r, K, alpha, beta, q)
+    
+    VN, VP = np.meshgrid(N, P)
+    
+    dN = r * VN * (1 - VN / K) - alpha * VN * VP
+    dP = beta * VN * VP - q * VP
+    magnitude = np.sqrt(dN**2 + dP**2)
+    
+    plt.figure()
+    plt.plot(isocline_N, P, label='dN/dt = 0', color='limegreen', linewidth=2)
+    plt.plot(N, isocline_P, label='dP/dt = 0', color='firebrick', linewidth=2)
+    plt.plot(punto_eq[0], punto_eq[1], 'o', color='teal', markersize=10, label='Punto de equilibrio')
+    
+    strm = plt.streamplot(VN, VP, dN, dP, color=magnitude, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+    plt.grid()
+    
+    plt.xlabel('Población de Presas (N)', fontsize=17)
+    plt.ylabel('Población de Depredadores (P)', fontsize=17)
+    plt.title('Isoclinas y Campo Vectorial: ' + title, fontsize=20)
+    
+    plt.legend(loc=legend_loc, fontsize=17, handlelength=0.75)
+    cbar = plt.colorbar(strm.lines)
+    cbar.set_label(label='Magnitud del campo vectorial', fontsize=18)
+    
+    plt.show()
 
-#     plt.xlabel('Población de Presas (N)')
-#     plt.ylabel('Población de Depredadores (P)')
-#     plt.title('Isoclinas y Campo Vectorial')
-#     plt.legend()
-#     plt.show()
 
-# # Definir parámetros
-# r = 0.1  # Tasa de crecimiento de las presas
-# q = 0.05  # Tasa de mortalidad per cápita de los depredadores
-# alpha = 0.02  # Eficiencia de captura
-# beta = 0.03  # Eficiencia para convertir presas en nuevos depredadores
-# K = 1000  # Capacidad de carga del ambiente
+def graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases):
+    plt.figure(figsize=(10, 10))
 
-# # Definir rangos de valores para las poblaciones de presas y depredadores
-# N_values = np.linspace(0, K, 100)
-# P_values = np.linspace(0, K, 100)
+    for i, case in enumerate(cases.values(), start=1):
+        t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r1'], case['r2'], case['K1'], case['alpha12'], case['beta'], case['q'])
+        plt.subplot(2, 2, i)        
+        plt.plot(t_values, y_values[:, 0], label='N1(t)')
+        plt.plot(t_values, y_values[:, 1], label='N2(t)')
+        plt.xlabel('Tiempo', fontsize=15)
+        plt.ylabel('Población', fontsize=15)
+        plt.title(case['title'] + ': ' + case['case'], fontsize=16)
+        plt.legend(fontsize = 15)
+        
+    plt.subplots_adjust(hspace=0.55, wspace=0.3)
+    plt.show()
 
-# # Graficar isoclinas y campo vectorial para los parámetros dados
-# calcular_isoclinas_y_graficar_contour_color(N_values, P_values, r, alpha, K, beta, q, 'upper right')
+def graficar_sol_rk (t0, y0, tf, h, r, K, alpha, beta, q, title):
+    t_values, y_values = runge_kutta4_system(lotka_volterra, t0, y0, tf, h, r, r, K, alpha, beta, q)
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(t_values, y_values[:, 0], label='Conejos')
+    plt.plot(t_values, y_values[:, 1], label='Zorros')
+    plt.xlabel('Tiempo (meses)')
+    plt.ylabel('Población')
+    plt.title('Dinámica de la población de conejos y zorros (' + title +')')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+ 
+h = 0.1
+tf = 200
+t0 = 0
+   
+r = 1 # Tasa de crecimiento de las presas
+alpha = 0.05 # éxito en la caza, afecta al crecimiento de las presas
+beta = 0.01 # éxito en la caza, afecta al crecimiento de los depredadores
+q = 0.1 # tasa de mortalidad de los depredadores
+K = 1000 # Capacidad de carga del ambiente para las presas
+N0 = 100
+P0 = 10
+y0 = [N0, P0]
+
+
+cases = {
+    'a': {'r': 0.1, 'alpha': 0.02, 'K': 10000, 'beta': 0.0001, 'q': 0.05, 'title': 'Caso a', 'legend_loc': 'upper center'},
+    'b': {'r': 0.1, 'alpha': 0.005, 'K': 10000, 'beta': 0.00004, 'q': 0.05, 'title': 'Caso b', 'legend_loc': 'center right'},
+    'c': {'r': 0.1, 'alpha': 0.02, 'K': 5000, 'beta': 0.0001, 'q': 0.05, 'title': 'Caso c', 'legend_loc': 'lower left'},
+    'd': {'r': 0.1, 'alpha': 0.02, 'K': 10000, 'beta': 0.0001, 'q': 0.1, 'title': 'Caso d', 'legend_loc': 'upper right'}
+}
+
+def main():
+    
+    graficar_sol_rk(t0, y0, tf, h, r, K, alpha, beta, q, 'Modelo Lotka-Volterra Presa-Depredador')
+    isoclinas_y_campo_vectorial(r, K, alpha, beta, q, 'Modelo Lotka-Volterra Presa-Depredador', 'upper right')
+    
+    for i, case in enumerate(cases.values(), start=1):
+        graficar_sol_rk(t0, y0, tf, h, case['r'], case['K'], case['alpha'], case['beta'], case['q'], case['title'])
+        
+if __name__ == '__main__':
+    main()
