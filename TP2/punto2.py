@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-# from punto1 import runge_kutta_4
 from scipy.optimize import fsolve
 from matplotlib.legend_handler import HandlerLine2D
 from matplotlib.lines import Line2D
@@ -169,67 +168,46 @@ def graficar_soluciones_rk(t0, N1_0, N2_0, tf, h, cases):
 
     plt.tight_layout()
     plt.show()
-    
-def calcular_isoclinas_y_graficar_contour(title, r1, r2, K1, K2, alpha12, alpha21):
-    N1 = np.linspace(0, K1, 1000)
-    N2 = np.linspace(0, K2, 1000)
-    N1, N2 = np.meshgrid(N1, N2)
-    N1_isocline = dN1dt(N1, N2, r1, K1, alpha12)
-    N2_isocline = dN2dt(N1, N2, r2, K2, alpha21)
-    plt.figure(figsize=(10, 10))
-    plt.contour(N1, N2, N1_isocline, levels=[0], colors='blue', linewidths=2) # label='dN1/dt = 0'
-    plt.contour(N1, N2, N2_isocline, levels=[0], colors='red', linewidths=2) # label='dN2/dt = 0'
-    plt.quiver(N1[::75, ::75], N2[::75, ::75], N1_isocline[::75, ::75], N2_isocline[::75, ::75], scale=85**2, label='Campo Vectorial', color='black', cmap = 'jet')
-    punto_eq = punto_equilibrio(r1, r2, K1, K2, alpha12, alpha21)
-    plt.plot(punto_eq[0], punto_eq[1], 'o', color='violet', markersize=10, label='Punto de equilibrio')
-    plt.xlabel('N1')
-    plt.ylabel('N2')
-    plt.xlim(0, K1)
-    plt.ylim(0, K2)
 
-    plt.legend()
-    plt.title('Isoclinas: ' + title)
-    plt.tight_layout()
-    plt.show()
 
-    return N1, N2, N1_isocline, N2_isocline
+def isoclinas_cero(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc):
+    n1 = np.linspace(0, k1, 100)
+    n2 = np.linspace(0, k2, 100)
     
-def calcular_isoclinas_y_graficar_contour_color(title, r1, r2, K1, K2, alpha12, alpha21, legend_loc):
-    N1 = np.linspace(0, K1, 1000)
-    N2 = np.linspace(0, K2, 1000)
-    N1, N2 = np.meshgrid(N1, N2)
-    N1_isocline = dN1dt(N1, N2, r1, K1, alpha12)
-    N2_isocline = dN2dt(N1, N2, r2, K2, alpha21)
-    plt.figure(figsize=(10, 10))
+    isocline1 = k1 - alpha12 * n2
+    isocline2 = k2 - alpha21 * n1
     
-    contour1 = plt.contour(N1, N2, N1_isocline, levels=[0], colors='seagreen', linewidths=2)
-    contour2 = plt.contour(N1, N2, N2_isocline, levels=[0], colors='firebrick', linewidths=2)
+    punto_eq = punto_equilibrio(r1, r2, k1, k2, alpha12, alpha21)
     
-    custom_lines = [Line2D([0], [0], color='seagreen', lw=2), Line2D([0], [0], color='firebrick', lw=2)]
-    plt.legend(custom_lines, ['dN1/dt = 0', 'dN2/dt = 0'], handler_map={type(contour1.collections[0]): HandlerLine2D(numpoints=4)}, fontsize = 16, loc=legend_loc,  handlelength=0.75)
+    vn1 = np.linspace(0, k1, 50)
+    vn2 = np.linspace(0, k2, 50)
+    VN1, VN2 = np.meshgrid(vn1, vn2)
     
-    punto_eq = punto_equilibrio(r1, r2, K1, K2, alpha12, alpha21)
-    plt.plot(punto_eq[0], punto_eq[1], 'o', color='lightseagreen', markersize=10, label='Punto de equilibrio')
+    dN1 = dN1dt(VN1, VN2, r1, k1, alpha12)
+    dN2 = dN2dt(VN1, VN2, r2, k2, alpha21)
+    magnitude = np.sqrt(dN1**2 + dN2**2)
     
-    speed = np.sqrt(N1_isocline**2 + N2_isocline**2)    
-    strm = plt.streamplot(N1, N2, N1_isocline, N2_isocline, color=speed, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+    plt.figure()
+    plt.plot(n1, isocline2, label='dN2/dt = 0', color ='limegreen', linewidth=2)
+    plt.plot(isocline1, n2, label='dN1/dt = 0', color = 'firebrick', linewidth=2)
+    plt.plot(punto_eq[0], punto_eq[1], 'o', color='teal', markersize=10, label='Punto de equilibrio')
+    
+    strm = plt.streamplot(VN1, VN2, dN1, dN2, color= magnitude, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+    plt.grid()
     
     plt.xlabel('N1', fontsize = 17)
     plt.ylabel('N2', fontsize = 17)
-    plt.xlim(0, K1)
-    plt.ylim(0, K2)
+    plt.xlim(0, k1)
+    plt.ylim(0, k2)
 
     plt.title('Isoclinas: ' + title, fontsize = 20)
     
-    # Barra de colores
-    colorbar = plt.colorbar(strm.lines, label='Velocidad')
-    colorbar.set_label(label='Velocidad', fontsize=14)
-
- 
+    plt.legend(loc=legend_loc)
+    cbar = plt.colorbar(strm.lines)
+    cbar.set_label(label='Magnitud del campo vectorial', fontsize=14)
+    
     plt.show()
-
-    return N1, N2, N1_isocline, N2_isocline
-
+    
 def graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case):
 
         t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
@@ -244,41 +222,48 @@ def graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case):
         plt.show()
         
 def calcular_isoclinas_y_graficar_contour_color_varios(cases):
-    plt.figure(figsize=(15, 15))
 
+    plt.figure()
     for i, case in enumerate(cases.values(), start=1):
-        N1 = np.linspace(0, case['K1'], 1000)
-        N2 = np.linspace(0, case['K2'], 1000)
-        N1, N2 = np.meshgrid(N1, N2)
-        N1_isocline = dN1dt(N1, N2, case['r1'], case['K1'], case['alpha12'])
-        N2_isocline = dN2dt(N1, N2, case['r2'], case['K2'], case['alpha21'])
         
         plt.subplot(2, 2, i)
-        contour1 = plt.contour(N1, N2, N1_isocline, levels=[0], colors='seagreen', linewidths=1.5)
-        contour2 = plt.contour(N1, N2, N2_isocline, levels=[0], colors='firebrick', linewidths=1.5)
         
-        custom_lines = [Line2D([0], [0], color='seagreen', lw=2), Line2D([0], [0], color='firebrick', lw=2)]
-        plt.legend(custom_lines, ['dN1/dt = 0', 'dN2/dt = 0'], handler_map={type(contour1.collections[0]): HandlerLine2D(numpoints=4)}, fontsize = 10, loc= case['legend_loc'], handlelength=0.75)
-    
-        punto_eq = punto_equilibrio(case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-        plt.plot(punto_eq[0], punto_eq[1], 'o', color='lightseagreen', markersize=6, label='Punto de equilibrio')
-
-        speed = np.sqrt(N1_isocline**2 + N2_isocline**2)    
-        strm = plt.streamplot(N1, N2, N1_isocline, N2_isocline, color=speed, linewidth=0.5, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+        n1 = np.linspace(0, case['K1'], 100)
+        n2 = np.linspace(0, case['K2'], 100)
         
-        plt.xlabel('N1', fontsize = 11)
-        plt.ylabel('N2', fontsize = 11)
+        isocline1 = case['K1'] - case['alpha12'] * n2
+        isocline2 = case['K2'] - case['alpha21'] * n1
+        
+        punto_eq = punto_equilibrio(case['K1'], case['r2'], case['K1'], case['r2'], case['alpha12'], case['alpha21'])
+        
+        vn1 = np.linspace(0, case['K1'], 50)
+        vn2 = np.linspace(0, case['K2'], 50)
+        VN1, VN2 = np.meshgrid(vn1, vn2)
+        
+        dN1 = dN1dt(VN1, VN2, case['r1'], case['K1'], case['alpha12'])
+        dN2 = dN2dt(VN1, VN2, case['r2'], case['K2'], case['alpha21'])
+        magnitude = np.sqrt(dN1**2 + dN2**2)
+        
+        plt.plot(n1, isocline2, label='dN2/dt = 0', color ='limegreen', linewidth=2)
+        plt.plot(isocline1, n2, label='dN1/dt = 0', color = 'firebrick', linewidth=2)
+        plt.plot(punto_eq[0], punto_eq[1], 'o', color='teal', markersize=10, label='Punto de equilibrio')
+        
+        strm = plt.streamplot(VN1, VN2, dN1, dN2, color= magnitude, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+        cbar = plt.colorbar(strm.lines)
+        cbar.set_label(label='Magnitud del campo vectorial', fontsize=10)
+        
+ 
+        plt.xlabel('N1', fontsize = 14)
+        plt.ylabel('N2', fontsize = 14)
         plt.xlim(0, case['K1'])
         plt.ylim(0, case['K2'])
 
-        plt.title('Isoclinas: ' + case['title'], fontsize = 13)
+        plt.title('Isoclinas: ' + case['title'], fontsize = 20)
         
-        # Barra de colores
-        colorbar = plt.colorbar(strm.lines, label='Velocidad')
-        colorbar.set_label(label='Velocidad', fontsize=9)
-        
+        plt.legend(loc=case['legend_loc'])
+      
    
-    plt.subplots_adjust(hspace=0.5) 
+    plt.subplots_adjust(hspace=0.4) 
     plt.show()
         
 def main():
@@ -292,7 +277,8 @@ def main():
     
     for i, case in enumerate(cases.values(), start=1):
         # calcular_isoclinas_y_graficar_contour(case['title'], case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-        calcular_isoclinas_y_graficar_contour_color(case['title'], case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'], case['legend_loc'])
-
+        isoclinas_cero(case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'], case['title'], case['legend_loc'])
+        
+        
 if __name__ == '__main__':
     main()

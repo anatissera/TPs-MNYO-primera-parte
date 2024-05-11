@@ -10,18 +10,16 @@ from punto2 import runge_kutta4_system
 # def dP_dt (N, P, beta, q):
 #     return beta*N*P - q*P
 
-
 def dN_dt (N, P, r, alpha, K):
     return r * N * (1 - N / K) - alpha * N * P
 
 def dP_dt (N, P, beta, q):
     return beta * N * P - q * P
 
-# resolver con runge kutta 4
-# definir uno nuevo
 def lotka_volterra(t, y0, r1, r2, K1, alpha, beta, q):
     N, P = y0
     return np.array([dN_dt(N, P, r1, alpha, K1), dP_dt(N, P, beta, q)])
+
 
 # sirve el mismo runge kutta 4
 
