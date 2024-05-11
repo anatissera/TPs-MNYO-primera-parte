@@ -40,6 +40,7 @@ def logistic_dNdt(N0, h, K):
     dNdt = h * N0 * (1-N0/K)
     return dNdt
 
+
 def euler_method(f, t_span, y0, N):
     a, b = t_span
     h = (b - a) / N
@@ -129,7 +130,7 @@ def plot_solutions_exact(t, N0, r, K, title):
 
     plt.show()
 
-def plot_numerical_exact_varios(variables):
+def plot_solutions_exact_varios(variables):
     plt.figure(figsize=(12, 18))  # Ajusta el tamaño de la figura para que haya espacio suficiente para los subgráficos
     
     for i, (title, casos) in enumerate(variables.items(), start=1):
@@ -164,37 +165,79 @@ def plot_numerical_exact_varios(variables):
     plt.subplots_adjust(hspace=0.8)
     plt.show()
 
-def plot_numerical_exact_pares(casos, title):
+def plot_solutions_exact_pares(casos, title):
     plt.figure(figsize=(12, 15))  
     
     for i, caso in enumerate(casos, start=1):
-        plt.subplot(2, 1, 1)
-        plt.title(title + ' - Solución Logística')
+        plt.subplot(2, 2, 1)
+        plt.title(title + ' - Solución Logística', fontsize=13)
     
         t = np.linspace(0, caso['time'], 1000)
         N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, caso['N0'], caso['r'], caso['K'])
         plt.plot(t, N_exact_logistic, label=f"N0={caso['N0']}, r={caso['r']}, K={caso['K']}")
     
-        plt.xlabel('Tiempo')
-        plt.ylabel('Tamaño Poblacional (N)')
+        plt.xlabel('Tiempo', fontsize=12)
+        plt.ylabel('Tamaño Poblacional (N)', fontsize=12)
         plt.legend()
         plt.grid(True)
-    
-    for i, caso in enumerate(casos, start=len(casos)+1):
-        plt.subplot(2, 1, 2)
-        plt.title(title + ' - Solución Exponencial')
         
-        t = np.linspace(0, caso['time'], 1000)
-        N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, caso['N0'], caso['r'], caso['K'])
+        plt.subplot(2, 2, 2)
+        plt.title(title + ' - Solución Exponencial', fontsize=13)
+        
         plt.plot(t, N_exact_exponential, label=f"N0={caso['N0']}, r={caso['r']}, K={caso['K']}")
     
-        plt.xlabel('Tiempo')
-        plt.ylabel('Tamaño Poblacional (N)')
+        plt.xlabel('Tiempo', fontsize=12)
+        plt.ylabel('Tamaño Poblacional (N)', fontsize=12)
+        plt.legend()
+        plt.grid(True)
+
+        plt.subplot(2, 2, 3)
+        plt.title(title + ' - Variación Logística', fontsize=13)
+        dN_exact_logistic = logistic_dNdt(N_exact_logistic, h, caso['K'])
+        plt.plot(N_exact_logistic, dN_exact_logistic, label=f"N0={caso['N0']}, r={caso['r']}, K={caso['K']}")
+         
+        plt.xlabel('Tamaño Poblacional (N)', fontsize=12)
+        plt.ylabel('Variación Poblacional (dN/dt)', fontsize=12)
+        plt.legend()
+        plt.grid(True)
+        
+        plt.subplot(2, 2, 4)
+        plt.title(title + ' - Variación Exponencial', fontsize=13)
+        dN_exact_exponential = exponential_dNdt(N_exact_exponential, h)
+        plt.plot(N_exact_exponential, dN_exact_exponential, label=f"N0={caso['N0']}, r={caso['r']}, K={caso['K']}")
+        
+        plt.xlabel('Tamaño Poblacional (N)', fontsize=12)
+        plt.ylabel('Variación Poblacional (dN/dt)', fontsize=12)
         plt.legend()
         plt.grid(True)
     
+    plt.title(title)
+    plt.subplots_adjust(hspace=0.45,  wspace=0.3)
+
+    plt.show()
+    
+def plot_population_variation_exact(variables):
+    plt.figure(figsize=(12, 10))  
+
+    for i, (title, casos) in enumerate(variables.items(), start=1):
+        plt.subplot(3, 1, i)
+        plt.title(title)
+        
+        for caso in casos:
+            t = np.linspace(0, caso['time'], 1000)
+            N_exact_logistic, _ = calculate_exact_solutions(t, caso['N0'], caso['r'], caso['K'])
+            dN_exact_logistic = logistic_dNdt(N_exact_logistic, h, caso['K'])
+            
+            plt.plot(N_exact_logistic, dN_exact_logistic, label=f"N0={caso['N0']}, r={caso['r']}, K={caso['K']}")
+        
+        plt.xlabel('Tamaño Poblacional (N)')
+        plt.ylabel('Variación Poblacional (dN/dt)')
+        plt.legend()
+        plt.grid(True)
+
     plt.subplots_adjust(hspace=0.8)
     plt.show()
+
 
 def plot_solutions_numerical(t, N0, h, K, time, space, title):
     plt.figure(figsize=(10, 5))
@@ -230,15 +273,6 @@ def plot_solutions_numerical(t, N0, h, K, time, space, title):
 
     plt.show()
     
-
-def exponential_dNdt(N0, h):
-    dNdt = h * N0
-    return dNdt
-
-def logistic_dNdt(N0, h, K):
-    dNdt = h * N0 * (1-N0/K)
-    return dNdt
-
 def plot_error_relativo (t, N0, h, K, time, space):
     N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, N0, h, K)
 
@@ -322,6 +356,8 @@ def plot_population_variation(t, N0, h, K, title):
     plt.grid(True)
 
     plt.show()
+    
+
 
 N0 = 10
 h = 0.1 
@@ -337,20 +373,21 @@ variables = { 'vario k': [{'N0': 10, 'r': 0.1, 'K': 100, 'time': 90, 'space': 10
              }
 
 def main():
-    plot_solutions_exact(np.linspace(0, 110, 1000), N0, h, K_values[2], 'Soluciones Exactas')
+    # plot_solutions_exact(np.linspace(0, 110, 1000), N0, h, K_values[2], 'Soluciones Exactas')
     
-    plot_numerical_exact_pares(variables['varío N'], 'varío N')
-    plot_numerical_exact_pares(variables['varío r'], 'varío r')
-    plot_numerical_exact_pares(variables['vario k'], 'vario k')
+    plot_solutions_exact_pares(variables['varío N'], 'varío N')
+    plot_solutions_exact_pares(variables['varío r'], 'varío r')
+    plot_solutions_exact_pares(variables['vario k'], 'vario k')
     
-    plot_numerical_exact_varios(variables)
+    # plot_solutions_exact_varios(variables)
     
-    plot_solutions_numerical(t1, N0, h, K_values[2], 200, 1000, 'Soluciones Numéricas')
-    plot_error_relativo(t1, N0, h, K_values[2], 200, 1000)
-    plot_error_abs(t1, N0, h, K_values[2], 200, 1000)
+    # plot_solutions_numerical(t1, N0, h, K_values[2], 200, 1000, 'Soluciones Numéricas')
+    # plot_error_relativo(t1, N0, h, K_values[2], 200, 1000)
+    # plot_error_abs(t1, N0, h, K_values[2], 200, 1000)
 
-    plot_population_variation(t2, N0, h, K_values[2], 'Variación Exponencial')
-    plot_population_variation(t2, N0, h, K_values[2], 'Variación Logística')
-
+    # plot_population_variation(t2, N0, h, K_values[2], 'Variación Exponencial')
+    # plot_population_variation(t2, N0, h, K_values[2], 'Variación Logística')
+    
+    
 if __name__ == '__main__':
     main()

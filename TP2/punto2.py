@@ -101,59 +101,21 @@ N2_0 = 10
 # dN1/dt = 0 tiene como ordenada al origen K1/α12 y como raíz K1.
 # El eje de las absisas (X) es N1 y el eje de las ordenadas (Y) es N2.
 
-
-
-cases = {
-    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a', 'case': 'N1 sobrevive (es más fuerte), N2 se extingue', 'legend_loc': 'upper center'},
-    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b', 'case': 'N2 sobrevive, N1 se extingue', 'legend_loc': 'center right'},
-    'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c', 'case': 'Equilibrio estable entre N1 y N2', 'legend_loc': 'lower left'},
-    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d', 'case': 'Equilibrio inestable entre N1 y N2', 'legend_loc': 'upper right'}
-}
-
-# def campo_vectorial(r1, r2, K1, K2, alpha12, alpha21):
-#     N1, N2 = np.meshgrid(np.linspace(0, K1, 20), np.linspace(0, K2, 20))
-#     dN1 = dN1dt(N1, N2, r1, K1, alpha12)
-#     dN2 = dN2dt(N1, N2, r2, K2, alpha21)
-#     # Normalize the arrows so their size represents their speed
-#     norm = np.sqrt(np.max(dN1)**2 + np.max(dN2)**2)
-#     return dN1 / norm, dN2 / norm
-
-# def isoclinas(N1_values, N2_values, K1, K2, alpha12, alpha21):
-#     isoclinas_N1 = (K1 - alpha12 * N2_values) / alpha12
-#     isoclinas_N2 = (K2 - alpha21 * N1_values) / alpha21
-#     return isoclinas_N1, isoclinas_N2
-
-# plt.figure(figsize=(12, 12))
-
-# for i, case in enumerate(cases.values(), start=1):
-#     N1_values = np.linspace(0, case['K1'], 20)
-#     N2_values = np.linspace(0, case['K2'], 20)
-#     N1, N2 = np.meshgrid(N1_values, N2_values)
     
-#     plt.subplot(2, 2, i)
-#     plt.title(case['title'])
-    
-#     # Calcular isoclinas
-#     isoc_N1, isoc_N2 = isoclinas(N1_values, N2_values, case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-    
-#     # Graficar isóclinas
-#     plt.plot(N1_values, isoc_N2, 'r--', label='Isoclina N2')
-#     plt.plot(isoc_N1, N2_values, 'b--', label='Isoclina N1')
-    
-#     # Calcular campo vectorial
-#     dN1_norm, dN2_norm = campo_vectorial(case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-#     plt.quiver(N1, N2, dN1_norm, dN2_norm, scale=50, color='g', label='Campo Vectorial', cmap = 'jet')
-    
-#     plt.xlabel('N1')
-#     plt.ylabel('N2')
-#     plt.xlim(0, case['K1'])
-#     plt.ylim(0, case['K2'])
-#     plt.legend()
+def graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case):
 
-# plt.tight_layout()
-# plt.show()
+        t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+        plt.figure(figsize=(10, 10))
+        plt.plot(t_values, y_values[:, 0], label='N1(t)')
+        plt.plot(t_values, y_values[:, 1], label='N2(t)')
+        plt.xlabel('Tiempo')
+        plt.ylabel('Población')
+        plt.title(case['title'])
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
 
-def graficar_soluciones_rk(t0, N1_0, N2_0, tf, h, cases):
+def graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases):
     plt.figure(figsize=(10, 10))
 
     for i, case in enumerate(cases.values(), start=1):
@@ -166,10 +128,24 @@ def graficar_soluciones_rk(t0, N1_0, N2_0, tf, h, cases):
         plt.title(case['title'] + ': ' + case['case'])
         plt.legend()
 
-    plt.tight_layout()
+    # plt.tight_layout()
+    plt.subplots_adjust(hspace=0.4)
     plt.show()
 
+    
+def graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case):
 
+        t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+        plt.figure(figsize=(10, 10))
+        plt.plot(t_values, y_values[:, 0], label='N1(t)')
+        plt.plot(t_values, y_values[:, 1], label='N2(t)')
+        plt.xlabel('Tiempo')
+        plt.ylabel('Población')
+        plt.title(case['title'])
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+        
 def isoclinas_cero(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc):
     n1 = np.linspace(0, k1, 100)
     n2 = np.linspace(0, k2, 100)
@@ -207,21 +183,8 @@ def isoclinas_cero(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc):
     cbar.set_label(label='Magnitud del campo vectorial', fontsize=14)
     
     plt.show()
-    
-def graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case):
-
-        t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
-        plt.figure(figsize=(10, 10))
-        plt.plot(t_values, y_values[:, 0], label='N1(t)')
-        plt.plot(t_values, y_values[:, 1], label='N2(t)')
-        plt.xlabel('Tiempo')
-        plt.ylabel('Población')
-        plt.title(case['title'])
-        plt.legend()
-        plt.tight_layout()
-        plt.show()
         
-def calcular_isoclinas_y_graficar_contour_color_varios(cases):
+def isoclinas__cero_y_graficar_varios(cases):
 
     plt.figure()
     for i, case in enumerate(cases.values(), start=1):
@@ -262,13 +225,19 @@ def calcular_isoclinas_y_graficar_contour_color_varios(cases):
         
         plt.legend(loc=case['legend_loc'])
       
-   
     plt.subplots_adjust(hspace=0.4) 
     plt.show()
-        
+
+cases = {
+    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a', 'case': 'N1 sobrevive (es más fuerte), N2 se extingue', 'legend_loc': 'upper center'},
+    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b', 'case': 'N2 sobrevive, N1 se extingue', 'legend_loc': 'center right'},
+    'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c', 'case': 'Equilibrio estable entre N1 y N2', 'legend_loc': 'lower left'},
+    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d', 'case': 'Equilibrio inestable entre N1 y N2', 'legend_loc': 'upper right'}
+}
+
 def main():
-    graficar_soluciones_rk(t0, N1_0, N2_0, tf, h, cases)
-    calcular_isoclinas_y_graficar_contour_color_varios(cases)
+    graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases)
+    isoclinas__cero_y_graficar_varios(cases)
     
     # para el informe se puede ver separado en -> (después lo borramos)
     for i, case in enumerate(cases.values(), start=1):
