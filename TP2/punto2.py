@@ -62,19 +62,6 @@ t0 = 0
 N1_0 = 10
 N2_0 = 10
 
-# Caso a: 
-# K1 > K2/α21 & K2 < K1/α12
-
-# Caso b: 
-# K1 /α12 < K2 & K1 < K2/α21
-
-# caso c: Puntos de equilibrio estables
-# k1 > k2/α21 & k2 > k1/α12
-
-# Caso d: Puntos de equilibrio inestables 
-# K1 > K2 α12 & K2 > K1 α21
-
-
 
 # puntos de equilibrio 
 # Para la especie 1: N1 = k1 - α12 * N2
@@ -230,19 +217,31 @@ def isoclinas__cero_y_graficar_varios(cases):
     plt.show()
 
 cases = {
-    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4000, 'K2': 3800, 'alpha12': 0.3, 'alpha21': 2, 'title': 'Caso a', 'case': 'N1 sobrevive, N2 se extingue', 'legend_loc': 'upper center'},
-    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4500, 'K2': 5000, 'alpha12': 2, 'alpha21': 0.3, 'title': 'Caso b', 'case': 'N2 sobrevive, N1 se extingue', 'legend_loc': 'center right'},
-    'c': {'r1': 0.3, 'r2': 0.6, 'K1': 1500, 'K2': 1400, 'alpha12': 0.4, 'alpha21': 0.4, 'title': 'Caso c', 'case': 'Equilibrio estable entre N1 y N2', 'legend_loc': 'lower left'},
-    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1400, 'alpha12': 1.7, 'alpha21': 2, 'title': 'Caso d', 'case': 'Equilibrio inestable entre N1 y N2', 'legend_loc': 'upper right'}
+    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4200, 'K2': 3600, 'alpha12': 0.35, 'alpha21': 2.2, 'title': 'Caso a', 'case': 'N1 sobrevive, N2 se extingue', 'legend_loc': 'upper center'},
+    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4400, 'K2': 5000, 'alpha12': 2.2, 'alpha21': 0.35, 'title': 'Caso b', 'case': 'N2 sobrevive, N1 se extingue', 'legend_loc': 'center right'},
+    'c': {'r1': 0.4, 'r2': 0.8, 'K1': 1600, 'K2': 1500, 'alpha12': 0.5, 'alpha21': 0.5, 'title': 'Caso c', 'case': 'Equilibrio estable entre N1 y N2', 'legend_loc': 'lower left'},
+    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1350, 'alpha12': 1.6, 'alpha21': 2, 'title': 'Caso d', 'case': 'Equilibrio inestable entre N1 y N2', 'legend_loc': 'upper right'}
 }
 
+# Caso a: 
+# K1 > K2/α21 & K2 < K1/α12
+
+# Caso b: 
+# K1 < K2/α21 & K2 > K1 /α12
+
+# caso c: Puntos de equilibrio estables
+# k1 > k2 α21 & k2 > k1 α12
+
+# Caso d: Puntos de equilibrio inestables 
+# K1 > K2 α12 & K2 > K1 α21
+
 def main():
-    # graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases)
-    # isoclinas__cero_y_graficar_varios(cases)
+    graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases)
+    isoclinas__cero_y_graficar_varios(cases)
     
-    # # para el informe se puede ver separado en -> (después lo borramos)
-    # for i, case in enumerate(cases.values(), start=1):
-    #     graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case)
+    # para el informe se puede ver separado en -> (después lo borramos)
+    for i, case in enumerate(cases.values(), start=1):
+        graficar_soluciones_rk_separadas_informe(t0, N1_0, N2_0, tf, h, case)
     
     
     for i, case in enumerate(cases.values(), start=1):
