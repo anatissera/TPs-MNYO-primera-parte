@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 # definiciones de consigna
 # N(t) =
 
-def exponential_solution(t, N0, h):
+def exponential_solution(t, N0, r):
     """
     Calcula la solución exponencial de la ecuación diferencial de crecimiento poblacional.
 
@@ -21,23 +21,23 @@ def exponential_solution(t, N0, h):
     Retorna:
     N: arreglo unidimensional de tamaño poblacional en cada instante de tiempo t
     """
-    return N0 * np.exp(h * t)
+    return N0 * np.exp(r * t)
 
-def exponential_dNdt(N0, h):
-    dNdt = h * N0
+def exponential_dNdt(N0, r):
+    dNdt = r * N0
     return dNdt
 
-def logistic_solution(t, N0, h, K):
+def logistic_solution(t, N0, r, K):
     """
     Mismo que exponencial pero calcula la solución logística
     Nuevo parámetro:
     K: capacidad de carga de la población 
     """
-    exponent = -h * t
+    exponent = -r * t
     return K / (1 + (K / N0 - 1) * np.exp(exponent)) #sol chequeada en internet
 
-def logistic_dNdt(N0, h, K):
-    dNdt = h * N0 * (1-N0/K)
+def logistic_dNdt(N0, r, K):
+    dNdt = r * N0 * (1-N0/K)
     return dNdt
 
 
@@ -109,9 +109,9 @@ def runge_kutta_4(f, t_span, y0, N):
 # diagrama de Fases
 
 
-def calculate_exact_solutions(t, N0, h, K):
-    N_exact_logistic = logistic_solution(t, N0, h, K)
-    N_exact_exponential = exponential_solution(t, N0, h)
+def calculate_exact_solutions(t, N0, r, K):
+    N_exact_logistic = logistic_solution(t, N0, r, K)
+    N_exact_exponential = exponential_solution(t, N0, r)
     return N_exact_logistic, N_exact_exponential
     
 def plot_solutions_exact(t, N0, r, K, title):
@@ -402,7 +402,6 @@ def main():
 
     # plot_population_variation(t2, N0, h, K_values[2], 'Variación Exponencial')
     # plot_population_variation(t2, N0, h, K_values[2], 'Variación Logística')
-    
     
 if __name__ == '__main__':
     main()

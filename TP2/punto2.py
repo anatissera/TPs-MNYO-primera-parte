@@ -187,12 +187,12 @@ def isoclinas__cero_y_graficar_varios(cases):
         puntos_eq_x = [p[0] for p in puntos_eq]
         puntos_eq_y = [p[1] for p in puntos_eq]
 
-        vn1 = np.linspace(0, case['k1'], 50)
-        vn2 = np.linspace(0, case['k2'], 50)
+        vn1 = np.linspace(0, case['K1'], 50)
+        vn2 = np.linspace(0, case['K2'], 50)
         VN1, VN2 = np.meshgrid(vn1, vn2)
         
-        dN1 = dN1dt(VN1, VN2, case['r1'], case['k1'], case['alpha12'])
-        dN2 = dN2dt(VN1, VN2, case['r2'], case['k2'], case['alpha21'])
+        dN1 = dN1dt(VN1, VN2, case['r1'], case['K1'], case['alpha12'])
+        dN2 = dN2dt(VN1, VN2, case['r2'], case['K2'], case['alpha21'])
         magnitude = np.sqrt(dN1**2 + dN2**2)
         
         plt.plot(n1, isocline_N2, label='dN2/dt = 0', color ='limegreen', linewidth=2)
@@ -216,24 +216,25 @@ def isoclinas__cero_y_graficar_varios(cases):
     plt.subplots_adjust(hspace=0.4) 
     plt.show()
 
-cases = {
-    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4200, 'K2': 3600, 'alpha12': 0.35, 'alpha21': 2.2, 'title': 'Caso a', 'case': 'N1 sobrevive, N2 se extingue', 'legend_loc': 'upper center'},
-    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4400, 'K2': 5000, 'alpha12': 2.2, 'alpha21': 0.35, 'title': 'Caso b', 'case': 'N2 sobrevive, N1 se extingue', 'legend_loc': 'center right'},
-    'c': {'r1': 0.4, 'r2': 0.8, 'K1': 1600, 'K2': 1500, 'alpha12': 0.5, 'alpha21': 0.5, 'title': 'Caso c', 'case': 'Equilibrio estable entre N1 y N2', 'legend_loc': 'lower left'},
-    'd': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1350, 'alpha12': 1.6, 'alpha21': 2, 'title': 'Caso d', 'case': 'Equilibrio inestable entre N1 y N2', 'legend_loc': 'upper right'}
-}
-
+# exclusión competitiva
 # Caso a: 
 # K1 > K2/α21 & K2 < K1/α12
 
 # Caso b: 
 # K1 < K2/α21 & K2 > K1 /α12
 
-# caso c: Puntos de equilibrio estables
-# k1 > k2 α21 & k2 > k1 α12
+# Caso c: Dominancia indeterminada
+# K1 < K2 * α12 & K2 < K1 * α21
 
-# Caso d: Puntos de equilibrio inestables 
-# K1 > K2 α12 & K2 > K1 α21
+# Caso d: Coexistencia 
+# K1 > K2 * α12 & K2 > K1 * α21
+
+cases = {
+    'a': {'r1': 0.1, 'r2': 0.1, 'K1': 4200, 'K2': 3600, 'alpha12': 0.35, 'alpha21': 2.2, 'title': 'Caso a', 'case': 'Exclusión competitiva por parte de N1', 'legend_loc': 'upper center'},
+    'b': {'r1': 0.1, 'r2': 0.1, 'K1': 4400, 'K2': 5000, 'alpha12': 2.1, 'alpha21': 0.7, 'title': 'Caso b', 'case': 'Exclusión competitiva por parte de N2', 'legend_loc': 'center right'},
+    'c': {'r1': 0.2, 'r2': 0.2, 'K1': 1000, 'K2': 1350, 'alpha12': 1.6, 'alpha21': 2, 'title': 'Caso c', 'case': 'Dominancia indeterminada', 'legend_loc': 'upper right'},
+    'd': {'r1': 0.4, 'r2': 0.8, 'K1': 1600, 'K2': 1500, 'alpha12': 0.5, 'alpha21': 0.5, 'title': 'Caso d', 'case': 'Coexistencia', 'legend_loc': 'lower left'}
+}
 
 def main():
     graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases)
