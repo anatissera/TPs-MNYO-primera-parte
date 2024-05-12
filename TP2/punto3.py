@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
 
 from punto2 import runge_kutta4_system
+from scipy.integrate import odeint
+from punto1 import runge_kutta_4
 
 # def dN_dt (N, P, r, alpha):
 #     return r*N - alpha*N*P
@@ -79,6 +81,57 @@ def isoclinas_y_campo_vectorial(r, K, alpha, beta, q, title, legend_loc):
     cbar.set_label(label='Magnitud del campo vectorial', fontsize=18)
     
     plt.show()
+    
+def isoclinas_presa_y_depredador(r, K, alpha, beta, q, title):
+    
+    N = np.linspace(0, K, 100)
+    P = np.linspace(0, K, 100)
+    
+    isocline_N = q / beta * np.ones_like(N)
+    isocline_P = (r * (1 - N / K)) / alpha * np.ones_like(P)
+    
+    
+    VN, VP = np.meshgrid(N, P)
+    
+    dN = r * VN * (1 - VN / K) - alpha * VN * VP
+    dP = beta * VN * VP - q * VP
+    magnitude = np.sqrt(dN**2 + dP**2)
+    
+    # Como los parámetros 𝑟 y 𝑎 son constantes, la isoclina cero o nulclina para las presas es
+    # una línea constante en el eje horizontal (línea verde de la gráfica 3.2). Por debajo de esta
+    # línea, la abundancia de depredadores es baja y la población de presas aumenta, y por
+    # encima de esta la densidad de depredadores es alta y la población de presas baja
+    # La isoclina cero para los depredadores es una línea constante en el eje vertical (línea
+    # roja del gráfico 3.2). Hacia la izquierda de la línea la densidad de presas es baja por lo
+    # que descienden los depredadores, hacia la derecha la abundancia de presas es alta, por lo
+    # que aumenta la densidad de depredadores.
+    
+    plt.figure()
+    plt.subplot(1, 2, 1)
+    plt.plot( isocline_N, isocline_P, label='Isoclina de Presa (dP/dt = 0)', color='red', linewidth=2)
+  
+    plt.grid()
+    
+    plt.xlabel('Densidad de Presas (P)', fontsize=17)
+    plt.ylabel('Densidad de Depredadores (N)', fontsize=17)
+    plt.title('Isóclina 0 para Depredadores:', fontsize=20)
+    plt.legend(fontsize=17)
+    plt.xlim(0, 20)
+    plt.ylim(0, 10.4)
+    
+    plt.subplot(1, 2, 2)
+    plt.plot( isocline_P, isocline_N, label='Isoclina de Depredador (dP/dt = 0)', color='green', linewidth=2)
+  
+    plt.grid()
+    
+    plt.xlabel('Densidad de Depredadores (N)', fontsize=17)
+    plt.ylabel('Densidad de Presas (P)', fontsize=17)
+    plt.title('Isóclina 0 para Depredador', fontsize=20)
+    plt.legend(fontsize=17)
+    plt.xlim(0, 10.4)
+    plt.ylim(0, 20)
+
+    plt.show()
 
 
 def graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases):
@@ -101,17 +154,48 @@ def graficar_sol_rk (t0, y0, tf, h, r, K, alpha, beta, q, title):
     t_values, y_values = runge_kutta4_system(lotka_volterra, t0, y0, tf, h, r, r, K, alpha, beta, q)
     
     plt.figure(figsize=(10, 6))
-    plt.plot(t_values, y_values[:, 0], label='Conejos')
-    plt.plot(t_values, y_values[:, 1], label='Zorros')
+    plt.plot(t_values, y_values[:, 0], label='presas')
+    plt.plot(t_values, y_values[:, 1], label='depredadores')
     plt.xlabel('Tiempo (meses)')
     plt.ylabel('Población')
-    plt.title('Dinámica de la población de conejos y zorros (' + title +')')
+    plt.title('Dinámica de la población de presas y depredadores (' + title +')')
     plt.legend()
+    plt.grid(True)
+    plt.show()
+
+    # r y q = 1 ?
+def lotka(y, t, alpha, beta):
+    yp = (1 - alpha * y[1]) * y[0]
+    yp = np.append(yp, (-1 + beta * y[0]) * y[1])
+    return yp
+
+# def lotka(y, t, r, alpha, beta, q):
+#     yp = r * y[0] * (1 - y[0] / K) - alpha * y[0] * y[1]
+#     yp = np.append(yp, beta * y[0] * y[1] - q * y[1])
+#     return yp
+
+def plano_de_fases(alpha, beta, y0_values):
+ 
+    t = np.linspace(0, 15, 1000)
+
+    # Resolver el sistema de ecuaciones diferenciales
+
+    # y2 = runge_kutta_4(lotka, y0, t, 1000)
+
+    plt.figure(figsize=(8, 6))
+    for y0 in y0_values:
+        y = odeint(lotka, y0, t, args=(alpha, beta))
+        plt.plot(y[:, 0], y[:, 1])
+        
+    # plt.plot(y2[:, 0], y2[:, 1])
+    plt.title('Plano de Fases: Poblaciones de Presas vs. Depredadores')
+    plt.xlabel('Población de Presas')
+    plt.ylabel('Población de Depredadores')
     plt.grid(True)
     plt.show()
  
 h = 0.1
-tf = 200
+tf = 300
 t0 = 0
    
 r = 1 # Tasa de crecimiento de las presas
@@ -123,21 +207,41 @@ N0 = 100
 P0 = 10
 y0 = [N0, P0]
 
+# caso a: ciclo
+# caso b: depredadores extinguen a las presas
+# # r > q and alpha > beta
+# # r < q and alpha < beta
+# # r > q and alpha < beta
+# # r < q and alpha > beta
+
+# 
 
 cases = {
-    'a': {'r': 0.1, 'alpha': 0.02, 'K': 10000, 'beta': 0.0001, 'q': 0.05, 'title': 'Caso a', 'legend_loc': 'upper center'},
-    'b': {'r': 0.1, 'alpha': 0.005, 'K': 10000, 'beta': 0.00004, 'q': 0.05, 'title': 'Caso b', 'legend_loc': 'center right'},
-    'c': {'r': 0.1, 'alpha': 0.02, 'K': 5000, 'beta': 0.0001, 'q': 0.05, 'title': 'Caso c', 'legend_loc': 'lower left'},
-    'd': {'r': 0.1, 'alpha': 0.02, 'K': 10000, 'beta': 0.0001, 'q': 0.1, 'title': 'Caso d', 'legend_loc': 'upper right'}
+    'a': {'r': 1, 'alpha': 0.05, 'K': 1000, 'beta': 0.01, 'q': 0.1, 'title': 'Caso a', 'legend_loc': 'upper center'},
+    'b': {'r': 0.1, 'alpha': 0.09, 'K': 1000, 'beta': 0.004, 'q': 0.005, 'title': 'Caso b', 'legend_loc': 'center right'},
+    'c': {'r': 2, 'alpha': 0.005, 'K': 5000, 'beta': 0.5, 'q': 0.05, 'title': 'Caso c', 'legend_loc': 'lower left'},
+    'd': {'r': 0.1, 'alpha': 0.02, 'K': 1000, 'beta': 0.005, 'q': 0.05, 'title': 'Caso d', 'legend_loc': 'upper right'},
+    'e': {'r': 0.01, 'alpha': 0.5, 'K': 1000, 'beta': 0.0005, 'q': 0.0005, 'title': 'Caso d', 'legend_loc': 'upper right'}
 }
 
+# r = 1
+# q = 1
+alpha_1 = 0.01
+beta_1 = 0.02
+y0_values = ([1, 1], [10, 10], [20, 20], [30, 30], [40, 40])
+
 def main():
-    
     graficar_sol_rk(t0, y0, tf, h, r, K, alpha, beta, q, 'Modelo Lotka-Volterra Presa-Depredador')
     isoclinas_y_campo_vectorial(r, K, alpha, beta, q, 'Modelo Lotka-Volterra Presa-Depredador', 'upper right')
     
+    plano_de_fases(alpha_1, beta_1, y0_values) # el centro de esto es el punto de equilibrio
+    
+    isoclinas_presa_y_depredador(r, K, alpha, beta, q, 'Isoclinas Presa-Depredador')
+    
     for i, case in enumerate(cases.values(), start=1):
+       
         graficar_sol_rk(t0, y0, tf, h, case['r'], case['K'], case['alpha'], case['beta'], case['q'], case['title'])
+        isoclinas_y_campo_vectorial(case['r'], case['K'], case['alpha'], case['beta'], case['q'], 'Modelo Lotka-Volterra Presa-Depredador ' + case['title'], 'upper right')
         
 if __name__ == '__main__':
     main()
