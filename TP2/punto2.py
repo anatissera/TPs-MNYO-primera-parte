@@ -170,6 +170,112 @@ def es_punto_repetido(lista_puntos, nuevo_punto, tolerancia):
             return True
     return False
 
+def casoab(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc, punto_eq_inestable, punto_eq_estable):
+    n1 = np.linspace(0, k1, 100)
+    n2 = np.linspace(0, k2, 100)
+    
+    isocline1 = k1 - alpha12 * n2
+    isocline2 = k2 - alpha21 * n1
+    
+    plt.scatter(punto_eq_inestable[0], punto_eq_inestable[1], edgecolor='teal', facecolor='lightcyan', s=100, zorder=3)
+    plt.scatter(punto_eq_estable[0], punto_eq_estable[1], color='teal', s=100, label='Punto de equilibrio', zorder=3)
+
+
+    vn1 = np.linspace(0, k1, 50)
+    vn2 = np.linspace(0, k2, 50)
+    VN1, VN2 = np.meshgrid(vn1, vn2)
+    
+    dN1 = dN1dt(VN1, VN2, r1, k1, alpha12)
+    dN2 = dN2dt(VN1, VN2, r2, k2, alpha21)
+    magnitude = np.sqrt(dN1**2 + dN2**2)
+    
+    plt.plot(n1, isocline2, label='dN2/dt = 0', color ='limegreen', linewidth=2)
+    plt.plot(isocline1, n2, label='dN1/dt = 0', color = 'firebrick', linewidth=2)
+   
+    strm = plt.streamplot(VN1, VN2, dN1, dN2, color= magnitude, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+    plt.grid()
+    
+    plt.xlabel('N1', fontsize = 17)
+    plt.ylabel('N2', fontsize = 17)
+    plt.xlim(0, k1)
+    plt.ylim(0, k2)
+
+    plt.title('Isoclinas: ' + title, fontsize = 20)
+    
+    plt.legend(loc=legend_loc, fontsize=9, handlelength=0.75)
+    cbar = plt.colorbar(strm.lines)
+    cbar.set_label(label='Magnitud del campo vectorial', fontsize=12)
+    
+def casocd(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc, punto_eq_inestable, punto_eq_estable, bool):
+    n1 = np.linspace(0, k1, 100)
+    n2 = np.linspace(0, k2, 100)
+    
+    isocline1 = k1 - alpha12 * n2
+    isocline2 = k2 - alpha21 * n1
+    
+   
+    puntos_eq_x = [p[0] for p in punto_eq_inestable]
+    puntos_eq_y = [p[1] for p in punto_eq_inestable]
+    
+    if bool:
+        plt.scatter(puntos_eq_x, puntos_eq_y,  color='teal', s=100, zorder=3)
+        plt.scatter(punto_eq_estable[0], punto_eq_estable[1], edgecolor='teal', facecolor='lightcyan', label='Punto de equilibrio', s=100, zorder=3)
+  
+    else:
+        plt.scatter(punto_eq_estable[0], punto_eq_estable[1], color='teal', s=100, label='Punto de equilibrio', zorder=3)
+        
+
+
+    vn1 = np.linspace(0, k1, 50)
+    vn2 = np.linspace(0, k2, 50)
+    VN1, VN2 = np.meshgrid(vn1, vn2)
+    
+    dN1 = dN1dt(VN1, VN2, r1, k1, alpha12)
+    dN2 = dN2dt(VN1, VN2, r2, k2, alpha21)
+    magnitude = np.sqrt(dN1**2 + dN2**2)
+    
+    
+    plt.plot(n1, isocline2, label='dN2/dt = 0', color ='limegreen', linewidth=2)
+    plt.plot(isocline1, n2, label='dN1/dt = 0', color = 'firebrick', linewidth=2)
+   
+    strm = plt.streamplot(VN1, VN2, dN1, dN2, color= magnitude, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+    plt.grid()
+    
+    plt.xlabel('N1', fontsize = 17)
+    plt.ylabel('N2', fontsize = 17)
+    plt.xlim(0, k1)
+    plt.ylim(0, k2)
+
+    plt.title('Isoclinas: ' + title, fontsize = 20)
+    
+    plt.legend(loc=legend_loc, fontsize=9, handlelength=0.75)
+    cbar = plt.colorbar(strm.lines)
+    cbar.set_label(label='Magnitud del campo vectorial', fontsize=12)
+    
+def isoclinas_cero_y_graficar_varios_con_estabilidad(cases):
+    
+    plt.figure()
+    
+    plt.subplot(2, 2, 1)
+    casoab(cases['a']['r1'], cases['a']['r2'], cases['a']['K1'], cases['a']['K2'], cases['a']['alpha12'], cases['a']['alpha21'], cases['a']['title'], cases['a']['legend_loc'], [7.79903684e-11, 3.60000000e+03], [4.200000e+03, 1.789256e-10])
+  
+    
+    plt.subplot(2, 2, 2)
+    casoab(cases['b']['r1'], cases['b']['r2'], cases['b']['K1'], cases['b']['K2'], cases['b']['alpha12'], cases['b']['alpha21'], cases['b']['title'], cases['b']['legend_loc'], [4.40000000e+03, 4.06958441e-10], [4.57001831e-11, 5.00000000e+03])
+    
+  
+    plt.subplot(2, 2, 3)
+    casocd(cases['c']['r1'], cases['c']['r2'], cases['c']['K1'], cases['c']['K2'], cases['c']['alpha12'], cases['c']['alpha21'], cases['c']['title'], cases['c']['legend_loc'], [[ 1.00000000e+03, -1.07384375e-11], [1.43044112e-11, 1.35000000e+03]], [527.27272727, 295.45454545], True)
+    
+
+    plt.subplot(2, 2, 4)
+    casocd(cases['d']['r1'], cases['d']['r2'], cases['d']['K1'], cases['d']['K2'], cases['d']['alpha12'], cases['d']['alpha21'], cases['d']['title'], cases['d']['legend_loc'], [[1.60000000e+03, 2.00774581e-09], [4.00278193e-12, 1.50000000e+03]], [1133.33333333,  933.33333333], False)
+   
+    plt.subplots_adjust(hspace=0.55, wspace=0.26) 
+    plt.show()
+    
+    
+
 def isoclinas__cero_y_graficar_varios(cases):
 
     plt.figure()
@@ -184,6 +290,7 @@ def isoclinas__cero_y_graficar_varios(cases):
         isocline_N2 = case['K2'] - case['alpha21'] * n1
         
         puntos_eq = calcular_todos_los_equililbrios(case['r1'], case['r2'], case['K1'], case['K2'], case['alpha12'], case['alpha21'])
+        print(puntos_eq)
         puntos_eq_x = [p[0] for p in puntos_eq]
         puntos_eq_y = [p[1] for p in puntos_eq]
 
@@ -237,7 +344,9 @@ cases = {
 }
 
 def main():
+   
     graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases)
+    isoclinas_cero_y_graficar_varios_con_estabilidad(cases)
     isoclinas__cero_y_graficar_varios(cases)
     
     # para el informe se puede ver separado en -> (después lo borramos)
