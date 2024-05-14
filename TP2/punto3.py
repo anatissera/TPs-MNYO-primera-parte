@@ -7,7 +7,7 @@ from scipy.integrate import odeint
 
 
 def dN_dt_LVE (N, P, r, alpha, K):
-    return r * N * (1 - N / K) - alpha * N * P
+    return r * N * ( 1 - N / K ) - alpha * N * P
 
 def dN_dt (N, P, r, alpha):
     return r * N - alpha * N * P
@@ -38,7 +38,7 @@ def punto_equilibrio(r, alpha, beta, q):
     def f(x):
         return [r * x[0] - alpha * x[0] * x[1], beta * x[0] * x[1] - q * x[1]]
     
-    return fsolve(f, [0, 0])
+    return fsolve(f, [100, 200])
 
 
 def isoclinas_y_campo_vectorial_LVE(r, K, alpha, beta, q, title, legend_loc, bool = True):
@@ -87,12 +87,13 @@ def graficar_isoclinas_y_campo_vectorial_LVE_varias(t0, N1_0, N2_0, tf, h, cases
     plt.subplots_adjust(hspace=0.55, wspace=0.4)
     plt.show()
 
-def graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases):
+def graficar_soluciones_rk_varias(t0, N1_0, N2_0, h, cases):
     plt.figure(figsize=(10, 10))
 
     for i, case in enumerate(cases.values(), start=1):
-        t_values, y_values_LVE = runge_kutta4_system(lotka_volterra_LVE, t0, [N1_0, N2_0], tf, h, case['r'], case['r'], case['K'], case['alpha'], case['beta'], case['q'])
-        t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r'], case['r'], case['alpha'], case['beta'], case['q'])
+       
+        t_values, y_values_LVE = runge_kutta4_system(lotka_volterra_LVE, t0, [N1_0, N2_0], case['tf'], h, case['r'], case['r'], case['K'], case['alpha'], case['beta'], case['q'])
+        t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], case['tf'], h, case['r'], case['r'], case['alpha'], case['beta'], case['q'])
         
         plt.subplot(2, 2, i)        
         plt.plot(t_values, y_values_LVE[:, 0], label='N(t) (modelo LVE)', color = 'peru')
@@ -102,7 +103,9 @@ def graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases):
         plt.xlabel('Tiempo', fontsize=15)
         plt.ylabel('Población', fontsize=15)
         plt.title(case['title'], fontsize=16)
-        plt.legend(fontsize = 15)
+        
+        if i == 2:
+            plt.legend(fontsize = 15)
         
     plt.subplots_adjust(hspace=0.55, wspace=0.3)
     plt.show()
@@ -178,12 +181,12 @@ def tamaño_poblacional(t0, y0, tf, h, r, K, alpha, beta, q):
     
     plt.xlabel('Tamaño Poblacional', fontsize=14)
     plt.ylabel('Tamaño Poblacional', fontsize=14)
-    plt.title('Tamaño poblacional de las presas y depredadores', fontsize=16)
+    plt.title('Evolución del tamaño poblacional de las presas y depredadores', fontsize=16)
     plt.legend()
     plt.grid(True)
     plt.show()
  
-def lotka_q_r_K_constant(y, t, alpha, beta): # r, q = 1, K = infinito
+def lotka_q_r_K_constant(t, y, alpha, beta): # r, q = 1, K = infinito
     yp = (1 - alpha * y[1]) * y[0] # r * (1 - N / K) está siendo = 1
     yp = np.append(yp, (-1 + beta * y[0]) * y[1]) # q = 1
     return yp
@@ -194,13 +197,47 @@ def plano_de_fases(alpha, beta, y0_values):
 
     plt.figure(figsize=(8, 6))
     for y0 in y0_values:
-        y = odeint(lotka_q_r_K_constant, y0, t, args=(alpha, beta))
-        plt.plot(y[:, 0], y[:, 1])
+        # y = odeint(lotka_q_r_K_constant, t, y0, args=(alpha, beta))
+        yrk = runge_kutta4_system(lotka_q_r_K_constant, 0, y0, 15, 0.01, alpha, beta )[1]
+        
+        plt.plot(yrk[:, 0], yrk[:, 1])
+     
+    punto_eq = punto_equilibrio(1, alpha, beta, 1)
 
+    plt.plot(punto_eq[0], punto_eq[1], 'o', color='teal', markersize=10, label='Punto de equilibrio')
+    
     plt.title('Plano de Fases: comportamiento de ambas poblaciones en conjunto', fontsize=20)
     plt.xlabel('Población de Presas (N)', fontsize=18)
     plt.ylabel('Población de Predadores (P)', fontsize=18)
     plt.grid(True)
+    plt.legend(fontsize=16)
+    plt.show()
+    
+def plano_de_fase (alpha, beta, y0):
+
+    plt.figure(figsize=(8, 6))
+    t_values, yrk = runge_kutta4_system(lotka_q_r_K_constant, 0, y0, 15, 0.01, alpha, beta )
+    plt.plot(yrk[:, 0], yrk[:, 1])
+    
+    # ahora quiero plotear 3 puntos sobre la curva
+    punto_eq = punto_equilibrio(1, alpha, beta, 1)
+
+    plt.plot(punto_eq[0], punto_eq[1], 'o', color='teal', markersize=10, alpha=0.2)
+    
+    
+    # plotear otros puntos
+    plt.plot (y0[0], y0[1], 'o', color='black', markersize=10, label='p0 = (120, 50)')
+    plt.plot(135.5, 92, 'o', color='green', markersize=10, label='p1 = (135, 92)')
+    plt.plot(50, 271.5, 'o', color='purple', markersize=10, label='p2 = (50, 271)')
+    plt.plot(11.1, 100, 'o', color='red', markersize=10, label='p3 = (11, 100)')
+    plt.plot(20, 35, 'o', color='orange', markersize=10, label='p4 = (20, 35)')
+  
+   
+    plt.xlabel('Población de Presas (N)', fontsize=18)
+    plt.ylabel('Población de Predadores (P)', fontsize=18)
+    
+    plt.title('Trayectoria de Fase', fontsize=22)
+    plt.legend(fontsize=14)
     plt.show()
  
 h = 0.1
@@ -236,25 +273,27 @@ y0 = [N0, P0]
 
 
 cases = {
-    'a': {'r': 1, 'alpha': 0.05, 'K': 1000, 'beta': 0.01, 'q': 0.1, 'title': 'Caso a', 'legend_loc': 'upper center'},
-    'b': {'r': 0.1, 'alpha': 0.09, 'K': 1000, 'beta': 0.004, 'q': 0.005, 'title': 'Caso b', 'legend_loc': 'center right'},
-    'c': {'r': 0.1, 'alpha': 0.005, 'K': 10000, 'beta': 0.00004, 'q': 0.05, 'title': 'Caso c', 'legend_loc': 'upper right'},
-    'd': {'r': 2, 'alpha': 0.005, 'K': 5000, 'beta': 0.5, 'q': 0.05, 'title': 'Caso d', 'legend_loc': 'lower left'}
+    'a': {'r': 1.5, 'alpha': 0.08, 'K': 1000, 'beta': 0.02, 'q': 0.15, 'title': 'Caso a', 'legend_loc': 'upper center', 'tf': 150},
+    'b': {'r': 0.1, 'alpha': 0.09, 'K': 1000, 'beta': 0.004, 'q': 0.005, 'title': 'Caso b', 'legend_loc': 'center right', 'tf': 300},
+    'c': {'r': 0.1, 'alpha': 0.005, 'K': 10000, 'beta': 0.00004, 'q': 0.05, 'title': 'Caso c', 'legend_loc': 'upper right', 'tf': 350},
+    'd': {'r': 2, 'alpha': 0.005, 'K': 5000, 'beta': 0.5, 'q': 0.05, 'title': 'Caso d', 'legend_loc': 'lower left', 'tf': 300}
     # 'e': {'r': 0.1, 'alpha': 0.02, 'K': 1000, 'beta': 0.005, 'q': 0.05, 'title': 'Caso e', 'legend_loc': 'upper right'}
 }
 
 alpha_1 = 0.01
 beta_1 = 0.02
 y0_values = ([1, 1], [10, 10], [20, 20], [30, 30], [40, 40])
-y0_values2 = ([1, 2], [10, 20], [20, 40], [30, 60], [40,80])
+y0_values2 = ([2, 1], [20, 10], [40, 20], [60, 30], [80,40])
 
 def main():
-    
-    graficar_soluciones_rk_varias(t0, N0, P0, tf, h, cases)
+
+  
+    graficar_soluciones_rk_varias(t0, N0, P0, h, cases)
     graficar_isoclinas_y_campo_vectorial_LVE_varias(t0, N0, P0, tf, h, cases)
 
     plano_de_fases(alpha_1, beta_1, y0_values ) # el centro de esto es el punto de equilibrio
     plano_de_fases(alpha, beta, y0_values2 )
+    plano_de_fase(alpha_1, beta_1, [120, 50])
     
     variaciones(t0, y0, tf, h, cases['a']['r'], cases['a']['K'], cases['a']['alpha'], cases['a']['beta'], cases['a']['q'])
     tamaño_poblacional(t0, y0, tf, h, cases['a']['r'], cases['a']['K'], cases['a']['alpha'], cases['a']['beta'], cases['a']['q'])
