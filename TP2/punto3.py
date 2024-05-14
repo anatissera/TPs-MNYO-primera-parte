@@ -6,31 +6,25 @@ from punto2 import runge_kutta4_system
 from scipy.integrate import odeint
 
 
-def dN_dt (N, P, r, alpha, K):
+def dN_dt_LVE (N, P, r, alpha, K):
     return r * N * (1 - N / K) - alpha * N * P
+
+def dN_dt (N, P, r, alpha):
+    return r * N - alpha * N * P
 
 def dP_dt (N, P, beta, q):
     return beta * N * P - q * P
 
-def lotka_volterra(t, y0, r1, r2, K1, alpha, beta, q):
+def lotka_volterra_LVE(t, y0, r1, r2, K1, alpha, beta, q):
     N, P = y0
-    return np.array([dN_dt(N, P, r1, alpha, K1), dP_dt(N, P, beta, q)])
+    return np.array([dN_dt_LVE(N, P, r1, alpha, K1), dP_dt(N, P, beta, q)])
 
-# h = 0.1
-# tf = 200
-# t0 = 0
-# N0_conejos = 2000
-# P0_zorros = 10
-
-# r1 = 0.1  # Tasa de crecimiento de los conejos (conejos/mes)
-# alpha = 0.005  # Eficiencia de captura (conejos*zorros/mes)
-# r2 = 0.04  # Tasa de crecimiento de los zorros (zorros/mes)
-# beta = 0.00004  # Eficiencia para convertir presas en nuevos depredadores (conejos*zorros/mes)
-# q = 0.05  # Tasa de mortalidad per cápita de los zorros (zorros/mes)
-# K1 = 10000  # Capacidad de carga del ambiente para los conejos
+def lotka_volterra(t, y0, r1, r2, alpha, beta, q):
+    N, P = y0
+    return np.array([dN_dt(N, P, r1, alpha), dP_dt(N, P, beta, q)])
 
 
-def punto_equilibrio(r, K, alpha, beta, q):
+def punto_equilibrio_LVE(r, K, alpha, beta, q):
     # Para encontrar los puntos de equilibrio, primero igualamos las derivadas a cero y resolvemos para N y P.
     # Busco donde dN/dt = 0 y dP/dt = 0
     
@@ -40,14 +34,21 @@ def punto_equilibrio(r, K, alpha, beta, q):
     
     return fsolve(f, [K/2, K/2]) # punto de convergencia
 
-def isoclinas_y_campo_vectorial(r, K, alpha, beta, q, title, legend_loc):
+def punto_equilibrio(r, alpha, beta, q):
+    def f(x):
+        return [r * x[0] - alpha * x[0] * x[1], beta * x[0] * x[1] - q * x[1]]
+    
+    return fsolve(f, [0, 0])
+
+
+def isoclinas_y_campo_vectorial_LVE(r, K, alpha, beta, q, title, legend_loc, bool = True):
     N = np.linspace(0, K, 100)
     P = np.linspace(0, K, 100)
     
     isocline_N = q / beta * np.ones_like(N)
     isocline_P = (r * (1 - N / K)) / alpha * np.ones_like(P)
     
-    punto_eq = punto_equilibrio(r, K, alpha, beta, q)
+    punto_eq = punto_equilibrio_LVE(r, K, alpha, beta, q)
     
     VN, VP = np.meshgrid(N, P)
     
@@ -55,42 +56,59 @@ def isoclinas_y_campo_vectorial(r, K, alpha, beta, q, title, legend_loc):
     dP = beta * VN * VP - q * VP
     magnitude = np.sqrt(dN**2 + dP**2)
     
-    plt.figure()
+    if bool:
+        plt.figure()
     plt.plot(isocline_N, P, label='dN/dt = 0', color='limegreen', linewidth=2)
     plt.plot(N, isocline_P, label='dP/dt = 0', color='firebrick', linewidth=2)
     plt.plot(punto_eq[0], punto_eq[1], 'o', color='teal', markersize=10, label='Punto de equilibrio')
     
-    strm = plt.streamplot(VN, VP, dN, dP, color=magnitude, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+    strm = plt.streamplot(VN, VP, dN, dP, color=magnitude, linewidth=0.5, cmap='CMRmap', arrowstyle='->', arrowsize=0.8)
     plt.grid()
     
-    plt.xlabel('Población de Presas (N)', fontsize=17)
-    plt.ylabel('Población de predadores (P)', fontsize=17)
-    plt.title('Isoclinas y Campo Vectorial: ' + title, fontsize=20)
+    plt.xlabel('Población de Presas (N)', fontsize=13)
+    plt.ylabel('Población de predadores (P)', fontsize=13)
+    plt.title(title, fontsize=20)
     
-    plt.legend(loc=legend_loc, fontsize=17, handlelength=0.75)
+    plt.legend(loc=legend_loc, fontsize=12, handlelength=0.75)
     cbar = plt.colorbar(strm.lines)
-    cbar.set_label(label='Magnitud del campo vectorial', fontsize=18)
+    cbar.set_label(label='Magnitud del campo vectorial', fontsize=12)
     
+    if bool:
+        plt.show()
+    
+def graficar_isoclinas_y_campo_vectorial_LVE_varias(t0, N1_0, N2_0, tf, h, cases):
+    plt.figure(figsize=(10, 10))
+
+    for i, case in enumerate(cases.values(), start=1):
+       
+        plt.subplot(2, 2, i)
+        isoclinas_y_campo_vectorial_LVE(case['r'], case['K'], case['alpha'], case['beta'], case['q'], case['title'], case['legend_loc'], False)
+        
+    plt.subplots_adjust(hspace=0.55, wspace=0.4)
     plt.show()
 
 def graficar_soluciones_rk_varias(t0, N1_0, N2_0, tf, h, cases):
     plt.figure(figsize=(10, 10))
 
     for i, case in enumerate(cases.values(), start=1):
-        t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r1'], case['r2'], case['K1'], case['alpha12'], case['beta'], case['q'])
+        t_values, y_values_LVE = runge_kutta4_system(lotka_volterra_LVE, t0, [N1_0, N2_0], tf, h, case['r'], case['r'], case['K'], case['alpha'], case['beta'], case['q'])
+        t_values, y_values = runge_kutta4_system(lotka_volterra, t0, [N1_0, N2_0], tf, h, case['r'], case['r'], case['alpha'], case['beta'], case['q'])
+        
         plt.subplot(2, 2, i)        
-        plt.plot(t_values, y_values[:, 0], label='N1(t)')
-        plt.plot(t_values, y_values[:, 1], label='N2(t)')
+        plt.plot(t_values, y_values_LVE[:, 0], label='N(t) (modelo LVE)', color = 'peru')
+        plt.plot(t_values, y_values[:, 0], label='N(t) (modelo original)', color = 'seagreen')
+        plt.plot(t_values, y_values_LVE[:, 1], label='P(t) (modelo LVE)', color = 'darkred')
+        plt.plot(t_values, y_values[:, 1], label='P(t) (modelo original)', color = 'dodgerblue')
         plt.xlabel('Tiempo', fontsize=15)
         plt.ylabel('Población', fontsize=15)
-        plt.title(case['title'] + ': ' + case['case'], fontsize=16)
+        plt.title(case['title'], fontsize=16)
         plt.legend(fontsize = 15)
         
     plt.subplots_adjust(hspace=0.55, wspace=0.3)
     plt.show()
 
 def graficar_sol_rk (t0, y0, tf, h, r, K, alpha, beta, q, title):
-    t_values, y_values = runge_kutta4_system(lotka_volterra, t0, y0, tf, h, r, r, K, alpha, beta, q)
+    t_values, y_values = runge_kutta4_system(lotka_volterra_LVE, t0, y0, tf, h, r, r, K, alpha, beta, q)
     
     plt.figure(figsize=(10, 6))
     plt.plot(t_values, y_values[:, 0], label='presas')
@@ -102,6 +120,68 @@ def graficar_sol_rk (t0, y0, tf, h, r, K, alpha, beta, q, title):
     plt.grid(True)
     plt.show()
 
+
+# falta graficar las variaciones dN/dt y dP/dt en función del tiempo
+def variaciones( t0, y0, tf, h, r, K, alpha, beta, q):
+    t_values, y_values_LVE = runge_kutta4_system(lotka_volterra_LVE, t0, y0, tf, h, r, r, K, alpha, beta, q)
+    t_values, y_values = runge_kutta4_system(lotka_volterra, t0, y0, tf, h, r, r, alpha, beta, q)
+    
+    N_values_LVE = y_values_LVE[:, 0]
+    P_values_LVE = y_values_LVE[:, 1]
+    
+    N_values = y_values[:, 0]
+    P_values = y_values[:, 1]
+    
+    dN_values_LVE = dN_dt_LVE(N_values_LVE, P_values_LVE, r, alpha, K)
+    dP_values_LVE = dP_dt(N_values_LVE, P_values_LVE, beta, q)
+    
+    dN_values = dN_dt(N_values, P_values, r, alpha)
+    dP_values = dP_dt(N_values, P_values, beta, q)
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(t_values, dN_values_LVE, label='Variación de N(t) en función de t (LVE)', color='blue')
+    plt.plot(t_values, dP_values_LVE, label='Variación de P(t) en función de t (LVE)', color='red')
+    
+    plt.plot(t_values, dN_values, label='Variación de N(t) en función de t (origina)', color='darkslategrey')
+    plt.plot(t_values, dP_values, label='Variación de P(t) en función de t (original)', color='darkorange')
+    
+    plt.xlabel('Tiempo (t)', fontsize=14)
+    plt.ylabel('Variación', fontsize=14)
+    plt.title('Variación de las poblaciones de presas y depredadores', fontsize=16)
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+# graficar el tamaño poblacional de las presas y depredadores en función del tiempo
+def tamaño_poblacional(t0, y0, tf, h, r, K, alpha, beta, q):   
+    t_values, y_values_LVE = runge_kutta4_system(lotka_volterra_LVE, t0, y0, tf, h, r, r, K, alpha, beta, q)
+    t_values, y_values = runge_kutta4_system(lotka_volterra, t0, y0, tf, h, r, r, alpha, beta, q)
+    
+
+    N_values_LVE = y_values_LVE[:, 0]
+    P_values_LVE = y_values_LVE[:, 1]
+    
+    N_values = y_values[:, 0]
+    P_values = y_values[:, 1]
+    
+    dN_values_LVE = dN_dt_LVE(N_values_LVE, P_values_LVE, r, alpha, K)
+    dP_values_LVE = dP_dt(N_values_LVE, P_values_LVE, beta, q)
+    
+    dN_values = dN_dt(N_values, P_values, r, alpha)
+    dP_values = dP_dt(N_values, P_values, beta, q)
+    
+    plt.figure()
+    plt.plot(N_values_LVE, dN_values_LVE, label='presas (LVE)')
+    plt.plot(P_values_LVE, dP_values_LVE, label='depredadores (LVE)')    
+    plt.plot(N_values, dN_values, label='presas (original)')
+    plt.plot(P_values, dP_values, label='depredadores (original)')    
+    
+    plt.xlabel('Tamaño Poblacional', fontsize=14)
+    plt.ylabel('Tamaño Poblacional', fontsize=14)
+    plt.title('Tamaño poblacional de las presas y depredadores', fontsize=16)
+    plt.legend()
+    plt.grid(True)
+    plt.show()
  
 def lotka_q_r_K_constant(y, t, alpha, beta): # r, q = 1, K = infinito
     yp = (1 - alpha * y[1]) * y[0] # r * (1 - N / K) está siendo = 1
@@ -159,8 +239,8 @@ cases = {
     'a': {'r': 1, 'alpha': 0.05, 'K': 1000, 'beta': 0.01, 'q': 0.1, 'title': 'Caso a', 'legend_loc': 'upper center'},
     'b': {'r': 0.1, 'alpha': 0.09, 'K': 1000, 'beta': 0.004, 'q': 0.005, 'title': 'Caso b', 'legend_loc': 'center right'},
     'c': {'r': 0.1, 'alpha': 0.005, 'K': 10000, 'beta': 0.00004, 'q': 0.05, 'title': 'Caso c', 'legend_loc': 'upper right'},
-    'd': {'r': 2, 'alpha': 0.005, 'K': 5000, 'beta': 0.5, 'q': 0.05, 'title': 'Caso d', 'legend_loc': 'lower left'},
-    'e': {'r': 0.1, 'alpha': 0.02, 'K': 1000, 'beta': 0.005, 'q': 0.05, 'title': 'Caso e', 'legend_loc': 'upper right'}
+    'd': {'r': 2, 'alpha': 0.005, 'K': 5000, 'beta': 0.5, 'q': 0.05, 'title': 'Caso d', 'legend_loc': 'lower left'}
+    # 'e': {'r': 0.1, 'alpha': 0.02, 'K': 1000, 'beta': 0.005, 'q': 0.05, 'title': 'Caso e', 'legend_loc': 'upper right'}
 }
 
 alpha_1 = 0.01
@@ -169,15 +249,23 @@ y0_values = ([1, 1], [10, 10], [20, 20], [30, 30], [40, 40])
 y0_values2 = ([1, 2], [10, 20], [20, 40], [30, 60], [40,80])
 
 def main():
-  
+    
+    graficar_soluciones_rk_varias(t0, N0, P0, tf, h, cases)
+    graficar_isoclinas_y_campo_vectorial_LVE_varias(t0, N0, P0, tf, h, cases)
+
     plano_de_fases(alpha_1, beta_1, y0_values ) # el centro de esto es el punto de equilibrio
     plano_de_fases(alpha, beta, y0_values2 )
-  
+    
+    variaciones(t0, y0, tf, h, cases['a']['r'], cases['a']['K'], cases['a']['alpha'], cases['a']['beta'], cases['a']['q'])
+    tamaño_poblacional(t0, y0, tf, h, cases['a']['r'], cases['a']['K'], cases['a']['alpha'], cases['a']['beta'], cases['a']['q'])
+    variaciones(t0, y0, tf, h, cases['c']['r'], cases['c']['K'], cases['c']['alpha'], cases['c']['beta'], cases['c']['q'])
+    
     
     for i, case in enumerate(cases.values(), start=1):
         graficar_sol_rk(t0, y0, tf, h, case['r'], case['K'], case['alpha'], case['beta'], case['q'], case['title'])
-        isoclinas_y_campo_vectorial(case['r'], case['K'], case['alpha'], case['beta'], case['q'], 'Modelo Lotka-Volterra Presa-Depredador ' + case['title'], case['legend_loc'])
-       
+        isoclinas_y_campo_vectorial_LVE(case['r'], case['K'], case['alpha'], case['beta'], case['q'], 'Modelo Lotka-Volterra Presa-Depredador ' + case['title'], case['legend_loc'])
+
      
 if __name__ == '__main__':
     main()
+

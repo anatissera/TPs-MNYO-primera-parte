@@ -192,7 +192,7 @@ def casoab(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc, punto_eq_inestab
     plt.plot(n1, isocline2, label='dN2/dt = 0', color ='limegreen', linewidth=2)
     plt.plot(isocline1, n2, label='dN1/dt = 0', color = 'firebrick', linewidth=2)
    
-    strm = plt.streamplot(VN1, VN2, dN1, dN2, color= magnitude, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+    strm = plt.streamplot(VN1, VN2, dN1, dN2, color= magnitude, linewidth=0.6, cmap='CMRmap', arrowstyle='->', arrowsize=1.3)
     plt.grid()
     
     plt.xlabel('N1', fontsize = 17)
@@ -202,7 +202,7 @@ def casoab(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc, punto_eq_inestab
 
     plt.title('Isoclinas: ' + title, fontsize = 20)
     
-    plt.legend(loc=legend_loc, fontsize=9, handlelength=0.75)
+    # plt.legend(loc=legend_loc, fontsize=9, handlelength=0.75)
     cbar = plt.colorbar(strm.lines)
     cbar.set_label(label='Magnitud del campo vectorial', fontsize=12)
     
@@ -238,7 +238,7 @@ def casocd(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc, punto_eq_inestab
     plt.plot(n1, isocline2, label='dN2/dt = 0', color ='limegreen', linewidth=2)
     plt.plot(isocline1, n2, label='dN1/dt = 0', color = 'firebrick', linewidth=2)
    
-    strm = plt.streamplot(VN1, VN2, dN1, dN2, color= magnitude, linewidth=1, cmap='CMRmap', arrowstyle='->', arrowsize=1.5)
+    strm = plt.streamplot(VN1, VN2, dN1, dN2, color= magnitude, linewidth=0.6, cmap='CMRmap', arrowstyle='->', arrowsize=1.3)
     plt.grid()
     
     plt.xlabel('N1', fontsize = 17)
@@ -248,7 +248,7 @@ def casocd(r1, r2, k1, k2, alpha12, alpha21, title, legend_loc, punto_eq_inestab
 
     plt.title('Isoclinas: ' + title, fontsize = 20)
     
-    plt.legend(loc=legend_loc, fontsize=9, handlelength=0.75)
+    # plt.legend(loc=legend_loc, fontsize=9, handlelength=0.75)
     cbar = plt.colorbar(strm.lines)
     cbar.set_label(label='Magnitud del campo vectorial', fontsize=12)
     
