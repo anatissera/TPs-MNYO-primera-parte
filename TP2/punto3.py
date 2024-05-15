@@ -271,12 +271,24 @@ y0 = [N0, P0]
 # q = 0.05  # Tasa de mortalidad per cápita de los zorros (zorros/mes)
 # K1 = 10000  # Capacidad de carga del ambiente para los conejos
 
+# caso a:
+# r>0 y q/b < K
+
+# caso b:
+# r>0 y q/b > K
+
+# caso c:
+# r<0 y q/b < K
+
+# caso d:
+# r<0 y q/b > K
+
 
 cases = {
-    'a': {'r': 1.5, 'alpha': 0.08, 'K': 1000, 'beta': 0.02, 'q': 0.15, 'title': 'Caso a', 'legend_loc': 'upper center', 'tf': 150},
-    'b': {'r': 0.1, 'alpha': 0.09, 'K': 1000, 'beta': 0.004, 'q': 0.005, 'title': 'Caso b', 'legend_loc': 'center right', 'tf': 300},
-    'c': {'r': 0.1, 'alpha': 0.005, 'K': 10000, 'beta': 0.00004, 'q': 0.05, 'title': 'Caso c', 'legend_loc': 'upper right', 'tf': 350},
-    'd': {'r': 2, 'alpha': 0.005, 'K': 5000, 'beta': 0.5, 'q': 0.05, 'title': 'Caso d', 'legend_loc': 'lower left', 'tf': 300}
+    'a': {'coef': 'r>0 y q/b < K', 'r': 1.5, 'alpha': 0.08, 'K': 1000, 'beta': 0.02, 'q': 0.15, 'title': 'Caso a', 'legend_loc': 'upper center', 'tf': 150},
+    'b': {'coef': 'r>0 y q/b > K', 'r': 0.1, 'alpha': 0.005, 'K': 1000, 'beta': 0.0004, 'q': 0.05, 'title': 'Caso b', 'legend_loc': 'center right', 'tf': 300},
+    'c': {'coef': 'r<0 y q/b < K', 'r': 0.2, 'alpha': 0.09, 'K': 10000, 'beta': 0.003, 'q': 0.005, 'title': 'Caso c', 'legend_loc': 'upper right', 'tf': 350},
+    'd': {'coef': 'r<0 y q/b > K', 'r': -2, 'alpha': 0.005, 'K': 5000, 'beta': 0.0005, 'q': 0.4, 'title': 'Caso d', 'legend_loc': 'lower left', 'tf': 300}
     # 'e': {'r': 0.1, 'alpha': 0.02, 'K': 1000, 'beta': 0.005, 'q': 0.05, 'title': 'Caso e', 'legend_loc': 'upper right'}
 }
 
@@ -292,7 +304,7 @@ def main():
     graficar_isoclinas_y_campo_vectorial_LVE_varias(t0, N0, P0, tf, h, cases)
 
     plano_de_fases(alpha_1, beta_1, y0_values ) # el centro de esto es el punto de equilibrio
-    plano_de_fases(alpha, beta, y0_values2 )
+    plano_de_fases(alpha, beta, y0_values2 ) 
     plano_de_fase(alpha_1, beta_1, [120, 50])
     
     variaciones(t0, y0, tf, h, cases['a']['r'], cases['a']['K'], cases['a']['alpha'], cases['a']['beta'], cases['a']['q'])
