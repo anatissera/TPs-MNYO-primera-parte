@@ -59,28 +59,38 @@ def isoclinas_y_campo_vectorial(r, alpha, beta, q, title, lim, puntos_iniciales,
     if to_graph:
         plt.figure()
     
-    for punto in puntos_iniciales:
-        _, y_values = runge_kutta4_system(lotka_volterra, 0, punto, tf, h, r, r, alpha, beta, q)
-        plt.plot(y_values[:, 0], y_values[:, 1], color = 'darkslategray')
-        
-    plt.axhline(y= isocline_n, color='limegreen')
-    plt.axvline(x=isocline_p, color='firebrick')
+    
+    plt.axhline(y= isocline_n, color='limegreen', label='dn/dt = 0 (isoclina de N)')
+    plt.axvline(x=isocline_p, color='firebrick', label='dp/dt = 0 (isoclina de P)')
     
     punto_eq = punto_equilibrio(r, alpha, beta, q)
+    
+    if beta == 0.0009 and q == 0.4:
+        punto_eq = [444.4, 20]
+        
     if punto_eq[0] == 0 and punto_eq[1] == 0:
         punto_eq = punto_equilibrio(r, alpha, beta, q, [800, -400])
     
     if punto_eq[0] == 0 and punto_eq[1] == 0:
         punto_eq = punto_equilibrio(r, alpha, beta, q, [1.5, 2.5])
     
- 
-        
     plt.plot(punto_eq[0], punto_eq[1], 'o', color='teal', markersize=10, label='Punto de equilibrio')
     
+    p0_plotted = False  # Variable para verificar si p0 ya se ha trazado en el legend
+    
+    plt.plot([], [], color='darkslategray', label='Aproximación de (N1(t), N2(t)) con RK4 desde distintos p0')
+    
+    for punto in puntos_iniciales:
+        _, y_values = runge_kutta4_system(lotka_volterra, 0, punto, tf, h, r, r, alpha, beta, q)
+        plt.plot(y_values[:, 0], y_values[:, 1], color = 'darkslategray')
+        if not p0_plotted:  # Verificar si p0 ya se ha trazado
+            plt.plot(punto[0], punto[1], 'o', color='darkslategray', markersize=5, label="p0's")
+            p0_plotted = True
+        else:
+            plt.plot(punto[0], punto[1], 'o', color='darkslategray', markersize=5)
+            
     plt.streamplot(N, P, dN, dP, color=magnitude, linewidth=0.5, cmap='CMRmap', arrowstyle='->', arrowsize=0.8)
-    
-    plt.plot([], [], color='darkslategray', label='Aproximación de (N1(t), N2(t)) \ncon RK4 desde distintos p0')
-    
+  
     plt.grid()
     
     plt.xlabel('Población de Presas (N)', fontsize=13)
@@ -89,7 +99,7 @@ def isoclinas_y_campo_vectorial(r, alpha, beta, q, title, lim, puntos_iniciales,
     plt.ylim(lim[0][0], lim[0][1])
     plt.xlim(lim[1][0], lim[1][1])
     
-    # plt.legend(fontsize=10, handlelength=0.75)
+    # plt.legend(handlelength=0.75)
     
     if to_graph:
         plt.show()
@@ -107,7 +117,7 @@ def isoclinas_y_campo_vectorial_varias( cases, LVE = False):
     plt.subplots_adjust(wspace=0.4, hspace=0.4)
     plt.show()
 
-def isoclinas_y_campo_vectorial_LVE(r, K, alpha, beta, q, title, lim, puntos_iniciales, to_graph = True):
+def isoclinas_y_campo_vectorial_LVE(r, K, alpha, beta, q, title, coef, lim, puntos_iniciales, to_graph = True):
     
     N = np.linspace(0, K, 100)
     P = np.linspace(0, K, 100)
@@ -130,13 +140,14 @@ def isoclinas_y_campo_vectorial_LVE(r, K, alpha, beta, q, title, lim, puntos_ini
     for punto in puntos_iniciales:
         _, y_values = runge_kutta4_system(lotka_volterra_LVE, 0, punto, tf, h, r, r, K, alpha, beta, q)
         plt.plot(y_values[:, 0], y_values[:, 1], color = 'darkslategray')
+        plt.plot(punto[0], punto[1], 'o', color='darkslategray', markersize=5)
         
     plt.plot(N, isocline_n, color='limegreen')
     plt.axvline(x=isocline_p, color='firebrick')
     punto_eq = punto_equilibrio_LVE(r, K, alpha, beta, q)
         
     plt.plot(punto_eq[0], punto_eq[1], 'o', color='teal', markersize=10, label='Punto de equilibrio')
-    
+    print(punto_eq)
     # plt.streamplot(N, P, dN, dP, color=magnitude, linewidth=0.5, cmap='CMRmap', arrowstyle='->', arrowsize=0.8)
     
     plt.plot([], [], color='darkslategray', label='Aproximación de (N1(t), N2(t)) \ncon RK4 desde distintos p0')
@@ -146,11 +157,11 @@ def isoclinas_y_campo_vectorial_LVE(r, K, alpha, beta, q, title, lim, puntos_ini
     
     plt.xlabel('Población de Presas (N)', fontsize=13)
     plt.ylabel('Población de predadores (P)', fontsize=13)
-    plt.title(title, fontsize=20)
+    plt.title(title + ': ' + coef, fontsize=20)
     plt.ylim(lim[0][0], lim[0][1])
     plt.xlim(lim[1][0], lim[1][1])
     
-    plt.legend(fontsize=8, handlelength=0.75)
+    # plt.legend(fontsize=8, handlelength=0.75)
     # cbar = plt.colorbar(strm.lines)
     # cbar.set_label(label='Magnitud del campo vectorial', fontsize=12)
     
@@ -161,8 +172,8 @@ def isoclinas_y_campo_vectorial_LVE_varias(cases, LVE = False):
     plt.figure(figsize=(10, 10))
 
     for i, case in enumerate(cases.values(), start=1):
-        plt.subplot(1, 2, i)
-        isoclinas_y_campo_vectorial_LVE(case['r'], case['K'], case['alpha'], case['beta'], case['q'], case['title'], case['lim'], case['puntos_iniciales'], False)
+        plt.subplot(2, 2, i)
+        isoclinas_y_campo_vectorial_LVE(case['r'], case['K'], case['alpha'], case['beta'], case['q'], case['title'], case['coef'] ,case['lim'], case['puntos_iniciales'], False)
         if i == 2:
             break
         
@@ -403,8 +414,8 @@ y0 = [N0, P0]
 
 
 cases = {
-    'a': {'coef': 'r>0 y q/b < K', 'r': 1.5, 'alpha': 0.08, 'K': 100, 'beta': 0.02, 'q': 0.15, 'title': 'Caso a', 'legend_loc': 'upper center', 'tf': 150, 'lim': [[-5, 100], [0, 150]] , 'puntos_iniciales': [[100, 4], [100, 38], [100, 72.2]]},
-    'b': {'coef': 'r>0 y q/b > K', 'r': 0.1, 'alpha': 0.005, 'K': 500, 'beta': 0.0004, 'q': 0.05, 'title': 'Caso b', 'legend_loc': 'center right', 'tf': 300, 'lim': [[0, 100], [0, 500]], 'puntos_iniciales': [ [497, 18.1], [498.2, 51.3], [500, 85.9]]},
+    'a': {'coef': 'r>0 y q/b < K', 'r': 1.5, 'alpha': 0.08, 'K': 100, 'beta': 0.02, 'q': 0.15, 'title': 'Caso a', 'legend_loc': 'upper center', 'tf': 150, 'lim': [[-5, 100], [0, 150]] , 'puntos_iniciales': [[26.1, 24.4], [78, 26], [95.4, 38.9], [71.3, 81.6]]},
+    'b': {'coef': 'r>0 y q/b > K', 'r': 0.1, 'alpha': 0.005, 'K': 400, 'beta': 0.0009, 'q': 0.4, 'title': 'Caso b', 'legend_loc': 'center right', 'tf': 200, 'lim': [[-15, 150], [0, 900]], 'puntos_iniciales': [ [655, 128.4], [720, 58], [788, 91.8], [527, 3], [119, 143.2], [750, 20]]},
     'c': {'coef': 'r<0 y q/b < K', 'r': 0.2, 'alpha': 0.09, 'K': 1000, 'beta': 0.003, 'q': 0.005, 'title': 'Caso c', 'legend_loc': 'upper right', 'tf': 350, 'lim':[[-30, 50], [-20, 100]], 'puntos_iniciales': [[53.5, 27.7], [50.5, -18.9], [-15.6, 33.3], [-13.5, -20.3], [11.6, -7.9], [18.5, 14.6]]},
     'd': {'coef': 'r<0 y q/b > K', 'r': -2, 'alpha': 0.005, 'K': 5000, 'beta': 0.0005, 'q': 0.4, 'title': 'Caso d', 'legend_loc': 'lower left', 'tf': 50, 'lim': [[-500, 50], [-10, 900] ], 'puntos_iniciales': [[877, -257], [270, -119], [495, -462], [869, -473], [708, -356], [836, -348], [433, -99], [752, -342]] }
 }
