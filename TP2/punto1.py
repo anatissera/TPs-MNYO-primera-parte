@@ -1,26 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# introducción, el código de rk4 y euler. 
-# método elegido, el h que eleigmos y por qué
-
-
-# definiciones de consigna
-# N(t) =
 
 def exponential_solution(t, N0, r):
-    """
-    Calcula la solución exponencial de la ecuación diferencial de crecimiento poblacional.
-
-    Parámetros:
-    t: arreglo unidimensional de tiempo
-    N0: población inicial en t=0
-    r: tasa de crecimiento intrínseca de la población
-   
-
-    Retorna:
-    N: arreglo unidimensional de tamaño poblacional en cada instante de tiempo t
-    """
     return N0 * np.exp(r * t)
 
 def exponential_dNdt(N0, r):
@@ -28,13 +10,8 @@ def exponential_dNdt(N0, r):
     return dNdt
 
 def logistic_solution(t, N0, r, K):
-    """
-    Mismo que exponencial pero calcula la solución logística
-    Nuevo parámetro:
-    K: capacidad de carga de la población 
-    """
     exponent = -r * t
-    return K / (1 + (K / N0 - 1) * np.exp(exponent)) #sol chequeada en internet
+    return K / (1 + (K / N0 - 1) * np.exp(exponent))
 
 def logistic_dNdt(N0, r, K):
     dNdt = r * N0 * (1-N0/K)
@@ -75,39 +52,7 @@ def runge_kutta_4(f, t_span, y0, N):
 
     return t_values[:-1], y_values[:-1]   # el [:-1] es para que ambos tengan la misma dimensión
 
-# consigna
-# 1. Obtener la solución exacta de la ecuación logística y la ecuación exponencial. 
-# 2. Con métodos de Euler y Runge-Kutta de orden 4 para aproximar las soluciones de ambas ecuaciones. 
-# 3. Graficar el tamaño poblacional en función del tiempo y la variación poblacional en función del 
-# tamaño poblacional para ambos modelos, utilizando diferentes valores de los parámetros 𝑁0, 𝑟 y 𝐾 
-# 4. Comparar las soluciones numéricas con las soluciones exactas (error).
-
-
-# ¿Qué es K?  La forma más simple de f(N) es la linea recta. Cuando la densidad poblacional es baja, 
-# la tasa de crecimiento per cápita es similar a r (tasa intrínseca de crecimiento). 
-# Pero cercanos a un determinado tamaño poblacional, f(N) se hace 0 y no hay más crecimiento poblacional. 
-# Esta tamaño poblacional se llama capacidad de carga de la población y se nota como K.
-
-# Propiedades
-
-# 1) La tasa de crecimiento per cápita no es aquí constante, sino que disminuye con la densidad 
-# dN/dt 1/N= r(K-N)/N.
-
-# 2) La curva logística difiere de la curva geométrica en dos puntos: 
-# tiene una asíntota superior, y se acerca a esta asíntota suavemente, no bruscamente.
-
-# 3) La curva predice un equilibrio dinámico estable de la población cuando N=K.
-
-# 4) Hay dos atributos de la curva logística que la hacen muy atractiva: 
-# su simplicidad matemática, y su aparente realidad. Sólo contiene dos constantes, K y r.
-
-# 5) La curva es simétrica respecto a su punto central= K/2.
-
-
-# hacer gráfico que demuestre qué son los parámetros. cambio k, la población max va a ser distinto. 
 # en un eje un parámetro k y en el otro cómo cambia la población
-# diagrama de Fases
-
 
 def calculate_exact_solutions(t, N0, r, K):
     N_exact_logistic = logistic_solution(t, N0, r, K)
@@ -145,7 +90,7 @@ def plot_solutions_exact_varios(variables):
         
         plt.xlabel('Tiempo')
         plt.ylabel('Tamaño Poblacional (N)')
-        plt.legend()
+        plt.legend(fontsize=5.5, handlelength=0.8)
         plt.grid(True)
     
     for i, (title, casos) in enumerate(variables.items(), start=4):
@@ -159,7 +104,7 @@ def plot_solutions_exact_varios(variables):
         
         plt.xlabel('Tiempo')
         plt.ylabel('Tamaño Poblacional (N)')
-        plt.legend()
+        plt.legend(fontsize = 5.5, handlelength=0.8)
         plt.grid(True)
     
     plt.subplots_adjust(hspace=0.8)
@@ -185,43 +130,47 @@ def plot_solutions_exact_pares(casos, title):
         plt.title('Solución Logística', fontsize=15)
     
         t = np.linspace(0, caso['time'], 1000)
+        texp = np.linspace(0, 25, 1000)
         N_exact_logistic, N_exact_exponential = calculate_exact_solutions(t, caso['N0'], caso['r'], caso['K'])
         plt.plot(t, N_exact_logistic, label=label_t)
     
         plt.xlabel('Tiempo', fontsize=13)
         plt.ylabel('Tamaño Poblacional (N)', fontsize=13)
-        plt.legend(fontsize = 13)
+        # plt.legend()
         plt.grid(True)
         
-        plt.subplot(2, 2, 2)
-        plt.title('Solución Exponencial', fontsize=15)
         
-        plt.plot(t, N_exact_exponential, label=label_t)
-    
-        plt.xlabel('Tiempo', fontsize=13)
-        plt.ylabel('Tamaño Poblacional (N)', fontsize=13)
-        plt.legend(fontsize = 13)
-        plt.grid(True)
+        if title != 'K':
+            plt.subplot(2, 2, 2)
+            plt.title('Solución Exponencial', fontsize=15)
+            
+            plt.plot(texp, N_exact_exponential, label=label_t)
+        
+            plt.xlabel('Tiempo', fontsize=13)
+            plt.ylabel('Tamaño Poblacional (N)', fontsize=13)
+            plt.legend(fontsize = 11.5, handlelength=0.8, loc = 'upper left')
+            plt.grid(True)
 
         plt.subplot(2, 2, 3)
         plt.title('Variación Logística', fontsize=15)
-        dN_exact_logistic = logistic_dNdt(N_exact_logistic, h, caso['K'])
+        dN_exact_logistic = logistic_dNdt(N_exact_logistic, caso['r'], caso['K'])
         plt.plot(N_exact_logistic, dN_exact_logistic, label=label_t)
          
         plt.xlabel('Tamaño Poblacional (N)', fontsize=12)
         plt.ylabel('Variación Poblacional (dN/dt)', fontsize=12)
-        plt.legend(fontsize = 13)
+        # plt.legend(fontsize = 12, handlelength=1, loc = 'upper left')
         plt.grid(True)
         
-        plt.subplot(2, 2, 4)
-        plt.title('Variación Exponencial', fontsize=15)
-        dN_exact_exponential = exponential_dNdt(N_exact_exponential, h)
-        plt.plot(N_exact_exponential, dN_exact_exponential, label=label_t)
-        
-        plt.xlabel('Tamaño Poblacional (N)', fontsize=12)
-        plt.ylabel('Variación Poblacional (dN/dt)', fontsize=12)
-        plt.legend(fontsize = 13)
-        plt.grid(True)
+        if title != 'K':
+            plt.subplot(2, 2, 4)
+            plt.title('Variación Exponencial', fontsize=15)
+            dN_exact_exponential = exponential_dNdt(N_exact_exponential, h)
+            plt.plot(N_exact_exponential, dN_exact_exponential, label=label_t)
+            
+            plt.xlabel('Tamaño Poblacional (N)', fontsize=12)
+            plt.ylabel('Variación Poblacional (dN/dt)', fontsize=12)
+            # plt.legend(fontsize = 13)
+            plt.grid(True)
     
     
     plt.suptitle(f"varío {title}  -  {label_generic}", fontsize=18)
@@ -229,7 +178,7 @@ def plot_solutions_exact_pares(casos, title):
 
     plt.show()
 
-    
+
 def plot_population_variation_exact(variables):
     plt.figure(figsize=(12, 10))  
     
@@ -382,9 +331,9 @@ K_values = [100, 200, 100000]
 t1 = np.linspace(0, 200, 1000)
 t2 = np.linspace(0, 250, 1000)
 
-variables = { 'K': [{'N0': 10, 'r': 0.1, 'K': 100, 'time': 90, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 150, 'time': 90, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 300, 'time': 90, 'space': 1000} ], 
-             'N0': [{'N0': 10, 'r': 0.1, 'K': 150, 'time': 100, 'space': 1000}, {'N0': 50, 'r': 0.1, 'K': 150, 'time': 100, 'space': 1000}, {'N0': 100, 'r': 0.1, 'K': 150, 'time': 100, 'space': 1000}], 
-             'r': [{'N0': 50, 'r': -0.2, 'K': 150, 'time': 25, 'space': 1000}, {'N0': 50, 'r': 0.5, 'K': 150, 'time': 25, 'space': 1000}, {'N0': 50, 'r': 1, 'K': 150, 'time': 25, 'space': 1000}]
+variables = { 'K': [{'N0': 10, 'r': 0.1, 'K': 0, 'time': 95, 'space': 1000},{'N0': 10, 'r': 0.1, 'K': 30, 'time': 95, 'space': 1000},{'N0': 10, 'r': 0.1, 'K': 100, 'time': 95, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 150, 'time': 95, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 300, 'time': 95, 'space': 1000}, {'N0': 10, 'r': 0.1, 'K': 500, 'time': 95, 'space': 1000}], 
+             'N0': [{'N0': 10, 'r': 0.1, 'K': 150, 'time': 100, 'space': 1000}, {'N0': 50, 'r': 0.1, 'K': 150, 'time': 100, 'space': 1000}, {'N0': 100, 'r': 0.1, 'K': 150, 'time': 100, 'space': 1000}, {'N0': 125, 'r': 0.1, 'K': 150, 'time': 100, 'space': 1000}, {'N0': 150, 'r': 0.1, 'K': 150, 'time': 95, 'space': 1000},{'N0': 200, 'r': 0.1, 'K': 150, 'time': 100, 'space': 1000}], 
+             'r': [{'N0': 50, 'r': -0.4, 'K': 150, 'time': 55, 'space': 1000}, {'N0': 50, 'r': -0.2, 'K': 150, 'time': 55, 'space': 1000}, {'N0': 50, 'r': 0, 'K': 150, 'time': 55, 'space': 1000}, {'N0': 50, 'r': 0.1, 'K': 150, 'time': 55, 'space': 1000},{'N0': 50, 'r': 0.5, 'K': 150, 'time': 55, 'space': 1000}, {'N0': 50, 'r': 1, 'K': 150, 'time': 55, 'space': 1000},{'N0': 50, 'r': 1.5, 'K': 150, 'time': 55, 'space': 1000},]
              }
 
 def main():
@@ -399,9 +348,6 @@ def main():
     plot_solutions_numerical(t1, N0, h, K_values[2], 200, 1000, 'Soluciones Numéricas')
     plot_error_relativo(t1, N0, h, K_values[2], 200, 1000)
     plot_error_abs(t1, N0, h, K_values[2], 200, 1000)
-
-    # plot_population_variation(t2, N0, h, K_values[2], 'Variación Exponencial')
-    # plot_population_variation(t2, N0, h, K_values[2], 'Variación Logística')
     
 if __name__ == '__main__':
     main()

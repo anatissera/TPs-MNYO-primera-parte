@@ -1,10 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
-import math
 
 from punto2 import runge_kutta4_system
-from scipy.integrate import odeint
 
 
 def dN_dt_LVE (N, P, r, alpha, K):
@@ -26,19 +24,14 @@ def lotka_volterra(t, y0, r1, r2, alpha, beta, q):
 
 
 def punto_equilibrio_LVE(r, K, alpha, beta, q):
-    # Para encontrar los puntos de equilibrio, primero igualamos las derivadas a cero y resolvemos para N y P.
-    # Busco donde dN/dt = 0 y dP/dt = 0
-    
-    # x[0] = N, x[1] = P
     def f(x):
         return [r * x[0] * (1 - x[0] / K ) - alpha * x[0] * x[1], beta * x[0] * x[1] - q * x[1]]
     
-    return fsolve(f, [20, 20]) # punto de convergencia
+    return fsolve(f, [20, 20])
 
 def punto_equilibrio(r, alpha, beta, q, punto = [100, 200]):
     def f(x):
         return [r * x[0] - alpha * x[0] * x[1], beta * x[0] * x[1] - q * x[1]]
-    
     return fsolve(f, punto)
 
 def isoclinas_y_campo_vectorial(r, alpha, beta, q, title, lim, puntos_iniciales, to_graph = True):
@@ -76,14 +69,14 @@ def isoclinas_y_campo_vectorial(r, alpha, beta, q, title, lim, puntos_iniciales,
     
     plt.plot(punto_eq[0], punto_eq[1], 'o', color='teal', markersize=10, label='Punto de equilibrio')
     
-    p0_plotted = False  # Variable para verificar si p0 ya se ha trazado en el legend
-    
+    p0_plotted = False 
+
     plt.plot([], [], color='darkslategray', label='Aproximación de (N1(t), N2(t)) con RK4 desde distintos p0')
     
     for punto in puntos_iniciales:
         _, y_values = runge_kutta4_system(lotka_volterra, 0, punto, tf, h, r, r, alpha, beta, q)
         plt.plot(y_values[:, 0], y_values[:, 1], color = 'darkslategray')
-        if not p0_plotted:  # Verificar si p0 ya se ha trazado
+        if not p0_plotted: 
             plt.plot(punto[0], punto[1], 'o', color='darkslategray', markersize=5, label="p0's")
             p0_plotted = True
         else:
@@ -99,12 +92,12 @@ def isoclinas_y_campo_vectorial(r, alpha, beta, q, title, lim, puntos_iniciales,
     plt.ylim(lim[0][0], lim[0][1])
     plt.xlim(lim[1][0], lim[1][1])
     
-    # plt.legend(handlelength=0.75)
+    plt.legend(handlelength=0.75, fontsize = 6)
     
     if to_graph:
         plt.show()
         
-def isoclinas_y_campo_vectorial_varias( cases, LVE = False):
+def isoclinas_y_campo_vectorial_varias(cases, LVE = False):
     plt.figure(figsize=(10, 10))
 
     for i, case in enumerate(cases.values(), start=1):
@@ -128,9 +121,7 @@ def isoclinas_y_campo_vectorial_LVE(r, K, alpha, beta, q, title, coef, lim, punt
     VN, VP = np.meshgrid(N, P)
     
     dN = dN_dt_LVE(VN, VP, r, alpha, K)
-    # r * VN * (1 - VN / K) - alpha * VN * VP
     dP = dP_dt(VN, VP, beta, q)
-    # beta * VN * VP - q * VP
     
     magnitude = np.sqrt(dN**2 + dP**2)
     
@@ -148,8 +139,7 @@ def isoclinas_y_campo_vectorial_LVE(r, K, alpha, beta, q, title, coef, lim, punt
         
     plt.plot(punto_eq[0], punto_eq[1], 'o', color='teal', markersize=10, label='Punto de equilibrio')
     print(punto_eq)
-    # plt.streamplot(N, P, dN, dP, color=magnitude, linewidth=0.5, cmap='CMRmap', arrowstyle='->', arrowsize=0.8)
-    
+
     plt.plot([], [], color='darkslategray', label='Aproximación de (N1(t), N2(t)) \ncon RK4 desde distintos p0')
        
     strm = plt.streamplot(VN, VP, dN, dP, color=magnitude, linewidth=0.3, cmap='CMRmap', arrowstyle='->', arrowsize=0.8)
@@ -161,7 +151,7 @@ def isoclinas_y_campo_vectorial_LVE(r, K, alpha, beta, q, title, coef, lim, punt
     plt.ylim(lim[0][0], lim[0][1])
     plt.xlim(lim[1][0], lim[1][1])
     
-    # plt.legend(fontsize=8, handlelength=0.75)
+    plt.legend(fontsize=8, handlelength=0.75)
     # cbar = plt.colorbar(strm.lines)
     # cbar.set_label(label='Magnitud del campo vectorial', fontsize=12)
     
@@ -219,8 +209,6 @@ def graficar_sol_rk (t0, y0, tf, h, r, K, alpha, beta, q, title):
     plt.grid(True)
     plt.show()
 
-
-# falta graficar las variaciones dN/dt y dP/dt en función del tiempo
 def variaciones( t0, y0, tf, h, r, K, alpha, beta, q, to_graph = True, LVE = False):
     
     if to_graph:
@@ -270,11 +258,9 @@ def dos_variaciones(t0, y0, tf, h, cases):
     plt.suptitle('Variación de las poblaciones de presas y depredadores: caso a', fontsize = 20)
     plt.show()
 
-# graficar el tamaño poblacional de las presas y depredadores en función del tiempo
 def tamaño_poblacional(t0, y0, tf, h, r, K, alpha, beta, q):   
     t_values, y_values_LVE = runge_kutta4_system(lotka_volterra_LVE, t0, y0, tf, h, r, r, K, alpha, beta, q)
     t_values, y_values = runge_kutta4_system(lotka_volterra, t0, y0, tf, h, r, r, alpha, beta, q)
-    
 
     N_values_LVE = y_values_LVE[:, 0]
     P_values_LVE = y_values_LVE[:, 1]
@@ -301,8 +287,8 @@ def tamaño_poblacional(t0, y0, tf, h, r, K, alpha, beta, q):
     plt.grid(True)
     plt.show()
  
-def lotka_q_r_K_constant(t, y, alpha, beta): # r, q = 1, K = infinito
-    yp = (1 - alpha * y[1]) * y[0] # r * (1 - N / K) está siendo = 1
+def lotka_q_r_K_constant(t, y, alpha, beta): 
+    yp = (1 - alpha * y[1]) * y[0]
     yp = np.append(yp, (-1 + beta * y[0]) * y[1]) # q = 1
     return yp
 
@@ -355,7 +341,6 @@ def plano_de_fases_LVE(y0, alpha, beta, r, q, K):
     
     plt.plot([], [], color='lightsalmon', label=f"α = {alpha}, β = {beta}, \nr = {r}, q = {q}, K = {K}")
      
-     
     plt.title('Diagrama de Fases LVE', fontsize=20)
     plt.xlabel('Población de Presas (N)', fontsize=18)
     plt.ylabel('Población de Predadores (P)', fontsize=18)
@@ -384,7 +369,7 @@ def plano_de_fase (alpha, beta, y0):
     plt.ylabel('Población de Predadores (P)', fontsize=18)
     
     plt.title('Trayectoria de Fase', fontsize=22)
-    plt.legend(fontsize=14)
+    plt.legend(fontsize=10)
     plt.show()
  
 h = 0.1
@@ -427,14 +412,15 @@ y0_values = ([1, 1], [10, 10], [20, 20], [30, 30], [40, 40])
 y0_values2 = ([2, 1], [20, 10], [40, 20], [60, 30], [80,40])
 
 def main():
-    isoclinas_y_campo_vectorial_varias(cases)
-    graficar_soluciones_rk_varias(t0, N0, P0, h, cases)
-    isoclinas_y_campo_vectorial_LVE_varias(cases)
    
+    graficar_soluciones_rk_varias(t0, N0, P0, h, cases)
 
-    plano_de_fases(alpha_1, beta_1, y0_values ) # el centro de esto es el punto de equilibrio
+    plano_de_fases(alpha_1, beta_1, y0_values ) 
     plano_de_fase(alpha_1, beta_1, [120, 50])
     plano_de_fases_LVE(y0,  cases['a']['alpha'], cases['a']['beta'], cases['a']['r'], cases['a']['q'], cases['a']['K'])
+    
+    isoclinas_y_campo_vectorial_varias(cases)
+    isoclinas_y_campo_vectorial_LVE_varias(cases)
     
     tamaño_poblacional(t0, y0, tf, h, cases['a']['r'], cases['a']['K'], cases['a']['alpha'], cases['a']['beta'], cases['a']['q'])
     
