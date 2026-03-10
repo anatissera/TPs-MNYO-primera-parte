@@ -6,7 +6,7 @@ Este trabajo analiza el rendimiento de diversos esquemas de interpolación al ig
 
 Luego, teniendo en cuenta estas conclusiones, utilizamos este método para reconstruir las trayectorias dadas y escribimos un algoritmo de Newton-Raphson para hallar soluciones de sistemas no lineales.
 
-Desarrollo y conclusiones en MNYO-TP1.pdf
+Desarrollo y conclusiones en [MNYO-TP1.pdf](TP1/MNYO-TP1.pdf)
 
 ### Trabajo Práctico 2: Modelos de dinámica poblacional
 
@@ -17,4 +17,4 @@ Para abordar estos modelos, se llevan a cabo experimentos numéricos con el fin 
 Adicionalmente, se utilizan diagramas de isoclinas para determinar las distintas dinámicas de los diferentes modelos, lo que permite plantear diversos casos según su comportamiento. En cada uno se analizan asimismo los puntos de equilibrio y las trayectorias de las poblaciones en relación con diversas condiciones iniciales y parámetros del modelo para poder determinar la estabilidad de cada uno.
 De esta manera, el informe ofrece una perspectiva detallada sobre varios modelos de crecimiento y competencia poblacional, explorando su comportamiento mediante experimentos numéricos y evaluando su capacidad predictiva en distintos contextos.
 
-Desarrollo en MNYO-TP2.pdf
+Desarrollo en [MNYO-TP2.pdf](TP2/MNYO-TP2.pdf)
